@@ -4,26 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Ruang Rapat - RSUD dr. R. Koesma</title>
-    <!-- Menambahkan Font Poppins untuk Estetika Header -->
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
     <style>
         :root {
-            /* Palette Warna Ceria & Estetik */
-            --primary-color: #4f46e5; 
+            /* Palette Warna Utama */
+            --primary-color: #4f46e5; /* Indigo */
             --primary-hover: #4338ca;
-            --secondary-color: #ec4899;
+            --secondary-color: #ec4899; /* Pink */
             
             /* Status Colors */
-            --status-approved-bg: #d1fae5; --status-approved-text: #065f46; 
-            --status-pending-bg: #fef3c7; --status-pending-text: #92400e; 
+            --status-approved-bg: #dcfce7; --status-approved-text: #166534; 
+            --status-pending-bg: #fef9c3; --status-pending-text: #854d0e; 
             --status-rejected-bg: #fee2e2; --status-rejected-text: #991b1b; 
             
-            /* Backgrounds & Text */
-            --glass-bg: rgba(255, 255, 255, 0.85); /* Kartu Putih Sangat Opaque agar tulisan terbaca */
-            --glass-border: rgba(255, 255, 255, 0.9);
-            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+            /* Glassmorphism Variables */
+            /* Background kartu dibuat putih transparan (0.8) agar teks tetap kontras */
+            --glass-bg: rgba(255, 255, 255, 0.82); 
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-blur: 20px;
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
             
             --text-main: #1f2937; 
             --text-muted: #6b7280;
@@ -36,41 +43,43 @@
             min-height: 100vh; 
             color: var(--text-main); 
             transition: background 0.5s ease;
-            background-color: #f3f4f6; /* Fallback color */
-        }
-
-        /* Background User: Default Gradient Ceria */
-        .user-view-bg { 
+            background-color: #f3f4f6;
+            
+            /* Default Gradient sebelum ada gambar */
             background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
             background-attachment: fixed;
             background-size: cover;
             background-position: center;
         }
 
-        /* Background Admin: Bersih */
-        .admin-view-bg { 
-            background-color: #f1f5f9; 
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
         .container { max-width: 1200px; margin: auto; padding: 10px; }
 
-        h1, h2, h3 { font-family: 'Poppins', sans-serif; margin: 0; }
+        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; margin: 0; }
         
+        /* Header Style dengan Text Shadow agar terbaca di background apapun */
         header { text-align: center; margin-bottom: 2.5rem; }
-        /* Shadow teks header agar terbaca di background foto gelap/terang */
-        header h1 { font-size: 2.2rem; color: #1e1b4b; text-shadow: 2px 2px 4px rgba(255,255,255,0.8); margin-bottom: 0.5rem; }
-        header p { font-size: 1rem; color: #1e1b4b; font-weight: 600; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
+        header h1 { 
+            font-size: 2.4rem; 
+            color: #1e1b4b; 
+            text-shadow: 0 2px 10px rgba(255,255,255,0.7); 
+            margin-bottom: 0.5rem; 
+        }
+        header p { 
+            font-size: 1.1rem; 
+            color: #1e1b4b; 
+            font-weight: 600; 
+            text-shadow: 0 1px 5px rgba(255,255,255,0.7);
+            opacity: 0.9;
+        }
 
         .user-content { display: flex; flex-direction: column; gap: 2rem; }
 
-        /* Estetika Kartu (Glassmorphism High Contrast) */
+        /* --- GLASS CARD STYLE --- */
         .glass-card { 
             background: var(--glass-bg); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border-radius: 20px; 
+            backdrop-filter: blur(var(--glass-blur)); 
+            -webkit-backdrop-filter: blur(var(--glass-blur)); 
+            border-radius: 24px; 
             border: 1px solid var(--glass-border); 
             padding: 2rem; 
             box-shadow: var(--card-shadow); 
@@ -78,84 +87,112 @@
 
         .card-header { 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+            border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
         }
-        .card-header h2 { color: var(--primary-color); font-size: 1.5rem; font-weight: 600; }
+        .card-header h2 { color: var(--primary-color); font-size: 1.6rem; font-weight: 700; }
 
+        /* Tombol Refresh */
         .btn-refresh { 
-            background: white; border: 1px solid var(--primary-color); color: var(--primary-color); 
-            padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; 
+            background: rgba(255,255,255,0.9); border: 2px solid var(--primary-color); color: var(--primary-color); 
+            padding: 0.5rem 1.2rem; border-radius: 50px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .btn-refresh:hover { background: var(--primary-color); color: white; transform: translateY(-2px); }
+        .btn-refresh:hover { background: var(--primary-color); color: white; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(79, 70, 229, 0.2); }
 
+        /* Form Styling */
         .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.95rem; }
         .form-group input, .form-group select, .form-group textarea { 
-            width: 100%; padding: 0.85rem; border-radius: 12px; border: 1px solid #d1d5db; 
-            background-color: #ffffff; color: var(--text-main); font-size: 1rem; font-family: 'Inter', sans-serif; box-sizing: border-box; 
+            width: 100%; padding: 0.9rem; border-radius: 16px; border: 1px solid #d1d5db; 
+            background-color: rgba(255,255,255,0.9); /* Slightly transparent input bg */
+            color: var(--text-main); font-size: 1rem; font-family: 'Inter', sans-serif; box-sizing: border-box; 
+            transition: all 0.2s;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
-            outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
         }
 
         .btn-submit { 
-            width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 600; color: white; 
-            background: linear-gradient(135deg, var(--primary-color), #818cf8); border: none; border-radius: 12px; 
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+            width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 700; color: white; 
+            background: linear-gradient(135deg, var(--primary-color), #818cf8); border: none; border-radius: 16px; 
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+            margin-top: 1rem;
         }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); }
         .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
+        /* Schedule Styling */
         .schedule-rooms { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
         .room-column { 
-            background: #ffffff; border-radius: 16px; padding: 1.25rem; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6;
+            background: rgba(255,255,255,0.7); /* Semi-transparent column */
+            backdrop-filter: blur(10px);
+            border-radius: 20px; padding: 1.25rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid rgba(255,255,255,0.5);
         }
-        .room-column h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-main); text-align: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; }
+        .room-column h3 { 
+            margin-top: 0; margin-bottom: 1rem; color: var(--primary-color); text-align: center; 
+            border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 0.8rem; font-weight: 700;
+        }
 
         .booking-item { 
-            background: #ffffff; padding: 1rem; border-radius: 10px; margin-bottom: 0.75rem; font-size: 0.9rem; border: 1px solid #e5e7eb; transition: transform 0.2s;
+            background: white; padding: 1.2rem; border-radius: 14px; margin-bottom: 1rem; 
+            font-size: 0.9rem; border: 1px solid #f3f4f6; transition: transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
-        .booking-item:hover { transform: scale(1.02); }
-        .booking-item.status-disetujui { border-left: 5px solid #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
-        .booking-item.status-belum-disetujui { border-left: 5px solid #f59e0b; background: linear-gradient(to right, #fffbeb, #fff); }
-        .booking-item.status-ditolak { border-left: 5px solid #ef4444; background: linear-gradient(to right, #fef2f2, #fff); opacity: 0.8; }
-        .booking-item .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; float: right; }
+        .booking-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        
+        .booking-item.status-disetujui { border-left: 5px solid #166534; background: linear-gradient(to right, #f0fdf4, #fff); }
+        .booking-item.status-belum-disetujui { border-left: 5px solid #ca8a04; background: linear-gradient(to right, #fefce8, #fff); }
+        .booking-item.status-ditolak { border-left: 5px solid #991b1b; background: linear-gradient(to right, #fef2f2, #fff); opacity: 0.75; }
+        
+        .booking-item .status { display: inline-block; padding: 0.35rem 0.85rem; border-radius: 50px; font-size: 0.75rem; font-weight: 800; margin-top: 0.8rem; float: right; letter-spacing: 0.5px; text-transform: uppercase;}
         .status-disetujui .status { background: var(--status-approved-bg); color: var(--status-approved-text); }
         .status-belum-disetujui .status { background: var(--status-pending-bg); color: var(--status-pending-text); }
         .status-ditolak .status { background: var(--status-rejected-bg); color: var(--status-rejected-text); }
-        .booking-item .keperluan { font-weight: 700; color: #111827; font-size: 1rem; margin-bottom: 0.25rem; }
-        .booking-item .peminjam { color: #4b5563; font-style: italic; margin-bottom: 0.5rem; }
+        
+        .booking-item .keperluan { font-weight: 700; color: #111827; font-size: 1.05rem; margin-bottom: 0.4rem; line-height: 1.4; }
+        .booking-item .peminjam { color: #4b5563; font-style: italic; margin-bottom: 0.8rem; display: block; }
+        .booking-item p { margin: 0.3rem 0; color: #374151; }
 
+        /* Admin Section */
         #admin-section { display: none; }
-        .admin-booking-item { background: white; margin-bottom: 1rem; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
-        .admin-booking-item[data-status="Belum Disetujui"] { border-left: 5px solid #f59e0b; }
-        .admin-booking-item[data-status="Disetujui"] { border-left: 5px solid #10b981; }
-        .admin-booking-item[data-status="Ditolak"] { border-left: 5px solid #ef4444; background: #f9fafb; }
-        .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
-        .item-header .status { font-size: 0.85rem; padding: 2px 8px; border-radius: 4px; background: #f3f4f6; color: #6b7280; font-weight: 600; }
-        .actions { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
-        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-        .btn:hover { opacity: 0.9; }
+        .admin-booking-item { 
+            background: white; margin-bottom: 1rem; padding: 1.5rem; border-radius: 16px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; position: relative;
+        }
+        .admin-booking-item[data-status="Belum Disetujui"] { border-left: 6px solid #ca8a04; }
+        .admin-booking-item[data-status="Disetujui"] { border-left: 6px solid #166534; }
+        .admin-booking-item[data-status="Ditolak"] { border-left: 6px solid #991b1b; background: #f9fafb; }
+        
+        .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
+        .item-header h3 { font-size: 1.1rem; color: #111827; margin: 0; }
+        .actions { margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+        
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: filter 0.2s; }
+        .btn:hover { filter: brightness(0.9); }
         .btn-approve { background-color: #10b981; color: white; }
         .btn-reject { background-color: #f59e0b; color: white; }
         .btn-delete { background-color: #ef4444; color: white; }
-        .btn-settings { background-color: #4f46e5; color: white; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3); }
+        .btn-settings { background-color: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
 
-        .login-form { max-width: 400px; margin: 5rem auto; padding: 2.5rem; background: white; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .login-form { max-width: 400px; margin: 5rem auto; padding: 2.5rem; background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid white; }
         .login-form h2 { text-align: center; color: var(--primary-color); margin-bottom: 1.5rem; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 2rem; border-radius: 20px; text-align: center; max-width: 90%; width: 450px; border-top: 5px solid var(--primary-color); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .modal-buttons { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; }
+        /* Modal Custom untuk Settings (SweetAlert dipakai untuk notif) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { 
+            background: #ffffff; padding: 2rem; border-radius: 24px; text-align: center; max-width: 90%; width: 500px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e5e7eb;
+        }
+        .modal-buttons { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem; }
         
-        .room-list-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 10px; border: 1px solid #e5e7eb; color: #374151; }
+        .room-list-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 0.8rem 1rem; margin-bottom: 0.6rem; border-radius: 12px; border: 1px solid #e5e7eb; color: #374151; font-weight: 500; }
         .settings-section { margin-bottom: 1.5rem; text-align: left; }
-        .settings-section h4 { margin-top: 0; margin-bottom: 0.8rem; color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+        .settings-section h4 { margin-top: 0; margin-bottom: 1rem; color: var(--primary-color); border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; font-weight: 700; }
 
         @media (min-width: 992px) { 
             .user-content { display: grid; grid-template-columns: 400px 1fr; gap: 2.5rem; } 
-            .schedule-rooms { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } 
+            .schedule-rooms { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); } 
         }
     </style>
 </head>
@@ -188,36 +225,43 @@
                 <h2>🔐 Login Admin</h2>
                 <div class="form-group"><label for="adminPassword">Password Akses</label><input type="password" id="adminPassword" placeholder="Masukkan password admin"></div>
                 <button id="adminLoginBtn" class="btn-submit">Masuk Dashboard</button>
-                <p id="login-message" style="color: #ef4444; text-align: center; margin-top: 1rem; font-weight:500;"></p>
             </div>
             <div id="admin-dashboard-view" style="display: none;">
-                <div class="card-header">
-                    <h2>Daftar Pengajuan (Approval)</h2>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button id="settingsBtn" class="btn btn-settings">⚙️ Pengaturan</button>
-                        <button id="deleteOldDataBtn" class="btn btn-delete">🗑️ Bersihkan Data Lama</button>
-                        <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
+                <div class="glass-card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h2>Daftar Pengajuan (Approval)</h2>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button id="settingsBtn" class="btn btn-settings">⚙️ Pengaturan</button>
+                            <button id="deleteOldDataBtn" class="btn btn-delete">🗑️ Bersihkan Data Lama</button>
+                            <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
+                        </div>
                     </div>
+                    <ul id="booking-list" style="list-style: none; padding: 0;"></ul>
                 </div>
-                <ul id="booking-list" style="list-style: none; padding: 0; margin-bottom: 3rem;"></ul>
 
-                <div class="card-header" style="border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 2rem;">
-                    <h2>🖥️ Monitor Jadwal Aktif</h2>
-                </div>
-                <div id="adminScheduleContainer" class="schedule-rooms">
-                    <p>Memuat jadwal...</p>
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h2>🖥️ Monitor Jadwal Aktif</h2>
+                    </div>
+                    <div id="adminScheduleContainer" class="schedule-rooms">
+                        <p>Memuat jadwal...</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Modal -->
+
+    <!-- Modal Custom untuk Settings Form (Kombinasi dengan SweetAlert) -->
     <div id="modal" class="modal-overlay">
         <div id="modalContent" class="modal-content">
-            <h3 id="modalTitle" style="margin-top:0; color:var(--primary-color);">Pemberitahuan</h3>
+            <h3 id="modalTitle" style="margin-top:0; color:var(--primary-color);">Pengaturan</h3>
             <div id="modalBody" style="color: #4b5563; margin: 1rem 0;"></div>
             <div id="modalButtons" class="modal-buttons"></div>
         </div>
     </div>
+
+    <!-- SweetAlert2 Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
@@ -236,13 +280,13 @@
         const adminPasswordInput = document.getElementById('adminPassword');
         const bookingList = document.getElementById('booking-list');
         const adminScheduleContainer = document.getElementById('adminScheduleContainer');
-        const loginMessage = document.getElementById('login-message');
         
         const refreshUserBtn = document.getElementById('refreshUserBtn');
         const refreshAdminBtn = document.getElementById('refreshAdminBtn');
         const deleteOldDataBtn = document.getElementById('deleteOldDataBtn');
         const settingsBtn = document.getElementById('settingsBtn');
         
+        // Custom modal elements (only for complex settings form)
         const modal = document.getElementById('modal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
@@ -250,78 +294,56 @@
         
         let currentAdminPassword = '';
 
-        // --- Core Functions ---
-        const showModal = (message, type = 'info', title = 'Pemberitahuan') => {
-            modalTitle.textContent = title;
-            modalBody.textContent = message;
-            modalContent.className = `modal-content ${type}`;
-            modalButtons.innerHTML = `<button class="btn btn-submit" style="width: auto; padding: 0.5rem 2rem;">OK</button>`;
-            modal.style.display = 'flex';
-            modalButtons.querySelector('button').onclick = () => modal.style.display = 'none';
-        };
-
-        const showConfirm = (message) => {
-            return new Promise(resolve => {
-                modalTitle.textContent = 'Konfirmasi';
-                modalBody.textContent = message;
-                modalContent.className = 'modal-content';
-                modalButtons.innerHTML = `<button id="confirm-yes" class="btn btn-delete">Ya</button><button id="confirm-no" class="btn" style="background:#e5e7eb; color:#374151;">Tidak</button>`;
-                modal.style.display = 'flex';
-                document.getElementById('confirm-yes').onclick = () => { modal.style.display = 'none'; resolve(true); };
-                document.getElementById('confirm-no').onclick = () => { modal.style.display = 'none'; resolve(false); };
-            });
-        };
-
-        // --- Background Logic ---
+        // --- Core Functions: Background Logic ---
         function applyBackground(url) {
-            appBackground = url; // Simpan state
+            appBackground = url; 
             if (url && url.trim() !== "") {
-                document.body.style.backgroundImage = `url('${url}')`;
+                // Apply background to body (covers both User and Admin view)
+                document.body.style.background = `url('${url}')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundAttachment = 'fixed';
                 document.body.style.backgroundPosition = 'center';
             } else {
-                // Default Gradient
-                document.body.style.backgroundImage = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
+                // Default Gradient if no image
+                document.body.style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
+                document.body.style.backgroundAttachment = 'fixed';
             }
         }
         
-        // --- Settings Modal ---
+        // --- Settings Modal (Custom HTML for Form) ---
         const showSettings = () => {
             modalTitle.textContent = 'Pengaturan Aplikasi';
-            modalContent.className = 'modal-content';
-            modalContent.style.width = '500px'; // Lebih lebar dikit
             
             // Build Rooms HTML
             let roomListHtml = '<div style="max-height: 150px; overflow-y: auto; margin-bottom: 1rem; text-align: left;">';
             rooms.forEach(r => {
-                roomListHtml += `<div class="room-list-item"><span>${r}</span><button onclick="handleDeleteRoom('${r}')" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">❌</button></div>`;
+                roomListHtml += `<div class="room-list-item"><span>${r}</span><button onclick="handleDeleteRoom('${r}')" style="background:none; border:none; cursor:pointer; font-size:1rem;">❌</button></div>`;
             });
             roomListHtml += '</div>';
             
             let modalHtml = `
                 <div class="settings-section">
                     <h4>🖼️ Tampilan Aplikasi</h4>
-                    <p style="font-size:0.9rem; margin-bottom:0.5rem;">Ganti Background (Direct Link Gambar):</p>
+                    <p style="font-size:0.9rem; margin-bottom:0.5rem; font-weight:500;">Ganti Background (Direct Link Gambar):</p>
                     <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="bgUrlInput" placeholder="https://contoh.com/gambar.jpg" value="${appBackground || ''}" style="flex:1; padding: 0.75rem; border-radius: 8px; border: 1px solid #d1d5db;">
+                        <input type="text" id="bgUrlInput" placeholder="https://contoh.com/gambar.jpg" value="${appBackground || ''}" style="flex:1; padding: 0.75rem; border-radius: 12px; border: 1px solid #d1d5db;">
                         <button onclick="handleSaveBackground()" class="btn" style="background:var(--primary-color); color:white;">Simpan</button>
                     </div>
-                    <button onclick="handleDeleteBackground()" class="btn" style="background:transparent; color:#ef4444; border:1px solid #ef4444; margin-top:0.5rem; font-size:0.8rem;">Hapus/Reset Background</button>
+                    <button onclick="handleDeleteBackground()" class="btn" style="background:transparent; color:#ef4444; border:1px solid #ef4444; margin-top:0.5rem; font-size:0.8rem; width:100%;">Hapus / Reset Background</button>
                 </div>
 
-                <div class="settings-section">
+                <div class="settings-section" style="margin-bottom:0;">
                     <h4>🏢 Manajemen Ruangan</h4>
                     ${roomListHtml}
                     <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="newRoomName" placeholder="Nama Ruangan Baru" style="flex:1; padding: 0.75rem; border-radius: 8px; border: 1px solid #d1d5db;">
+                        <input type="text" id="newRoomName" placeholder="Nama Ruangan Baru" style="flex:1; padding: 0.75rem; border-radius: 12px; border: 1px solid #d1d5db;">
                         <button onclick="handleAddRoom()" class="btn" style="background:var(--primary-color); color:white;">Tambah</button>
                     </div>
                 </div>
             `;
             
             modalBody.innerHTML = modalHtml;
-            modalButtons.innerHTML = `<button onclick="document.getElementById('modal').style.display='none'" class="btn" style="background:#e5e7eb; color:#374151;">Tutup</button>`;
+            modalButtons.innerHTML = `<button onclick="document.getElementById('modal').style.display='none'" class="btn" style="background:#f3f4f6; color:#374151;">Tutup</button>`;
             modal.style.display = 'flex';
         };
 
@@ -344,7 +366,7 @@
                 const result = await response.json();
                 if (result.status === 'success') { 
                     rooms = result.rooms || []; 
-                    applyBackground(result.background); // Terapkan background
+                    applyBackground(result.background); // Terapkan background GLOBAL
                     updateRoomDropdown();
                     renderUserSchedule(result.data); 
                 } 
@@ -365,7 +387,7 @@
                 if (dataResult.status !== 'success') throw new Error(dataResult.message);
                 
                 rooms = dataResult.rooms || []; 
-                applyBackground(dataResult.background); // Terapkan background juga di admin
+                applyBackground(dataResult.background); // Terapkan background GLOBAL
                 renderAdminList(dataResult.data);
                 renderAdminSchedule(dataResult.data);
             } catch (error) {
@@ -377,7 +399,7 @@
         // --- Background Handlers ---
         async function handleSaveBackground() {
             const url = document.getElementById('bgUrlInput').value.trim();
-            if (!url) return alert("URL tidak boleh kosong");
+            if (!url) return Swal.fire('Error', 'URL tidak boleh kosong', 'warning');
             
             const btn = event.target; btn.textContent = "..."; btn.disabled = true;
             try {
@@ -386,14 +408,30 @@
                 const json = await res.json();
                 if (json.status === 'success') {
                     applyBackground(url);
-                    alert("Background berhasil disimpan!");
-                } else { alert(json.message); }
-            } catch(e) { alert("Gagal koneksi"); }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Background berhasil disimpan!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else { Swal.fire('Gagal', json.message, 'error'); }
+            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
             finally { btn.textContent = "Simpan"; btn.disabled = false; }
         }
 
         async function handleDeleteBackground() {
-            if(!confirm("Kembalikan background ke default?")) return;
+            const result = await Swal.fire({
+                title: 'Reset Background?',
+                text: "Background akan kembali ke tampilan default (Gradient).",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Reset',
+                cancelButtonText: 'Batal'
+            });
+
+            if(!result.isConfirmed) return;
+
             const btn = event.target; btn.textContent = "..."; btn.disabled = true;
             try {
                 const payload = { action: 'deleteBackground', password: currentAdminPassword };
@@ -402,16 +440,21 @@
                 if (json.status === 'success') {
                     applyBackground("");
                     document.getElementById('bgUrlInput').value = "";
-                    alert("Background di-reset.");
-                } else { alert(json.message); }
-            } catch(e) { alert("Gagal koneksi"); }
-            finally { btn.textContent = "Hapus/Reset Background"; btn.disabled = false; }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Reset Berhasil',
+                        text: 'Background telah kembali ke default.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else { Swal.fire('Gagal', json.message, 'error'); }
+            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
+            finally { btn.textContent = "Hapus / Reset Background"; btn.disabled = false; }
         }
 
         // --- Existing Handlers (User View, Admin Login, Room Mgmt, etc.) ---
         
         function showUserView() {
-            document.body.className = 'user-view-bg';
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
             // Render Form Initial
@@ -475,7 +518,7 @@
                 roomColumn.innerHTML = `<h3>${room}</h3>`;
                 const bookingsForRoom = visibleBookings.filter(b => b['Nama Ruangan'] === room);
                 if (bookingsForRoom.length === 0) {
-                    roomColumn.innerHTML += '<p style="opacity:0.6; text-align:center; color:#6b7280; font-style:italic;">Belum ada jadwal.</p>';
+                    roomColumn.innerHTML += '<p style="opacity:0.6; text-align:center; color:#374151; font-style:italic;">Belum ada jadwal.</p>';
                 } else {
                     bookingsForRoom.forEach(booking => {
                         const item = document.createElement('div');
@@ -498,8 +541,8 @@
             const startDateTime = new Date(document.getElementById('tanggalMulai').value);
             const endDateTime = new Date(document.getElementById('tanggalSelesai').value);
             const now = new Date(); now.setSeconds(0,0);
-             if (startDateTime < now) { showModal('Waktu mulai tidak valid (sudah lewat).', 'error'); return; }
-             if (endDateTime <= startDateTime) { showModal('Waktu selesai harus setelah waktu mulai.', 'error'); return; }
+             if (startDateTime < now) { Swal.fire('Waktu Invalid', 'Waktu mulai tidak boleh sudah lewat.', 'warning'); return; }
+             if (endDateTime <= startDateTime) { Swal.fire('Waktu Invalid', 'Waktu selesai harus setelah waktu mulai.', 'warning'); return; }
 
             submitButton.disabled = true; submitButton.textContent = 'Mengirim...';
             const formData = new FormData(bookingForm);
@@ -520,16 +563,20 @@
                 const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(bookingData), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await response.json();
                 if (result.status === 'success') { 
-                    showModal(result.message, 'success', 'Berhasil!'); 
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Terkirim!',
+                        text: result.message,
+                        confirmButtonColor: '#4f46e5'
+                    });
                     bookingForm.reset();
                     fetchUserSchedule();
-                } else { showModal(result.message, 'error'); }
-            } catch (error) { showModal('Gagal mengirim booking. Cek koneksi internet.', 'error'); } 
+                } else { Swal.fire('Gagal', result.message, 'error'); }
+            } catch (error) { Swal.fire('Error', 'Gagal mengirim booking. Cek koneksi internet.', 'error'); } 
             finally { submitButton.disabled = false; submitButton.textContent = 'Kirim Permintaan Booking'; }
         }
 
         function showAdminView() {
-            document.body.className = 'admin-view-bg';
             userSection.style.display = 'none';
             adminSection.style.display = 'block';
             adminLoginBtn.addEventListener('click', handleAdminLogin);
@@ -539,47 +586,78 @@
         }
 
         async function handleAdminLogin() {
-            loginMessage.textContent = "Sedang memvalidasi...";
+            // Simple loading on button
+            adminLoginBtn.textContent = "Memvalidasi...";
             adminLoginBtn.disabled = true;
+            
             currentAdminPassword = adminPasswordInput.value;
-            if (!currentAdminPassword) { loginMessage.textContent = "Password kosong."; adminLoginBtn.disabled = false; return; }
+            if (!currentAdminPassword) { 
+                Swal.fire('Password Kosong', 'Harap masukkan password admin.', 'warning');
+                adminLoginBtn.disabled = false; adminLoginBtn.textContent = "Masuk Dashboard";
+                return; 
+            }
             try {
                 const validationResponse = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'validatePassword', password: currentAdminPassword }) });
                 const validationResult = await validationResponse.json();
                 if (validationResult.status !== 'success') throw new Error(validationResult.message);
+                
                 adminLoginView.style.display = 'none';
                 adminDashboardView.style.display = 'block';
                 await fetchAdminData();
-            } catch (error) { loginMessage.textContent = `Gagal: ${error.message}`; } 
-            finally { adminLoginBtn.disabled = false; }
+            } catch (error) { 
+                Swal.fire('Login Gagal', error.message, 'error');
+            } 
+            finally { adminLoginBtn.disabled = false; adminLoginBtn.textContent = "Masuk Dashboard"; }
         }
 
         async function handleAddRoom() {
             const input = document.getElementById('newRoomName');
             const roomName = input.value.trim();
             if (!roomName) return;
+            
             const btn = event.target; btn.textContent = "..."; btn.disabled = true;
             const payload = { action: 'addRoom', password: currentAdminPassword, roomName: roomName };
             try {
                 const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
                 if(result.status === 'success') {
-                    rooms.push(roomName); showSettings(); fetchAdminData();
-                } else { alert(result.message); }
-            } catch(e) { alert("Gagal koneksi"); }
+                    rooms.push(roomName); 
+                    showSettings(); // Refresh modal content
+                    fetchAdminData();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Ruangan ditambahkan',
+                        toast: true, position: 'top-end', showConfirmButton: false, timer: 2000
+                    });
+                } else { Swal.fire('Gagal', result.message, 'error'); }
+            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
             finally { input.value = ""; btn.textContent = "Tambah"; btn.disabled = false; }
         }
 
         async function handleDeleteRoom(roomName) {
-            if(!confirm(`Yakin hapus ruangan "${roomName}"?`)) return;
+            const confirm = await Swal.fire({
+                title: `Hapus ${roomName}?`,
+                text: "Tindakan ini tidak dapat dibatalkan.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hapus'
+            });
+
+            if(!confirm.isConfirmed) return;
+
             const payload = { action: 'deleteRoom', password: currentAdminPassword, roomName: roomName };
             try {
                 const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
                 if(result.status === 'success') {
-                    rooms = rooms.filter(r => r !== roomName); showSettings(); fetchAdminData();
-                } else { alert(result.message); showSettings(); }
-            } catch(e) { alert("Gagal koneksi"); showSettings(); }
+                    rooms = rooms.filter(r => r !== roomName); 
+                    showSettings(); 
+                    fetchAdminData();
+                    Swal.fire('Terhapus', 'Ruangan berhasil dihapus.', 'success');
+                } else { Swal.fire('Gagal', result.message, 'error'); }
+            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
         }
 
         function renderAdminList(data) {
@@ -627,14 +705,25 @@
         }
 
         async function handleDeleteOldData() {
-            const confirmed = await showConfirm('Hapus semua data booking lampau?');
-            if (!confirmed) return;
+            const result = await Swal.fire({
+                title: 'Hapus Data Lama?',
+                text: "Semua booking yang jadwalnya sudah lewat akan dihapus permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hapus Semua'
+            });
+
+            if (!result.isConfirmed) return;
+            
             const btn = deleteOldDataBtn; btn.disabled = true; btn.textContent = 'Menghapus...';
             try {
                 const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOldBookings', password: currentAdminPassword }) });
                 const json = await res.json();
-                showModal(json.message); fetchAdminData();
-            } catch(e) { showModal('Gagal', 'error'); } finally { btn.disabled = false; btn.textContent = 'Bersihkan Data Lama'; }
+                Swal.fire('Selesai', json.message, 'success'); 
+                fetchAdminData();
+            } catch(e) { Swal.fire('Error', 'Gagal menghapus data.', 'error'); } 
+            finally { btn.disabled = false; btn.textContent = 'Bersihkan Data Lama'; }
         }
         
         async function handleAdminAction(e) {
@@ -642,15 +731,37 @@
             const btn = e.target;
             const action = btn.classList.contains('btn-delete') ? 'deleteBooking' : 'updateStatus';
             const payload = { action: action, password: currentAdminPassword, bookingId: btn.dataset.id };
+            
             if(action === 'updateStatus') payload.newStatus = btn.dataset.status;
-            if(action === 'deleteBooking' && !(await showConfirm('Hapus permanen?'))) return;
+            
+            if(action === 'deleteBooking') {
+                const confirm = await Swal.fire({
+                    title: 'Hapus Pengajuan?',
+                    text: "Data akan dihapus permanen.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Hapus'
+                });
+                if(!confirm.isConfirmed) return;
+            }
+
             btn.disabled = true; btn.textContent = '...';
             try {
                 const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const json = await res.json();
-                if(json.status === 'success') { showModal(json.message); fetchAdminData(); }
+                if(json.status === 'success') { 
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: json.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    fetchAdminData(); 
+                }
                 else { throw new Error(json.message); }
-            } catch(err) { showModal(err.message, 'error'); btn.disabled=false; }
+            } catch(err) { Swal.fire('Error', err.message, 'error'); btn.disabled=false; }
         }
     </script>
 </body>
