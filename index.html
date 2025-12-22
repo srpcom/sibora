@@ -50,11 +50,14 @@
             padding: 0.7rem 1.5rem; border: none; border-radius: 12px; cursor: pointer; 
             font-weight: 600; transition: all 0.2s; display: inline-block;
         }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
         .btn-danger { background: #ef4444; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
         .btn-secondary { background: #e5e7eb; color: #374151; }
+        .btn-icon { background: transparent; padding: 5px; color: var(--primary); font-size: 1.1rem; }
+        .btn-icon:hover { color: var(--primary-hover); transform: scale(1.1); }
 
         /* Form Elements */
         .form-group { margin-bottom: 1.2rem; }
@@ -128,7 +131,7 @@
         <div class="glass-card" style="max-width: 500px; margin: auto;">
             <h2 class="text-center mb-4">Lengkapi Profil Anda</h2>
             <p class="text-center mb-4 small text-muted">Anda harus melengkapi data ini sebelum bisa melakukan booking.</p>
-            <form onsubmit="handleSaveProfile(event)">
+            <form onsubmit="handleSaveProfile(event, 'setup')">
                 <div class="form-group">
                     <label>Email (Google)</label>
                     <input type="text" id="setup-email" class="form-control" readonly>
@@ -162,7 +165,10 @@
                 <div class="user-info">
                     <img id="head-avatar" src="" class="user-avatar">
                     <div>
-                        <div id="head-nama" style="font-weight: 600; font-size: 0.9rem;">User</div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span id="head-nama" style="font-weight: 600; font-size: 0.9rem;">User</span>
+                            <button onclick="showEditProfile()" class="btn-icon" title="Edit Profil">✏️</button>
+                        </div>
                         <div id="head-role" style="font-size: 0.75rem; color: #666;">USER</div>
                     </div>
                 </div>
@@ -217,7 +223,7 @@
                         <input type="datetime-local" id="book-mulai" class="form-control" required>
                     </div>
                     <div class="form-group" style="flex: 1;">
-                        <label>Selesai</label>
+                        <label>Selesai (Default: +60 Menit)</label>
                         <input type="datetime-local" id="book-selesai" class="form-control" required>
                     </div>
                 </div>
@@ -299,7 +305,76 @@
             sessionStorage.setItem('temp_photo', photo);
         }
 
-        function handleSaveProfile(e) {
+        // --- EDIT PROFILE LOGIC (BARU) ---
+        function showEditProfile() {
+            Swal.fire({
+                title: '✏️ Edit Profil',
+                html: `
+                    <div style="text-align: left; margin-top: 10px;">
+                        <label style="font-weight:600; font-size:0.9rem;">Email (Tidak dapat diubah)</label>
+                        <input id="edit-email" class="form-control mb-2" value="${currentUser.email}" readonly style="background-color:#e9ecef;">
+                        
+                        <label style="font-weight:600; font-size:0.9rem;">Nama Lengkap</label>
+                        <input id="edit-nama" class="form-control mb-2" value="${currentUser.nama}">
+                        
+                        <label style="font-weight:600; font-size:0.9rem;">Unit / Bagian</label>
+                        <input id="edit-unit" class="form-control mb-2" value="${currentUser.unit}">
+                        
+                        <label style="font-weight:600; font-size:0.9rem;">Nomor WhatsApp</label>
+                        <input id="edit-wa" class="form-control mb-2" value="${currentUser.wa}">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan Perubahan',
+                confirmButtonColor: '#4f46e5',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const nama = document.getElementById('edit-nama').value;
+                    const unit = document.getElementById('edit-unit').value;
+                    const wa = document.getElementById('edit-wa').value;
+                    
+                    if(!nama || !unit || !wa) {
+                        Swal.showValidationMessage('Semua field harus diisi');
+                        return false;
+                    }
+
+                    return fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'save_profile',
+                            email: currentUser.email,
+                            nama: nama,
+                            unit: unit,
+                            wa: wa,
+                            foto: currentUser.foto
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error(response.statusText);
+                        return response.json();
+                    })
+                    .catch(error => Swal.showValidationMessage(`Request failed: ${error}`));
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value.status === 'success') {
+                    // Update Local Session
+                    currentUser = result.value.user;
+                    sessionStorage.setItem('sibora_user', JSON.stringify(currentUser));
+                    
+                    // Update UI
+                    document.getElementById('head-nama').innerText = currentUser.nama;
+                    document.getElementById('book-nama').value = currentUser.nama;
+                    document.getElementById('book-unit').value = currentUser.unit;
+                    
+                    Swal.fire('Berhasil', 'Profil berhasil diperbarui.', 'success');
+                } else if (result.isConfirmed) {
+                    Swal.fire('Gagal', result.value.message || 'Terjadi kesalahan', 'error');
+                }
+            });
+        }
+
+        // Handle Setup Awal (New User)
+        function handleSaveProfile(e, mode) {
             e.preventDefault();
             const btn = e.target.querySelector('button');
             btn.textContent = "Menyimpan..."; btn.disabled = true;
@@ -350,6 +425,9 @@
             // Pre-fill Booking Form
             document.getElementById('book-nama').value = currentUser.nama;
             document.getElementById('book-unit').value = currentUser.unit;
+            
+            // --- SET DEFAULT TIME (BARU) ---
+            setDefaultBookingTime();
 
             // Show Admin Panel if Role is ADMIN
             if (currentUser.role === 'ADMIN') {
@@ -357,6 +435,28 @@
             }
 
             fetchData();
+        }
+        
+        // --- FUNGSI WAKTU DEFAULT (BARU) ---
+        function setDefaultBookingTime() {
+            const now = new Date();
+            // Start: Now + 1 hour
+            const start = new Date(now.getTime() + 60 * 60 * 1000); 
+            // End: Start + 60 minutes
+            const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+            const formatDateTime = (date) => {
+                // Adjust for local timezone manual to avoid UTC confusion
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            };
+
+            document.getElementById('book-mulai').value = formatDateTime(start);
+            document.getElementById('book-selesai').value = formatDateTime(end);
         }
 
         function logout() {
@@ -377,12 +477,22 @@
                     
                     // Render Room Options
                     const select = document.getElementById('book-ruangan');
+                    // Simpan value saat ini jika ada (agar tidak reset saat refresh otomatis)
+                    const currentVal = select.value;
                     select.innerHTML = '';
+                    
+                    // Add default option
+                    const defOpt = document.createElement('option');
+                    defOpt.value = ""; defOpt.innerText = "Pilih Ruangan...";
+                    select.appendChild(defOpt);
+
                     rooms.forEach(r => {
                         const opt = document.createElement('option');
                         opt.value = r; opt.innerText = r;
                         select.appendChild(opt);
                     });
+                    
+                    if(currentVal) select.value = currentVal;
 
                     // Render Schedule
                     renderSchedule();
@@ -420,8 +530,11 @@
                 if (data.status === 'success') {
                     Swal.fire('Berhasil', 'Pengajuan dikirim. Cek notifikasi Email/WA.', 'success');
                     e.target.reset();
-                    document.getElementById('book-nama').value = currentUser.nama; // Reset readonly fields
+                    // Reset field readonly
+                    document.getElementById('book-nama').value = currentUser.nama; 
                     document.getElementById('book-unit').value = currentUser.unit;
+                    // Reset waktu default
+                    setDefaultBookingTime();
                     fetchData();
                 } else {
                     Swal.fire('Gagal', data.message, 'error');
@@ -584,7 +697,6 @@
 
         // --- ADMIN: SETTINGS ---
         function showSettings() {
-            // Re-using logic from previous iterations but simplified for this context
             Swal.fire({
                 title: 'Pengaturan Aplikasi',
                 html: `
@@ -604,7 +716,7 @@
 
         window.saveBg = function() {
             const url = document.getElementById('set-bg').value;
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: url, password: 'lia' }) }) // Password hardcoded for simple compat
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: url, password: 'lia' }) }) 
             .then(() => { Swal.fire('Sukses','Background disimpan','success'); fetchData(); });
         }
 
