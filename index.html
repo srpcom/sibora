@@ -59,6 +59,7 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         .btn-danger { background: #ef4444; color: white; }
+        .btn-success { background: #10b981; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
         .btn-secondary { background: #e5e7eb; color: #374151; }
         .btn-icon { background: transparent; padding: 5px; color: var(--primary); font-size: 1.1rem; }
@@ -939,36 +940,117 @@
             });
         };
 
-        // --- ADMIN: SETTINGS ---
+        // --- ADMIN: SETTINGS (REVISED FOR ROOM MANAGEMENT) ---
         function showSettings() {
+            // Generate Room List HTML
+            let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:200px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">';
+            rooms.forEach(r => {
+                roomHtml += `
+                    <li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:500;">${r}</span>
+                        <div style="display:flex; gap:5px;">
+                            <button onclick="triggerEditRoom('${r}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit Nama">✏️</button>
+                            <button onclick="triggerDeleteRoom('${r}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus Ruangan">🗑️</button>
+                        </div>
+                    </li>
+                `;
+            });
+            roomHtml += '</ul>';
+
             Swal.fire({
-                title: 'Pengaturan Aplikasi',
+                title: 'Pengaturan',
                 html: `
                     <div style="text-align:left">
-                        <label>Ganti Background (URL)</label>
-                        <input id="set-bg" class="form-control mb-2" placeholder="https://...">
-                        <button onclick="saveBg()" class="btn btn-primary btn-sm w-100">Simpan Background</button>
+                        <label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>
+                        ${roomHtml}
+                        <div style="display:flex; gap:5px; margin-bottom:20px;">
+                            <input id="new-room" class="form-control" placeholder="Nama Ruangan Baru">
+                            <button onclick="addRoom()" class="btn btn-success" style="white-space:nowrap;">+ Tambah</button>
+                        </div>
                         <hr>
-                        <label>Tambah Ruangan</label>
-                        <input id="set-room" class="form-control mb-2" placeholder="Nama Ruangan">
-                        <button onclick="addRoom()" class="btn btn-success btn-sm w-100">Tambah Ruangan</button>
+                        <label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label>
+                        <input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background">
+                        <button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button>
                     </div>
                 `,
-                showConfirmButton: false
+                showConfirmButton: false,
+                width: '600px'
             });
         }
 
         window.saveBg = function() {
-            const url = document.getElementById('set-bg').value;
+            const url = document.getElementById('set-bg') ? document.getElementById('set-bg').value : document.getElementById('bg-url').value;
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: url, password: 'lia' }) }) 
             .then(() => { Swal.fire('Sukses','Background disimpan','success'); fetchData(); });
         }
 
         window.addRoom = function() {
-            const name = document.getElementById('set-room').value;
+            const name = document.getElementById('new-room').value; // Corrected ID to match HTML above
+            if(!name) return Swal.fire('Error', 'Nama ruangan tidak boleh kosong', 'error');
+            
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: name, password: 'lia' }) })
-            .then(() => { Swal.fire('Sukses','Ruangan ditambah','success'); fetchData(); });
+            .then(() => { Swal.fire('Sukses','Ruangan ditambah','success'); fetchData(); showSettings(); });
         }
+        
+        window.triggerEditRoom = async function(oldName) {
+            const { value: newName } = await Swal.fire({
+                title: 'Edit Nama Ruangan',
+                input: 'text',
+                inputLabel: 'Nama Baru',
+                inputValue: oldName,
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Nama tidak boleh kosong!'
+                    }
+                }
+            });
+
+            if (newName && newName !== oldName) {
+                Swal.showLoading();
+                const res = await fetch(GAS_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName }) 
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    Swal.fire('Berhasil', 'Nama ruangan diperbarui', 'success');
+                    fetchData();
+                    // Re-open settings to show updated list (optional but good UX)
+                    // Wait a bit for fetch to update global rooms variable
+                    setTimeout(() => showSettings(), 1000); 
+                } else {
+                    Swal.fire('Gagal', data.message, 'error');
+                }
+            }
+        };
+
+        window.triggerDeleteRoom = async function(roomName) {
+            const result = await Swal.fire({
+                title: `Hapus ${roomName}?`,
+                text: "Tindakan ini tidak dapat dibatalkan.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hapus'
+            });
+
+            if (result.isConfirmed) {
+                Swal.showLoading();
+                const res = await fetch(GAS_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'deleteRoom', roomName: roomName }) 
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    Swal.fire('Terhapus', 'Ruangan berhasil dihapus', 'success');
+                    fetchData();
+                    setTimeout(() => showSettings(), 1000);
+                } else {
+                    Swal.fire('Gagal', data.message, 'error');
+                }
+            }
+        };
 
         function handleDeleteOldData() {
             Swal.fire({ title: 'Hapus Data Lama?', text: 'Data lampau akan dihapus permanen', icon: 'warning', showCancelButton: true, confirmButtonText: 'Hapus' })
