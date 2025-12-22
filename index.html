@@ -3,766 +3,630 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Ruang Rapat - RSUD dr. R. Koesma</title>
+    <title>SIBORA - Sistem Booking Ruangan</title>
     
-    <!-- Google Fonts -->
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <!-- SweetAlert2 CSS -->
+    <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         :root {
-            /* Palette Warna Utama */
-            --primary-color: #4f46e5; /* Indigo */
-            --primary-hover: #4338ca;
-            --secondary-color: #ec4899; /* Pink */
-            
-            /* Status Colors */
-            --status-approved-bg: #dcfce7; --status-approved-text: #166534; 
-            --status-pending-bg: #fef9c3; --status-pending-text: #854d0e; 
-            --status-rejected-bg: #fee2e2; --status-rejected-text: #991b1b; 
-            
-            /* Glassmorphism Variables */
-            /* Background kartu dibuat putih transparan (0.8) agar teks tetap kontras */
-            --glass-bg: rgba(255, 255, 255, 0.82); 
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --glass-blur: 20px;
+            --primary: #4f46e5; --primary-hover: #4338ca;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.9);
             --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            
-            --text-main: #1f2937; 
-            --text-muted: #6b7280;
+            --text-main: #1f2937;
         }
 
         body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            padding: 1rem; 
-            min-height: 100vh; 
-            color: var(--text-main); 
-            transition: background 0.5s ease;
-            background-color: #f3f4f6;
-            
-            /* Default Gradient sebelum ada gambar */
+            font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh;
+            color: var(--text-main); background-color: #f3f4f6;
             background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            background-attachment: fixed;
-            background-size: cover;
-            background-position: center;
+            background-attachment: fixed; background-size: cover; background-position: center;
         }
 
-        .container { max-width: 1200px; margin: auto; padding: 10px; }
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
+        .hidden { display: none !important; }
 
-        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; margin: 0; }
+        /* Typography */
+        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; margin: 0; color: #1e1b4b; }
         
-        /* Header Style dengan Text Shadow agar terbaca di background apapun */
-        header { text-align: center; margin-bottom: 2.5rem; }
-        header h1 { 
-            font-size: 2.4rem; 
-            color: #1e1b4b; 
-            text-shadow: 0 2px 10px rgba(255,255,255,0.7); 
-            margin-bottom: 0.5rem; 
-        }
-        header p { 
-            font-size: 1.1rem; 
-            color: #1e1b4b; 
-            font-weight: 600; 
-            text-shadow: 0 1px 5px rgba(255,255,255,0.7);
-            opacity: 0.9;
+        /* Glass Card */
+        .glass-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border-radius: 20px; border: 1px solid var(--glass-border);
+            padding: 2rem; box-shadow: var(--card-shadow); margin-bottom: 2rem;
         }
 
-        .user-content { display: flex; flex-direction: column; gap: 2rem; }
-
-        /* --- GLASS CARD STYLE --- */
-        .glass-card { 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(var(--glass-blur)); 
-            -webkit-backdrop-filter: blur(var(--glass-blur)); 
-            border-radius: 24px; 
-            border: 1px solid var(--glass-border); 
-            padding: 2rem; 
-            box-shadow: var(--card-shadow); 
+        /* Buttons */
+        .btn { 
+            padding: 0.7rem 1.5rem; border: none; border-radius: 12px; cursor: pointer; 
+            font-weight: 600; transition: all 0.2s; display: inline-block;
         }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-secondary { background: #e5e7eb; color: #374151; }
 
-        .card-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
-        }
-        .card-header h2 { color: var(--primary-color); font-size: 1.6rem; font-weight: 700; }
-
-        /* Tombol Refresh */
-        .btn-refresh { 
-            background: rgba(255,255,255,0.9); border: 2px solid var(--primary-color); color: var(--primary-color); 
-            padding: 0.5rem 1.2rem; border-radius: 50px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .btn-refresh:hover { background: var(--primary-color); color: white; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(79, 70, 229, 0.2); }
-
-        /* Form Styling */
+        /* Form Elements */
         .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.95rem; }
-        .form-group input, .form-group select, .form-group textarea { 
-            width: 100%; padding: 0.9rem; border-radius: 16px; border: 1px solid #d1d5db; 
-            background-color: rgba(255,255,255,0.9); /* Slightly transparent input bg */
-            color: var(--text-main); font-size: 1rem; font-family: 'Inter', sans-serif; box-sizing: border-box; 
-            transition: all 0.2s;
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
+        .form-control {
+            width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid #d1d5db;
+            background: rgba(255,255,255,0.9); font-size: 1rem; box-sizing: border-box;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
-            outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
-        }
+        .form-control:read-only { background: #e5e7eb; color: #6b7280; cursor: not-allowed; }
 
-        .btn-submit { 
-            width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 700; color: white; 
-            background: linear-gradient(135deg, var(--primary-color), #818cf8); border: none; border-radius: 16px; 
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-            margin-top: 1rem;
+        /* Login Screen */
+        .login-wrapper {
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            flex-direction: column; text-align: center;
         }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); }
-        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .login-card { max-width: 400px; width: 90%; text-align: center; }
+        .login-logo { width: 80px; margin-bottom: 1rem; }
 
-        /* Schedule Styling */
-        .schedule-rooms { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-        .room-column { 
-            background: rgba(255,255,255,0.7); /* Semi-transparent column */
-            backdrop-filter: blur(10px);
-            border-radius: 20px; padding: 1.25rem; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid rgba(255,255,255,0.5);
-        }
-        .room-column h3 { 
-            margin-top: 0; margin-bottom: 1rem; color: var(--primary-color); text-align: center; 
-            border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 0.8rem; font-weight: 700;
-        }
+        /* Header & Nav */
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
+        .user-info { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 50px; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
 
-        .booking-item { 
-            background: white; padding: 1.2rem; border-radius: 14px; margin-bottom: 1rem; 
-            font-size: 0.9rem; border: 1px solid #f3f4f6; transition: transform 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        /* Schedule & Admin List */
+        .booking-item, .admin-item {
+            background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;
+            border-left: 5px solid #ccc; transition: transform 0.2s;
         }
-        .booking-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .booking-item:hover { transform: translateY(-2px); }
         
-        .booking-item.status-disetujui { border-left: 5px solid #166534; background: linear-gradient(to right, #f0fdf4, #fff); }
-        .booking-item.status-belum-disetujui { border-left: 5px solid #ca8a04; background: linear-gradient(to right, #fefce8, #fff); }
-        .booking-item.status-ditolak { border-left: 5px solid #991b1b; background: linear-gradient(to right, #fef2f2, #fff); opacity: 0.75; }
-        
-        .booking-item .status { display: inline-block; padding: 0.35rem 0.85rem; border-radius: 50px; font-size: 0.75rem; font-weight: 800; margin-top: 0.8rem; float: right; letter-spacing: 0.5px; text-transform: uppercase;}
-        .status-disetujui .status { background: var(--status-approved-bg); color: var(--status-approved-text); }
-        .status-belum-disetujui .status { background: var(--status-pending-bg); color: var(--status-pending-text); }
-        .status-ditolak .status { background: var(--status-rejected-bg); color: var(--status-rejected-text); }
-        
-        .booking-item .keperluan { font-weight: 700; color: #111827; font-size: 1.05rem; margin-bottom: 0.4rem; line-height: 1.4; }
-        .booking-item .peminjam { color: #4b5563; font-style: italic; margin-bottom: 0.8rem; display: block; }
-        .booking-item p { margin: 0.3rem 0; color: #374151; }
+        .status-disetujui { border-left-color: #10b981; }
+        .status-belum-disetujui { border-left-color: #f59e0b; }
+        .status-ditolak { border-left-color: #ef4444; }
 
-        /* Admin Section */
-        #admin-section { display: none; }
-        .admin-booking-item { 
-            background: white; margin-bottom: 1rem; padding: 1.5rem; border-radius: 16px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; position: relative;
-        }
-        .admin-booking-item[data-status="Belum Disetujui"] { border-left: 6px solid #ca8a04; }
-        .admin-booking-item[data-status="Disetujui"] { border-left: 6px solid #166534; }
-        .admin-booking-item[data-status="Ditolak"] { border-left: 6px solid #991b1b; background: #f9fafb; }
-        
-        .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
-        .item-header h3 { font-size: 1.1rem; color: #111827; margin: 0; }
-        .actions { margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
-        
-        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: filter 0.2s; }
-        .btn:hover { filter: brightness(0.9); }
-        .btn-approve { background-color: #10b981; color: white; }
-        .btn-reject { background-color: #f59e0b; color: white; }
-        .btn-delete { background-color: #ef4444; color: white; }
-        .btn-settings { background-color: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+        /* Tables */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f3f4f6; color: var(--primary); font-weight: 700; }
 
-        .login-form { max-width: 400px; margin: 5rem auto; padding: 2.5rem; background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid white; }
-        .login-form h2 { text-align: center; color: var(--primary-color); margin-bottom: 1.5rem; }
-
-        /* Modal Custom untuk Settings (SweetAlert dipakai untuk notif) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { 
-            background: #ffffff; padding: 2rem; border-radius: 24px; text-align: center; max-width: 90%; width: 500px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e5e7eb;
-        }
-        .modal-buttons { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem; }
-        
-        .room-list-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 0.8rem 1rem; margin-bottom: 0.6rem; border-radius: 12px; border: 1px solid #e5e7eb; color: #374151; font-weight: 500; }
-        .settings-section { margin-bottom: 1.5rem; text-align: left; }
-        .settings-section h4 { margin-top: 0; margin-bottom: 1rem; color: var(--primary-color); border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; font-weight: 700; }
-
-        @media (min-width: 992px) { 
-            .user-content { display: grid; grid-template-columns: 400px 1fr; gap: 2.5rem; } 
-            .schedule-rooms { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); } 
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- User View -->
-        <div id="user-section">
-            <header>
-                <h1>Sistem Booking Ruang Rapat</h1>
-                <p>RSUD dr. R. Koesma Tuban</p>
-            </header>
-            <div class="user-content">
-                <div class="form-card glass-card">
-                    <div class="card-header"><h2>✨ Buat Booking Baru</h2></div>
-                    <form id="bookingForm"></form>
+
+    <!-- 1. VIEW: LOGIN SCREEN -->
+    <div id="view-login" class="login-wrapper">
+        <div class="glass-card login-card">
+            <h2 style="color: var(--primary); margin-bottom: 5px;">SIBORA</h2>
+            <p style="margin-bottom: 30px; color: #666;">Sistem Booking Ruangan RSUD</p>
+            
+            <div id="g_id_onload"
+                 data-client_id="783459415718-mp0vsmd2lopajf2ut0aqc6drjrs95pu8.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="pill"
+                 data-theme="filled_blue"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 data-width="300">
+            </div>
+            <p id="login-msg" style="margin-top: 20px; font-size: 0.9rem; color: #ef4444;"></p>
+        </div>
+    </div>
+
+    <!-- 2. VIEW: SETUP PROFIL (NEW USER) -->
+    <div id="view-setup" class="container hidden" style="margin-top: 5vh;">
+        <div class="glass-card" style="max-width: 500px; margin: auto;">
+            <h2 class="text-center mb-4">Lengkapi Profil Anda</h2>
+            <p class="text-center mb-4 small text-muted">Anda harus melengkapi data ini sebelum bisa melakukan booking.</p>
+            <form onsubmit="handleSaveProfile(event)">
+                <div class="form-group">
+                    <label>Email (Google)</label>
+                    <input type="text" id="setup-email" class="form-control" readonly>
                 </div>
-                <div class="schedule-card glass-card">
-                    <div class="card-header">
-                        <h2>📅 Jadwal Ruangan</h2>
-                        <button id="refreshUserBtn" class="btn-refresh">↻ Refresh Data</button>
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="setup-nama" class="form-control" required placeholder="Contoh: dr. Budi Santoso">
+                </div>
+                <div class="form-group">
+                    <label>Unit / Bagian</label>
+                    <input type="text" id="setup-unit" class="form-control" required placeholder="Contoh: Instalasi Farmasi">
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp (Aktif)</label>
+                    <input type="tel" id="setup-wa" class="form-control" required placeholder="081234567890">
+                    <small style="color: #666;">*Notifikasi status akan dikirim ke nomor ini.</small>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3">Simpan & Lanjutkan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. VIEW: MAIN APP (DASHBOARD) -->
+    <div id="view-dashboard" class="container hidden">
+        <header class="app-header">
+            <div>
+                <h1>SIBORA</h1>
+                <p style="opacity: 0.8;">RSUD dr. R. Koesma Tuban</p>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <div class="user-info">
+                    <img id="head-avatar" src="" class="user-avatar">
+                    <div>
+                        <div id="head-nama" style="font-weight: 600; font-size: 0.9rem;">User</div>
+                        <div id="head-role" style="font-size: 0.75rem; color: #666;">USER</div>
                     </div>
-                    <div id="scheduleContainer" class="schedule-rooms"><p id="loadingMessage">Sedang memuat jadwal terbaru...</p></div>
+                </div>
+                <button onclick="logout()" class="btn btn-danger btn-sm">Keluar</button>
+            </div>
+        </header>
+
+        <!-- ADMIN PANEL (Hidden for normal users) -->
+        <div id="admin-panel" class="hidden mb-4">
+            <div class="glass-card" style="background: rgba(255,255,255,0.95); border-left: 5px solid var(--primary);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>👑 Admin Dashboard</h3>
+                    <div class="d-flex gap-2">
+                        <button onclick="showUserMgmt()" class="btn btn-secondary">👥 Manajemen User</button>
+                        <button onclick="showSettings()" class="btn btn-secondary">⚙️ Pengaturan</button>
+                        <button onclick="handleDeleteOldData()" class="btn btn-danger">🗑️ Hapus Data Lama</button>
+                    </div>
+                </div>
+                <hr>
+                <h4>Persetujuan Booking</h4>
+                <div id="admin-approval-list">
+                    <p class="text-center">Memuat daftar...</p>
                 </div>
             </div>
         </div>
-        <!-- Admin View -->
-        <div id="admin-section">
-            <header><h1>Dashboard Admin</h1></header>
-            <div id="admin-login-view" class="login-form">
-                <h2>🔐 Login Admin</h2>
-                <div class="form-group"><label for="adminPassword">Password Akses</label><input type="password" id="adminPassword" placeholder="Masukkan password admin"></div>
-                <button id="adminLoginBtn" class="btn-submit">Masuk Dashboard</button>
+
+        <!-- USER PANEL (Booking Form) -->
+        <div class="glass-card">
+            <h3>📅 Buat Booking Baru</h3>
+            <form onsubmit="handleBookingSubmit(event)" class="mt-4">
+                <div class="row" style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Nama Peminjam</label>
+                        <input type="text" id="book-nama" class="form-control" readonly>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Unit / Bagian</label>
+                        <input type="text" id="book-unit" class="form-control" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Pilih Ruangan</label>
+                    <select id="book-ruangan" class="form-control" required>
+                        <option value="">Memuat ruangan...</option>
+                    </select>
+                </div>
+
+                <div class="row" style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Mulai</label>
+                        <input type="datetime-local" id="book-mulai" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Selesai</label>
+                        <input type="datetime-local" id="book-selesai" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Keperluan</label>
+                    <textarea id="book-keperluan" class="form-control" rows="3" required placeholder="Contoh: Rapat Evaluasi Bulanan"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
+            </form>
+        </div>
+
+        <!-- SCHEDULE MONITOR -->
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>🖥️ Monitor Jadwal</h3>
+                <button onclick="fetchData()" class="btn btn-secondary">Refresh</button>
             </div>
-            <div id="admin-dashboard-view" style="display: none;">
-                <div class="glass-card" style="margin-bottom: 2rem;">
-                    <div class="card-header">
-                        <h2>Daftar Pengajuan (Approval)</h2>
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button id="settingsBtn" class="btn btn-settings">⚙️ Pengaturan</button>
-                            <button id="deleteOldDataBtn" class="btn btn-delete">🗑️ Bersihkan Data Lama</button>
-                            <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
+            <div id="schedule-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <p>Memuat jadwal...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
+        
+        let currentUser = null;
+        let rooms = [];
+        let bookings = [];
+
+        // --- AUTH LOGIC ---
+        function handleCredentialResponse(response) {
+            const responsePayload = decodeJwtResponse(response.credential);
+            const email = responsePayload.email;
+            const photo = responsePayload.picture;
+            const name = responsePayload.name;
+
+            document.getElementById('login-msg').innerText = "Memeriksa akun...";
+            
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'google_login', email: email, name: name, photo: photo })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Login Berhasil
+                    sessionStorage.setItem('sibora_user', JSON.stringify(data.user));
+                    initApp();
+                } else if (data.status === 'new_user') {
+                    // Harus isi profil
+                    showSetupProfile(data.email, name, photo);
+                } else {
+                    document.getElementById('login-msg').innerText = "Gagal Login: " + data.message;
+                }
+            })
+            .catch(err => document.getElementById('login-msg').innerText = "Koneksi Error.");
+        }
+
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function showSetupProfile(email, name, photo) {
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-setup').classList.remove('hidden');
+            document.getElementById('setup-email').value = email;
+            document.getElementById('setup-nama').value = name;
+            // Simpan foto sementara di session
+            sessionStorage.setItem('temp_photo', photo);
+        }
+
+        function handleSaveProfile(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.textContent = "Menyimpan..."; btn.disabled = true;
+
+            const payload = {
+                action: 'save_profile',
+                email: document.getElementById('setup-email').value,
+                nama: document.getElementById('setup-nama').value,
+                unit: document.getElementById('setup-unit').value,
+                wa: document.getElementById('setup-wa').value,
+                foto: sessionStorage.getItem('temp_photo') || ""
+            };
+
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    sessionStorage.setItem('sibora_user', JSON.stringify(data.user));
+                    initApp();
+                } else {
+                    Swal.fire('Error', 'Gagal menyimpan profil', 'error');
+                    btn.textContent = "Simpan & Lanjutkan"; btn.disabled = false;
+                }
+            });
+        }
+
+        function initApp() {
+            const userStr = sessionStorage.getItem('sibora_user');
+            if (!userStr) {
+                document.getElementById('view-login').classList.remove('hidden');
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-setup').classList.add('hidden');
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+            
+            // Tampilkan Dashboard
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-setup').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.remove('hidden');
+
+            // Set Header Info
+            document.getElementById('head-nama').innerText = currentUser.nama;
+            document.getElementById('head-role').innerText = currentUser.role;
+            document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40";
+
+            // Pre-fill Booking Form
+            document.getElementById('book-nama').value = currentUser.nama;
+            document.getElementById('book-unit').value = currentUser.unit;
+
+            // Show Admin Panel if Role is ADMIN
+            if (currentUser.role === 'ADMIN') {
+                document.getElementById('admin-panel').classList.remove('hidden');
+            }
+
+            fetchData();
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            location.reload();
+        }
+
+        // --- DATA & BOOKING LOGIC ---
+        
+        async function fetchData() {
+            try {
+                const res = await fetch(GAS_URL);
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    rooms = data.rooms;
+                    bookings = data.data;
+                    
+                    // Render Room Options
+                    const select = document.getElementById('book-ruangan');
+                    select.innerHTML = '';
+                    rooms.forEach(r => {
+                        const opt = document.createElement('option');
+                        opt.value = r; opt.innerText = r;
+                        select.appendChild(opt);
+                    });
+
+                    // Render Schedule
+                    renderSchedule();
+
+                    // Render Admin Approval (If Admin)
+                    if (currentUser.role === 'ADMIN') renderAdminApproval();
+
+                    // Apply Background
+                    if (data.background) {
+                        document.body.style.backgroundImage = `url('${data.background}')`;
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function handleBookingSubmit(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.textContent = "Mengirim..."; btn.disabled = true;
+
+            const payload = {
+                action: 'booking', // Default action in backend logic
+                email: currentUser.email, // Send Email to verify user
+                namaRuangan: document.getElementById('book-ruangan').value,
+                tanggalMulai: document.getElementById('book-mulai').value.split('T')[0],
+                waktuMulai: document.getElementById('book-mulai').value.split('T')[1],
+                tanggalSelesai: document.getElementById('book-selesai').value.split('T')[0],
+                waktuSelesai: document.getElementById('book-selesai').value.split('T')[1],
+                keperluan: document.getElementById('book-keperluan').value
+            };
+
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire('Berhasil', 'Pengajuan dikirim. Cek notifikasi Email/WA.', 'success');
+                    e.target.reset();
+                    document.getElementById('book-nama').value = currentUser.nama; // Reset readonly fields
+                    document.getElementById('book-unit').value = currentUser.unit;
+                    fetchData();
+                } else {
+                    Swal.fire('Gagal', data.message, 'error');
+                }
+                btn.textContent = "Kirim Pengajuan"; btn.disabled = false;
+            });
+        }
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderSchedule() {
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = '';
+            
+            // Filter Active Bookings
+            const visible = bookings.filter(b => b.Status !== 'Ditolak');
+            visible.sort((a,b) => new Date(a['Tanggal Mulai']+'T'+a['Waktu Mulai']) - new Date(b['Tanggal Mulai']+'T'+b['Waktu Mulai']));
+
+            rooms.forEach(room => {
+                const col = document.createElement('div');
+                col.className = 'booking-item'; // Reusing style class for container look
+                col.style.borderLeft = 'none';
+                col.innerHTML = `<h4 style="border-bottom:1px solid #eee; padding-bottom:10px; text-align:center; color:var(--primary);">${room}</h4>`;
+                
+                const roomBookings = visible.filter(b => b['Nama Ruangan'] === room);
+                
+                if (roomBookings.length === 0) {
+                    col.innerHTML += `<p style="text-align:center; opacity:0.5; font-size:0.9rem;">Tidak ada jadwal.</p>`;
+                } else {
+                    roomBookings.forEach(b => {
+                        const statusClass = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`;
+                        const div = document.createElement('div');
+                        div.className = `booking-item ${statusClass}`;
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `
+                            <div style="font-weight:bold; font-size:0.95rem;">${b.Keperluan}</div>
+                            <div style="font-size:0.85rem; color:#555;">${b['Nama Peminjam']} (${b['Unit/Bagian']})</div>
+                            <div style="font-size:0.85rem; margin-top:5px;">
+                                🕒 ${b['Tanggal Mulai']} ${b['Waktu Mulai']} <br>
+                                🏁 ${b['Tanggal Selesai']} ${b['Waktu Selesai']}
+                            </div>
+                            <div style="text-align:right; font-size:0.8rem; font-weight:bold; margin-top:5px; text-transform:uppercase;">${b.Status}</div>
+                        `;
+                        col.appendChild(div);
+                    });
+                }
+                container.appendChild(col);
+            });
+        }
+
+        function renderAdminApproval() {
+            const list = document.getElementById('admin-approval-list');
+            const pending = bookings.filter(b => b.Status === 'Belum Disetujui');
+            
+            if (pending.length === 0) {
+                list.innerHTML = '<p class="text-center text-muted">Tidak ada pengajuan pending.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            pending.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'booking-item status-belum-disetujui';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h4>${b.Keperluan}</h4>
+                            <p><b>${b['Nama Peminjam']}</b> (${b['Unit/Bagian']}) - WA: ${b['Nomor WA']}</p>
+                            <p>🏠 Ruang: <b>${b['Nama Ruangan']}</b></p>
+                            <p>⏰ ${b['Tanggal Mulai']} ${b['Waktu Mulai']} s.d ${b['Waktu Selesai']}</p>
+                        </div>
+                        <div>
+                            <button onclick="updateStatus('${b['ID Booking']}', 'Disetujui')" class="btn btn-primary btn-sm mb-1">✅ Setujui</button><br>
+                            <button onclick="updateStatus('${b['ID Booking']}', 'Ditolak')" class="btn btn-danger btn-sm">❌ Tolak</button>
                         </div>
                     </div>
-                    <ul id="booking-list" style="list-style: none; padding: 0;"></ul>
-                </div>
-
-                <div class="glass-card">
-                    <div class="card-header">
-                        <h2>🖥️ Monitor Jadwal Aktif</h2>
-                    </div>
-                    <div id="adminScheduleContainer" class="schedule-rooms">
-                        <p>Memuat jadwal...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Custom untuk Settings Form (Kombinasi dengan SweetAlert) -->
-    <div id="modal" class="modal-overlay">
-        <div id="modalContent" class="modal-content">
-            <h3 id="modalTitle" style="margin-top:0; color:var(--primary-color);">Pengaturan</h3>
-            <div id="modalBody" style="color: #4b5563; margin: 1rem 0;"></div>
-            <div id="modalButtons" class="modal-buttons"></div>
-        </div>
-    </div>
-
-    <!-- SweetAlert2 Script -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
-        let rooms = []; 
-        let appBackground = "";
-        
-        const userSection = document.getElementById('user-section');
-        const adminSection = document.getElementById('admin-section');
-        const scheduleContainer = document.getElementById('scheduleContainer');
-        const loadingMessage = document.getElementById('loadingMessage');
-        const bookingForm = document.getElementById('bookingForm');
-        
-        const adminLoginView = document.getElementById('admin-login-view');
-        const adminDashboardView = document.getElementById('admin-dashboard-view');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
-        const adminPasswordInput = document.getElementById('adminPassword');
-        const bookingList = document.getElementById('booking-list');
-        const adminScheduleContainer = document.getElementById('adminScheduleContainer');
-        
-        const refreshUserBtn = document.getElementById('refreshUserBtn');
-        const refreshAdminBtn = document.getElementById('refreshAdminBtn');
-        const deleteOldDataBtn = document.getElementById('deleteOldDataBtn');
-        const settingsBtn = document.getElementById('settingsBtn');
-        
-        // Custom modal elements (only for complex settings form)
-        const modal = document.getElementById('modal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalBody = document.getElementById('modalBody');
-        const modalButtons = document.getElementById('modalButtons');
-        
-        let currentAdminPassword = '';
-
-        // --- Core Functions: Background Logic ---
-        function applyBackground(url) {
-            appBackground = url; 
-            if (url && url.trim() !== "") {
-                // Apply background to body (covers both User and Admin view)
-                document.body.style.background = `url('${url}')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundAttachment = 'fixed';
-                document.body.style.backgroundPosition = 'center';
-            } else {
-                // Default Gradient if no image
-                document.body.style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
-                document.body.style.backgroundAttachment = 'fixed';
-            }
-        }
-        
-        // --- Settings Modal (Custom HTML for Form) ---
-        const showSettings = () => {
-            modalTitle.textContent = 'Pengaturan Aplikasi';
-            
-            // Build Rooms HTML
-            let roomListHtml = '<div style="max-height: 150px; overflow-y: auto; margin-bottom: 1rem; text-align: left;">';
-            rooms.forEach(r => {
-                roomListHtml += `<div class="room-list-item"><span>${r}</span><button onclick="handleDeleteRoom('${r}')" style="background:none; border:none; cursor:pointer; font-size:1rem;">❌</button></div>`;
+                `;
+                list.appendChild(div);
             });
-            roomListHtml += '</div>';
-            
-            let modalHtml = `
-                <div class="settings-section">
-                    <h4>🖼️ Tampilan Aplikasi</h4>
-                    <p style="font-size:0.9rem; margin-bottom:0.5rem; font-weight:500;">Ganti Background (Direct Link Gambar):</p>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="bgUrlInput" placeholder="https://contoh.com/gambar.jpg" value="${appBackground || ''}" style="flex:1; padding: 0.75rem; border-radius: 12px; border: 1px solid #d1d5db;">
-                        <button onclick="handleSaveBackground()" class="btn" style="background:var(--primary-color); color:white;">Simpan</button>
-                    </div>
-                    <button onclick="handleDeleteBackground()" class="btn" style="background:transparent; color:#ef4444; border:1px solid #ef4444; margin-top:0.5rem; font-size:0.8rem; width:100%;">Hapus / Reset Background</button>
-                </div>
-
-                <div class="settings-section" style="margin-bottom:0;">
-                    <h4>🏢 Manajemen Ruangan</h4>
-                    ${roomListHtml}
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="newRoomName" placeholder="Nama Ruangan Baru" style="flex:1; padding: 0.75rem; border-radius: 12px; border: 1px solid #d1d5db;">
-                        <button onclick="handleAddRoom()" class="btn" style="background:var(--primary-color); color:white;">Tambah</button>
-                    </div>
-                </div>
-            `;
-            
-            modalBody.innerHTML = modalHtml;
-            modalButtons.innerHTML = `<button onclick="document.getElementById('modal').style.display='none'" class="btn" style="background:#f3f4f6; color:#374151;">Tutup</button>`;
-            modal.style.display = 'flex';
-        };
-
-        // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.location.hash === '#admin') { showAdminView(); } else { showUserView(); }
-            window.addEventListener('hashchange', () => { if (window.location.hash === '#admin') { showAdminView(); } else { window.location.reload(); } });
-        });
-        
-        settingsBtn.addEventListener('click', showSettings);
-
-        // --- Initial Load Logic ---
-        async function fetchUserSchedule() {
-            loadingMessage.textContent = 'Sedang memuat data...';
-            loadingMessage.style.display = 'block';
-            scheduleContainer.innerHTML = '';
-            try {
-                const response = await fetch(GAS_WEB_APP_URL);
-                if (!response.ok) throw new Error('Respon jaringan tidak baik.');
-                const result = await response.json();
-                if (result.status === 'success') { 
-                    rooms = result.rooms || []; 
-                    applyBackground(result.background); // Terapkan background GLOBAL
-                    updateRoomDropdown();
-                    renderUserSchedule(result.data); 
-                } 
-                else { throw new Error(result.message); }
-            } catch (error) {
-                scheduleContainer.innerHTML = `<p style="color:#ef4444; text-align:center;">Gagal memuat data. Periksa koneksi internet Anda.</p>`;
-            } finally {
-                loadingMessage.style.display = 'none';
-            }
-        }
-        
-        async function fetchAdminData() {
-            bookingList.innerHTML = '<p>Memuat data terbaru...</p>';
-            adminScheduleContainer.innerHTML = '<p>Memuat jadwal ruangan...</p>'; 
-            try {
-                const dataResponse = await fetch(GAS_WEB_APP_URL);
-                const dataResult = await dataResponse.json();
-                if (dataResult.status !== 'success') throw new Error(dataResult.message);
-                
-                rooms = dataResult.rooms || []; 
-                applyBackground(dataResult.background); // Terapkan background GLOBAL
-                renderAdminList(dataResult.data);
-                renderAdminSchedule(dataResult.data);
-            } catch (error) {
-                bookingList.innerHTML = `<p style="color:red">Gagal: ${error.message}</p>`;
-                adminScheduleContainer.innerHTML = '';
-            }
         }
 
-        // --- Background Handlers ---
-        async function handleSaveBackground() {
-            const url = document.getElementById('bgUrlInput').value.trim();
-            if (!url) return Swal.fire('Error', 'URL tidak boleh kosong', 'warning');
-            
-            const btn = event.target; btn.textContent = "..."; btn.disabled = true;
-            try {
-                const payload = { action: 'saveBackground', password: currentAdminPassword, url: url };
-                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const json = await res.json();
-                if (json.status === 'success') {
-                    applyBackground(url);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: 'Background berhasil disimpan!',
-                        timer: 2000,
-                        showConfirmButton: false
+        function updateStatus(id, status) {
+            Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading()});
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'updateStatus', bookingId: id, newStatus: status })
+            })
+            .then(res => res.json())
+            .then(data => {
+                Swal.fire('Sukses', data.message, 'success');
+                fetchData();
+            });
+        }
+
+        // --- ADMIN: USER MANAGEMENT ---
+        function showUserMgmt() {
+            Swal.fire({
+                title: 'Manajemen User',
+                html: '<div id="user-list-container">Memuat data user...</div>',
+                width: '800px',
+                showCloseButton: true,
+                showConfirmButton: false,
+                didOpen: () => {
+                    fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            let html = `<div class="table-responsive"><table><thead><tr><th>Nama</th><th>Email</th><th>Unit</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`;
+                            data.users.forEach(u => {
+                                let btnAction = '';
+                                if(u.role === 'ADMIN') {
+                                    btnAction = `<button onclick="changeRole('${u.email}', 'USER')" class="btn btn-warning btn-sm" style="font-size:0.7rem">Jadi User</button>`;
+                                } else {
+                                    btnAction = `<button onclick="changeRole('${u.email}', 'ADMIN')" class="btn btn-primary btn-sm" style="font-size:0.7rem">Jadi Admin</button>`;
+                                }
+                                html += `<tr>
+                                    <td>${u.nama}</td>
+                                    <td style="font-size:0.85rem">${u.email}</td>
+                                    <td>${u.unit}</td>
+                                    <td><b>${u.role}</b></td>
+                                    <td>${btnAction}</td>
+                                </tr>`;
+                            });
+                            html += `</tbody></table></div>`;
+                            document.getElementById('user-list-container').innerHTML = html;
+                        } else {
+                            document.getElementById('user-list-container').innerText = "Gagal memuat data.";
+                        }
                     });
-                } else { Swal.fire('Gagal', json.message, 'error'); }
-            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
-            finally { btn.textContent = "Simpan"; btn.disabled = false; }
+                }
+            });
         }
 
-        async function handleDeleteBackground() {
-            const result = await Swal.fire({
-                title: 'Reset Background?',
-                text: "Background akan kembali ke tampilan default (Gradient).",
+        window.changeRole = function(email, newRole) {
+            Swal.fire({
+                title: `Ubah role ${email}?`,
+                text: `Menjadi ${newRole}`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Reset',
-                cancelButtonText: 'Batal'
-            });
-
-            if(!result.isConfirmed) return;
-
-            const btn = event.target; btn.textContent = "..."; btn.disabled = true;
-            try {
-                const payload = { action: 'deleteBackground', password: currentAdminPassword };
-                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const json = await res.json();
-                if (json.status === 'success') {
-                    applyBackground("");
-                    document.getElementById('bgUrlInput').value = "";
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Reset Berhasil',
-                        text: 'Background telah kembali ke default.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else { Swal.fire('Gagal', json.message, 'error'); }
-            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
-            finally { btn.textContent = "Hapus / Reset Background"; btn.disabled = false; }
-        }
-
-        // --- Existing Handlers (User View, Admin Login, Room Mgmt, etc.) ---
-        
-        function showUserView() {
-            userSection.style.display = 'block';
-            adminSection.style.display = 'none';
-            // Render Form Initial
-            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="">Memuat data ruangan...</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required placeholder="Nama Lengkap Anda"></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="nomorWa">Nomor WA (Opsional)</label><input type="tel" id="nomorWa" name="nomorWa" placeholder="Contoh: 0812-3456-7890" inputmode="tel"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required placeholder="Contoh: Rapat Koordinasi Bulanan"></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
-            
-            const unitBagianSelect = document.getElementById('unitBagianSelect');
-            const unitBagianLainnyaContainer = document.getElementById('unitBagianLainnyaContainer');
-            const unitBagianLainnyaInput = document.getElementById('unitBagianLainnya');
-
-            unitBagianSelect.addEventListener('change', () => {
-                if (unitBagianSelect.value === 'Lainnya') {
-                    unitBagianLainnyaContainer.style.display = 'block';
-                    unitBagianLainnyaInput.required = true;
-                } else {
-                    unitBagianLainnyaContainer.style.display = 'none';
-                    unitBagianLainnyaInput.required = false;
-                    unitBagianLainnyaInput.value = '';
-                }
-            });
-            
-            const tanggalMulaiInput = document.getElementById('tanggalMulai');
-            const tanggalSelesaiInput = document.getElementById('tanggalSelesai');
-            const timezoneOffset = (new Date()).getTimezoneOffset() * 60000;
-            const now = new Date(Date.now() - timezoneOffset);
-            const end = new Date(now.getTime() + 60 * 60 * 1000);
-            tanggalMulaiInput.value = now.toISOString().slice(0, 16);
-            tanggalMulaiInput.min = now.toISOString().slice(0, 16);
-            tanggalSelesaiInput.value = end.toISOString().slice(0, 16);
-            
-            if (!bookingForm.hasSubmitListener) {
-                bookingForm.addEventListener('submit', handleUserSubmit);
-                bookingForm.hasSubmitListener = true;
-            }
-            refreshUserBtn.addEventListener('click', fetchUserSchedule);
-            fetchUserSchedule();
-        }
-
-        function updateRoomDropdown() {
-            const select = document.getElementById('namaRuangan');
-            if(select) {
-                const currentVal = select.value;
-                select.innerHTML = '';
-                rooms.forEach(r => {
-                   const opt = document.createElement('option');
-                   opt.value = r;
-                   opt.textContent = r;
-                   select.appendChild(opt);
-                });
-                if(currentVal && rooms.includes(currentVal)) select.value = currentVal;
-            }
-        }
-
-        function renderUserSchedule(data) {
-            scheduleContainer.innerHTML = '';
-            const visibleBookings = data.filter(b => b.Status === "Disetujui" || b.Status === "Belum Disetujui" || b.Status === "Ditolak");
-            visibleBookings.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
-            
-            rooms.forEach(room => {
-                const roomColumn = document.createElement('div');
-                roomColumn.className = 'room-column';
-                roomColumn.innerHTML = `<h3>${room}</h3>`;
-                const bookingsForRoom = visibleBookings.filter(b => b['Nama Ruangan'] === room);
-                if (bookingsForRoom.length === 0) {
-                    roomColumn.innerHTML += '<p style="opacity:0.6; text-align:center; color:#374151; font-style:italic;">Belum ada jadwal.</p>';
-                } else {
-                    bookingsForRoom.forEach(booking => {
-                        const item = document.createElement('div');
-                        const statusClass = `status-${booking.Status.toLowerCase().replace(/ /g, '-')}`;
-                        item.className = `booking-item ${statusClass}`;
-                        const startDate = new Date(`${booking['Tanggal Mulai']}T${booking['Waktu Mulai']}`);
-                        const endDate = new Date(`${booking['Tanggal Selesai']}T${booking['Waktu Selesai']}`);
-                        const statusText = booking.Status === 'Ditolak' ? 'DITOLAK' : booking.Status;
-                        item.innerHTML = `<p class="keperluan">${booking.Keperluan}</p><p class="peminjam">Oleh: ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>Mulai:</strong> ${startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} ${booking['Waktu Mulai']}</p><p><strong>Selesai:</strong> ${endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} ${booking['Waktu Selesai']}</p><p class="status">${statusText}</p>`;
-                        roomColumn.appendChild(item);
+                confirmButtonText: 'Ya, Ubah'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.showLoading();
+                    fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'update_user_role', targetEmail: email, newRole: newRole })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            Swal.fire('Sukses', data.message, 'success');
+                            showUserMgmt(); // Reload modal content
+                        } else {
+                            Swal.fire('Gagal', data.message, 'error');
+                        }
                     });
                 }
-                scheduleContainer.appendChild(roomColumn);
+            });
+        };
+
+        // --- ADMIN: SETTINGS ---
+        function showSettings() {
+            // Re-using logic from previous iterations but simplified for this context
+            Swal.fire({
+                title: 'Pengaturan Aplikasi',
+                html: `
+                    <div style="text-align:left">
+                        <label>Ganti Background (URL)</label>
+                        <input id="set-bg" class="form-control mb-2" placeholder="https://...">
+                        <button onclick="saveBg()" class="btn btn-primary btn-sm w-100">Simpan Background</button>
+                        <hr>
+                        <label>Tambah Ruangan</label>
+                        <input id="set-room" class="form-control mb-2" placeholder="Nama Ruangan">
+                        <button onclick="addRoom()" class="btn btn-success btn-sm w-100">Tambah Ruangan</button>
+                    </div>
+                `,
+                showConfirmButton: false
             });
         }
-        
-        async function handleUserSubmit(e) {
-            e.preventDefault();
-            const submitButton = document.getElementById('submitButton');
-            const startDateTime = new Date(document.getElementById('tanggalMulai').value);
-            const endDateTime = new Date(document.getElementById('tanggalSelesai').value);
-            const now = new Date(); now.setSeconds(0,0);
-             if (startDateTime < now) { Swal.fire('Waktu Invalid', 'Waktu mulai tidak boleh sudah lewat.', 'warning'); return; }
-             if (endDateTime <= startDateTime) { Swal.fire('Waktu Invalid', 'Waktu selesai harus setelah waktu mulai.', 'warning'); return; }
 
-            submitButton.disabled = true; submitButton.textContent = 'Mengirim...';
-            const formData = new FormData(bookingForm);
-            let unitBagian = formData.get('unitBagianSelect') === 'Lainnya' ? formData.get('unitBagianLainnya') : formData.get('unitBagianSelect');
-
-            const bookingData = { 
-                namaRuangan: formData.get('namaRuangan'), 
-                namaPeminjam: formData.get('namaPeminjam'), 
-                unitBagian: unitBagian, 
-                nomorWa: formData.get('nomorWa'),
-                tanggalMulai: startDateTime.toISOString().split('T')[0], 
-                waktuMulai: startDateTime.toTimeString().split(' ')[0].substring(0,5), 
-                tanggalSelesai: endDateTime.toISOString().split('T')[0], 
-                waktuSelesai: endDateTime.toTimeString().split(' ')[0].substring(0,5), 
-                keperluan: formData.get('keperluan'), 
-            };
-            try {
-                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(bookingData), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-                const result = await response.json();
-                if (result.status === 'success') { 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Terkirim!',
-                        text: result.message,
-                        confirmButtonColor: '#4f46e5'
-                    });
-                    bookingForm.reset();
-                    fetchUserSchedule();
-                } else { Swal.fire('Gagal', result.message, 'error'); }
-            } catch (error) { Swal.fire('Error', 'Gagal mengirim booking. Cek koneksi internet.', 'error'); } 
-            finally { submitButton.disabled = false; submitButton.textContent = 'Kirim Permintaan Booking'; }
+        window.saveBg = function() {
+            const url = document.getElementById('set-bg').value;
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: url, password: 'lia' }) }) // Password hardcoded for simple compat
+            .then(() => { Swal.fire('Sukses','Background disimpan','success'); fetchData(); });
         }
 
-        function showAdminView() {
-            userSection.style.display = 'none';
-            adminSection.style.display = 'block';
-            adminLoginBtn.addEventListener('click', handleAdminLogin);
-            adminPasswordInput.addEventListener('keyup', e => e.key === 'Enter' && handleAdminLogin());
-            refreshAdminBtn.addEventListener('click', fetchAdminData);
-            deleteOldDataBtn.addEventListener('click', handleDeleteOldData);
+        window.addRoom = function() {
+            const name = document.getElementById('set-room').value;
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: name, password: 'lia' }) })
+            .then(() => { Swal.fire('Sukses','Ruangan ditambah','success'); fetchData(); });
         }
 
-        async function handleAdminLogin() {
-            // Simple loading on button
-            adminLoginBtn.textContent = "Memvalidasi...";
-            adminLoginBtn.disabled = true;
-            
-            currentAdminPassword = adminPasswordInput.value;
-            if (!currentAdminPassword) { 
-                Swal.fire('Password Kosong', 'Harap masukkan password admin.', 'warning');
-                adminLoginBtn.disabled = false; adminLoginBtn.textContent = "Masuk Dashboard";
-                return; 
-            }
-            try {
-                const validationResponse = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'validatePassword', password: currentAdminPassword }) });
-                const validationResult = await validationResponse.json();
-                if (validationResult.status !== 'success') throw new Error(validationResult.message);
-                
-                adminLoginView.style.display = 'none';
-                adminDashboardView.style.display = 'block';
-                await fetchAdminData();
-            } catch (error) { 
-                Swal.fire('Login Gagal', error.message, 'error');
-            } 
-            finally { adminLoginBtn.disabled = false; adminLoginBtn.textContent = "Masuk Dashboard"; }
-        }
-
-        async function handleAddRoom() {
-            const input = document.getElementById('newRoomName');
-            const roomName = input.value.trim();
-            if (!roomName) return;
-            
-            const btn = event.target; btn.textContent = "..."; btn.disabled = true;
-            const payload = { action: 'addRoom', password: currentAdminPassword, roomName: roomName };
-            try {
-                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if(result.status === 'success') {
-                    rooms.push(roomName); 
-                    showSettings(); // Refresh modal content
-                    fetchAdminData();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: 'Ruangan ditambahkan',
-                        toast: true, position: 'top-end', showConfirmButton: false, timer: 2000
-                    });
-                } else { Swal.fire('Gagal', result.message, 'error'); }
-            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
-            finally { input.value = ""; btn.textContent = "Tambah"; btn.disabled = false; }
-        }
-
-        async function handleDeleteRoom(roomName) {
-            const confirm = await Swal.fire({
-                title: `Hapus ${roomName}?`,
-                text: "Tindakan ini tidak dapat dibatalkan.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Ya, Hapus'
-            });
-
-            if(!confirm.isConfirmed) return;
-
-            const payload = { action: 'deleteRoom', password: currentAdminPassword, roomName: roomName };
-            try {
-                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if(result.status === 'success') {
-                    rooms = rooms.filter(r => r !== roomName); 
-                    showSettings(); 
-                    fetchAdminData();
-                    Swal.fire('Terhapus', 'Ruangan berhasil dihapus.', 'success');
-                } else { Swal.fire('Gagal', result.message, 'error'); }
-            } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
-        }
-
-        function renderAdminList(data) {
-            bookingList.innerHTML = '';
-            data.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-            if (data.length === 0) { bookingList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Tidak ada data.</p>'; return; }
-            data.forEach(booking => {
-                const item = document.createElement('li');
-                item.className = 'admin-booking-item';
-                item.dataset.status = booking.Status;
-                const actionsHtml = booking.Status === 'Belum Disetujui' 
-                    ? `<div class="actions"><button class="btn btn-approve" data-id="${booking['ID Booking']}" data-status="Disetujui">Setujui</button><button class="btn btn-reject" data-id="${booking['ID Booking']}" data-status="Ditolak">Tolak</button><button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`
-                    : `<div class="actions"><button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`;
-                
-                item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruang:</strong> ${booking['Nama Ruangan']}</p><p><strong>Oleh:</strong> ${booking['Nama Peminjam']}</p><p><strong>Waktu:</strong> ${booking['Tanggal Mulai']} ${booking['Waktu Mulai']}</p>${actionsHtml}`;
-                bookingList.appendChild(item);
-            });
-            bookingList.addEventListener('click', handleAdminAction);
-        }
-
-        function renderAdminSchedule(data) {
-            adminScheduleContainer.innerHTML = '';
-            const visibleBookings = data.filter(b => b.Status === "Disetujui" || b.Status === "Belum Disetujui");
-            visibleBookings.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
-            
-            rooms.forEach(room => {
-                const roomColumn = document.createElement('div');
-                roomColumn.className = 'room-column';
-                roomColumn.innerHTML = `<h3>${room}</h3>`;
-                const bookingsForRoom = visibleBookings.filter(b => b['Nama Ruangan'] === room);
-                if (bookingsForRoom.length === 0) {
-                    roomColumn.innerHTML += '<p style="opacity:0.6; text-align:center; font-size:0.8rem">Kosong</p>';
-                } else {
-                    bookingsForRoom.forEach(booking => {
-                        const item = document.createElement('div');
-                        const statusClass = `status-${booking.Status.toLowerCase().replace(/ /g, '-')}`;
-                        item.className = `booking-item ${statusClass}`;
-                        const startDate = new Date(`${booking['Tanggal Mulai']}T${booking['Waktu Mulai']}`);
-                        item.innerHTML = `<p class="keperluan" style="font-weight:bold">${booking.Keperluan}</p><p style="font-size:0.8rem">${startDate.toLocaleDateString('id-ID', {day:'numeric', month:'short'})}, ${booking['Waktu Mulai']}</p><p class="status" style="font-size:0.75rem">${booking.Status}</p>`;
-                        roomColumn.appendChild(item);
-                    });
+        function handleDeleteOldData() {
+            Swal.fire({ title: 'Hapus Data Lama?', text: 'Data lampau akan dihapus permanen', icon: 'warning', showCancelButton: true, confirmButtonText: 'Hapus' })
+            .then(res => {
+                if(res.isConfirmed) {
+                    fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOldBookings', password: 'lia' }) })
+                    .then(r=>r.json()).then(d => Swal.fire('Info', d.message, 'info').then(()=>fetchData()));
                 }
-                adminScheduleContainer.appendChild(roomColumn);
             });
         }
 
-        async function handleDeleteOldData() {
-            const result = await Swal.fire({
-                title: 'Hapus Data Lama?',
-                text: "Semua booking yang jadwalnya sudah lewat akan dihapus permanen.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Ya, Hapus Semua'
-            });
+        // Initialize
+        initApp();
 
-            if (!result.isConfirmed) return;
-            
-            const btn = deleteOldDataBtn; btn.disabled = true; btn.textContent = 'Menghapus...';
-            try {
-                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOldBookings', password: currentAdminPassword }) });
-                const json = await res.json();
-                Swal.fire('Selesai', json.message, 'success'); 
-                fetchAdminData();
-            } catch(e) { Swal.fire('Error', 'Gagal menghapus data.', 'error'); } 
-            finally { btn.disabled = false; btn.textContent = 'Bersihkan Data Lama'; }
-        }
-        
-        async function handleAdminAction(e) {
-            if(!e.target.matches('button')) return;
-            const btn = e.target;
-            const action = btn.classList.contains('btn-delete') ? 'deleteBooking' : 'updateStatus';
-            const payload = { action: action, password: currentAdminPassword, bookingId: btn.dataset.id };
-            
-            if(action === 'updateStatus') payload.newStatus = btn.dataset.status;
-            
-            if(action === 'deleteBooking') {
-                const confirm = await Swal.fire({
-                    title: 'Hapus Pengajuan?',
-                    text: "Data akan dihapus permanen.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Hapus'
-                });
-                if(!confirm.isConfirmed) return;
-            }
-
-            btn.disabled = true; btn.textContent = '...';
-            try {
-                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const json = await res.json();
-                if(json.status === 'success') { 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: json.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    fetchAdminData(); 
-                }
-                else { throw new Error(json.message); }
-            } catch(err) { Swal.fire('Error', err.message, 'error'); btn.disabled=false; }
-        }
     </script>
 </body>
 </html>
