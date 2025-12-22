@@ -11,7 +11,7 @@
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
@@ -22,16 +22,17 @@
     <style>
         :root {
             --primary: #4f46e5; --primary-hover: #4338ca;
-            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-bg: rgba(255, 255, 255, 0.85); /* Default glass for dashboard */
             --glass-border: rgba(255, 255, 255, 0.9);
-            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
             --text-main: #1f2937;
+            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
         }
 
         body { 
             font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh;
             color: var(--text-main); background-color: #f3f4f6;
-            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background: var(--bg-gradient);
             background-attachment: fixed; background-size: cover; background-position: center;
         }
 
@@ -41,11 +42,12 @@
         /* Typography */
         h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; margin: 0; color: #1e1b4b; }
         
-        /* Glass Card */
+        /* Glass Card (Global) */
         .glass-card {
-            background: var(--glass-bg); backdrop-filter: blur(20px);
-            border-radius: 20px; border: 1px solid var(--glass-border);
-            padding: 2rem; box-shadow: var(--card-shadow); margin-bottom: 2rem;
+            background: var(--glass-bg); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px; border: 1px solid var(--glass-border);
+            padding: 2.5rem; box-shadow: var(--card-shadow); margin-bottom: 2rem;
         }
 
         /* Buttons */
@@ -55,7 +57,7 @@
         }
         .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         .btn-danger { background: #ef4444; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
         .btn-secondary { background: #e5e7eb; color: #374151; }
@@ -81,32 +83,79 @@
 
         /* Form Elements */
         .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.9rem; }
         .form-control {
-            width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid #d1d5db;
-            background: rgba(255,255,255,0.9); font-size: 1rem; box-sizing: border-box;
+            width: 100%; padding: 0.9rem; border-radius: 12px; border: 1px solid #d1d5db;
+            background: rgba(255,255,255,0.8); font-size: 1rem; box-sizing: border-box; transition: all 0.2s;
         }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); background: white; }
         .form-control:read-only { background: #e5e7eb; color: #6b7280; cursor: not-allowed; }
 
-        /* Login Screen */
+        /* --- LOGIN SCREEN REDESIGN (Beautiful Glass) --- */
         .login-wrapper {
             display: flex; justify-content: center; align-items: center; min-height: 100vh;
-            flex-direction: column; text-align: center;
+            flex-direction: column; text-align: center; padding: 20px;
+            position: relative; overflow: hidden; /* For decoration */
         }
-        .login-card { max-width: 400px; width: 90%; text-align: center; }
-        .login-logo { width: 100px; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        
+        /* Decorative Blobs for Glass Effect */
+        .login-bg-decoration {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; pointer-events: none;
+        }
+        .blob {
+            position: absolute; filter: blur(50px); opacity: 0.6;
+        }
+        .blob-1 {
+            top: 20%; left: 20%; width: 300px; height: 300px;
+            background: #a78bfa; border-radius: 50%;
+            animation: moveBlob 8s infinite alternate;
+        }
+        .blob-2 {
+            bottom: 20%; right: 20%; width: 250px; height: 250px;
+            background: #f472b6; border-radius: 50%;
+            animation: moveBlob 10s infinite alternate-reverse;
+        }
+        @keyframes moveBlob { from { transform: translate(0, 0); } to { transform: translate(20px, -20px); } }
+
+        .login-card { 
+            max-width: 400px; width: 100%; 
+            padding: 3.5rem 2rem; 
+            background: rgba(255, 255, 255, 0.2); /* Sangat transparan */
+            backdrop-filter: blur(20px); /* Blur kuat */
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6); /* Border es */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border-radius: 28px;
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        
+        .login-logo { width: 100px; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); transition: transform 0.3s; }
+        .login-logo:hover { transform: scale(1.05); }
+        
+        .login-title { 
+            font-size: 2.2rem; font-weight: 800; color: #1e1b4b; 
+            margin-bottom: 0.5rem; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(255,255,255,0.5);
+        }
+        .login-subtitle { 
+            font-size: 0.95rem; color: #4b5563; margin-bottom: 2.5rem; 
+            font-weight: 500; opacity: 0.9;
+        }
+        
+        .login-footer { margin-top: 2.5rem; font-size: 0.75rem; color: #6b7280; font-weight: 500; opacity: 0.8; }
 
         /* Header & Nav */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
-        .user-info { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 50px; }
+        .user-info { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(5px); }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         /* Schedule & Admin List */
         .booking-item, .admin-item {
-            background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;
-            border-left: 5px solid #ccc; transition: transform 0.2s; position: relative;
+            background: white; padding: 1.25rem; border-radius: 16px; margin-bottom: 1rem;
+            border-left: 5px solid #ccc; transition: all 0.2s; position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; border-left-width: 5px;
         }
-        .booking-item:hover { transform: translateY(-2px); }
+        .booking-item:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
         
         /* Status Colors */
         .status-disetujui { border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
@@ -114,51 +163,68 @@
         .status-ditolak { border-left-color: #ef4444; background: linear-gradient(to right, #fef2f2, #fff); }
 
         /* Tables */
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f3f4f6; color: var(--primary); font-weight: 700; }
+        .table-responsive { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 0; background: white; overflow: hidden; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f3f4f6; }
+        th { background: #f9fafb; color: var(--text-main); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        tr:last-child td { border-bottom: none; }
 
     </style>
 </head>
 <body>
 
-    <!-- 1. VIEW: LOGIN SCREEN -->
+    <!-- 1. VIEW: LOGIN SCREEN (REDESIGNED) -->
     <div id="view-login" class="login-wrapper">
+        <!-- Background Ornaments -->
+        <div class="login-bg-decoration">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+        </div>
+
         <div class="glass-card login-card">
             <img src="https://github.com/srpcom/bookingruangan/blob/main/logo%20rsud%202025%20tansparent2.png?raw=true" class="login-logo" alt="Logo RSUD">
-            <h2 style="color: var(--primary); margin-bottom: 5px;">SIBORA</h2>
-            <p style="margin-bottom: 30px; color: #666;">Sistem Booking Ruangan RSUD</p>
             
-            <div id="g_id_onload"
-                 data-client_id="783459415718-mp0vsmd2lopajf2ut0aqc6drjrs95pu8.apps.googleusercontent.com"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false">
+            <!-- Judul Diperbarui -->
+            <h1 class="login-title">SIBORA</h1>
+            <p class="login-subtitle">Sistem Booking Ruangan<br>RSUD dr. R. Koesma Tuban</p>
+            
+            <div style="display: flex; justify-content: center; margin-bottom: 1rem; width: 100%;">
+                <div id="g_id_onload"
+                     data-client_id="783459415718-mp0vsmd2lopajf2ut0aqc6drjrs95pu8.apps.googleusercontent.com"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="pill"
+                     data-theme="filled_blue"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="center"
+                     data-width="280">
+                </div>
             </div>
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="pill"
-                 data-theme="filled_blue"
-                 data-text="signin_with"
-                 data-size="large"
-                 data-logo_alignment="left"
-                 data-width="300">
+            
+            <p id="login-msg" style="margin-top: 15px; font-size: 0.85rem; color: #ef4444; min-height: 20px;"></p>
+            
+            <div class="login-footer">
+                &copy; 2025 RSUD dr. R. Koesma Tuban.<br>All rights reserved.
             </div>
-            <p id="login-msg" style="margin-top: 20px; font-size: 0.9rem; color: #ef4444;"></p>
         </div>
     </div>
 
     <!-- 2. VIEW: SETUP PROFIL (NEW USER) -->
     <div id="view-setup" class="container hidden" style="margin-top: 5vh;">
-        <div class="glass-card" style="max-width: 500px; margin: auto;">
-            <div style="text-align: center; mb-4">
-                <img src="https://github.com/srpcom/bookingruangan/blob/main/logo%20rsud%202025%20tansparent2.png?raw=true" style="width: 60px; margin-bottom: 10px;">
-                <h2 class="text-center mb-4">Lengkapi Profil Anda</h2>
+        <div class="glass-card" style="max-width: 550px; margin: auto; padding: 3rem;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <img src="https://github.com/srpcom/bookingruangan/blob/main/logo%20rsud%202025%20tansparent2.png?raw=true" style="width: 70px; margin-bottom: 1rem;">
+                <h2 style="font-weight: 700; color: var(--primary);">Lengkapi Profil Anda</h2>
+                <p class="text-muted">Mohon lengkapi data diri Anda untuk melanjutkan.</p>
             </div>
             <form onsubmit="handleSaveProfile(event, 'setup')">
                 <div class="form-group">
                     <label>Email (Google)</label>
-                    <input type="text" id="setup-email" class="form-control" readonly>
+                    <input type="text" id="setup-email" class="form-control" readonly style="background-color: #f3f4f6;">
                 </div>
                 <div class="form-group">
                     <label>Nama Lengkap</label>
@@ -171,9 +237,9 @@
                 <div class="form-group">
                     <label>Nomor WhatsApp (Aktif)</label>
                     <input type="tel" id="setup-wa" class="form-control" required placeholder="081234567890">
-                    <small style="color: #666;">*Notifikasi status akan dikirim ke nomor ini.</small>
+                    <small style="color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem; display: block;">*Notifikasi status booking akan dikirim ke nomor ini.</small>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 mt-3">Simpan & Lanjutkan</button>
+                <button type="submit" class="btn btn-primary w-100 mt-4" style="padding: 1rem;">Simpan & Lanjutkan <i class="fas fa-arrow-right ms-2"></i></button>
             </form>
         </div>
     </div>
@@ -703,7 +769,7 @@
                                 if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1);
                                 
                                 // NEW FORMATTED MESSAGE
-                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nInformasi Booking Ruangan:\n\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}*\n🕒 Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*\n\nTerima kasih.`;
+                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nInformasi Booking Ruangan:\n\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n🕒 Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*\n\nTerima kasih.`;
                                 
                                 waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`;
                                 waStyle = '';
