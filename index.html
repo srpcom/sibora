@@ -696,7 +696,8 @@
                                 let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, '');
                                 if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1);
                                 
-                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nBerikut detail booking ruangan Anda:\n\n🏛️ Ruang: ${b['Nama Ruangan']}\n📅 Tanggal: ${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: ${b['Waktu Mulai']} - ${b['Waktu Selesai']}\n📝 Keperluan: ${b.Keperluan}\n📊 Status: ${b.Status.toUpperCase()}\n\nTerima kasih.`;
+                                // FORMAT PESAN WA YANG LEBIH BAIK
+                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nBerikut detail booking ruangan Anda:\n\n🏛️ *Ruang:* ${b['Nama Ruangan']}\n📅 *Tanggal:* ${formatDateToID(b['Tanggal Mulai'])}\n⏰ *Waktu:* ${b['Waktu Mulai']} - ${b['Waktu Selesai']}\n📝 *Keperluan:* ${b.Keperluan}\n📊 *Status:* ${b.Status.toUpperCase()}\n\nTerima kasih.`;
                                 
                                 waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`;
                                 waStyle = '';
