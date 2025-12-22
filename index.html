@@ -5,17 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SIBORA - Sistem Booking Ruangan</title>
     
-    <!-- PWA MANIFEST (Data URI) -->
-    <!-- Ini membuat aplikasi bisa di-install ("Add to Home Screen") -->
+    <!-- PWA MANIFEST -->
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiU0lCT1JBIC0gU2lzdGVtIEJvb2tpbmcgUnVhbmdhbiIsInNob3J0X25hbWUiOiJTSUJPUkEiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2YzZjRmNiIsInRoZW1lX2NvbG9yIjoiIzRmNDZlNSIsImljb25zIjpbeyJzcmMiOiJodHRwczovL2dpdGh1Yi5jb20vc3JwY29tL2Jvb2tpbmdydWFuZ2FuL2Jsb2IvbWFpbi9sb2dvJTIwcnN1ZCUyMDIwMjUlMjB0YW5zcGFyZW50Mi5wbmc/cmF3PXRydWUiLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
-    
-    <!-- PWA Meta Tags for iOS & Android -->
     <meta name="theme-color" content="#4f46e5">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SIBORA">
-    <link rel="apple-touch-icon" href="https://github.com/srpcom/bookingruangan/blob/main/logo%20rsud%202025%20tansparent2.png?raw=true">
-
+    
     <!-- Favicon -->
     <link rel="shortcut icon" href="https://github.com/srpcom/bookingruangan/blob/main/logo%20rsud%202025%20tansparent2.png?raw=true" type="image/png">
     
@@ -25,16 +18,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- SweetAlert2 -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    
-    <!-- Google Identity Services -->
+    <!-- Libraries: SweetAlert2 & Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         :root {
             --primary: #4f46e5; --primary-hover: #4338ca;
-            --glass-bg: rgba(255, 255, 255, 0.85); /* Default glass for dashboard */
+            --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(255, 255, 255, 0.9);
             --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
             --text-main: #1f2937;
@@ -46,9 +38,7 @@
             color: var(--text-main); background-color: #f3f4f6;
             background: var(--bg-gradient);
             background-attachment: fixed; background-size: cover; background-position: center;
-            /* PWA Safe Area for iPhone notch */
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
+            padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
         }
 
         .container { max-width: 1200px; margin: auto; padding: 20px; }
@@ -66,10 +56,7 @@
         }
 
         /* Buttons */
-        .btn { 
-            padding: 0.7rem 1.5rem; border: none; border-radius: 12px; cursor: pointer; 
-            font-weight: 600; transition: all 0.2s; display: inline-block;
-        }
+        .btn { padding: 0.7rem 1.5rem; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: inline-block; }
         .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
@@ -81,161 +68,69 @@
         .btn-icon:hover { color: var(--primary-hover); transform: scale(1.1); }
         
         /* Admin Action Buttons on Card */
-        .admin-controls-overlay {
-            position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 10;
-        }
-        .btn-mini {
-            width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; text-decoration: none; font-size: 1rem; transition: all 0.2s; border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+        .admin-controls-overlay { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 10; }
+        .btn-mini { width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; text-decoration: none; font-size: 1rem; transition: all 0.2s; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-mini:hover { transform: scale(1.1); }
-        
-        .btn-del { background: #fee2e2; color: #ef4444; }
-        .btn-del:hover { background: #ef4444; color: white; }
-        
-        .btn-wa { background: #dcfce7; color: #16a34a; }
-        .btn-wa:hover { background: #16a34a; color: white; }
+        .btn-del { background: #fee2e2; color: #ef4444; } .btn-del:hover { background: #ef4444; color: white; }
+        .btn-wa { background: #dcfce7; color: #16a34a; } .btn-wa:hover { background: #16a34a; color: white; }
 
         /* Form Elements */
         .form-group { margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.9rem; }
-        .form-control {
-            width: 100%; padding: 0.9rem; border-radius: 12px; border: 1px solid #d1d5db;
-            background: rgba(255,255,255,0.8); font-size: 1rem; box-sizing: border-box; transition: all 0.2s;
-        }
+        .form-control { width: 100%; padding: 0.9rem; border-radius: 12px; border: 1px solid #d1d5db; background: rgba(255,255,255,0.8); font-size: 1rem; box-sizing: border-box; transition: all 0.2s; }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); background: white; }
         .form-control:read-only { background: #e5e7eb; color: #6b7280; cursor: not-allowed; }
 
-        /* --- LOGIN SCREEN REDESIGN (Beautiful Glass) --- */
-        .login-wrapper {
-            display: flex; justify-content: center; align-items: center; min-height: 100vh;
-            flex-direction: column; text-align: center; padding: 20px;
-            position: relative; overflow: hidden; /* For decoration */
-        }
-        
-        /* Decorative Blobs for Glass Effect */
-        .login-bg-decoration {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; pointer-events: none;
-        }
-        .blob {
-            position: absolute; filter: blur(50px); opacity: 0.6;
-        }
-        .blob-1 {
-            top: 20%; left: 20%; width: 300px; height: 300px;
-            background: #a78bfa; border-radius: 50%;
-            animation: moveBlob 8s infinite alternate;
-        }
-        .blob-2 {
-            bottom: 20%; right: 20%; width: 250px; height: 250px;
-            background: #f472b6; border-radius: 50%;
-            animation: moveBlob 10s infinite alternate-reverse;
-        }
+        /* Login Screen */
+        .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; text-align: center; padding: 20px; position: relative; overflow: hidden; }
+        .login-bg-decoration { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; pointer-events: none; }
+        .blob { position: absolute; filter: blur(50px); opacity: 0.6; }
+        .blob-1 { top: 20%; left: 20%; width: 300px; height: 300px; background: #a78bfa; border-radius: 50%; animation: moveBlob 8s infinite alternate; }
+        .blob-2 { bottom: 20%; right: 20%; width: 250px; height: 250px; background: #f472b6; border-radius: 50%; animation: moveBlob 10s infinite alternate-reverse; }
         @keyframes moveBlob { from { transform: translate(0, 0); } to { transform: translate(20px, -20px); } }
-
-        .login-card { 
-            max-width: 400px; width: 100%; 
-            padding: 3.5rem 2rem; 
-            background: rgba(255, 255, 255, 0.2); /* Sangat transparan */
-            backdrop-filter: blur(20px); /* Blur kuat */
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.6); /* Border es */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            border-radius: 28px;
-            position: relative; z-index: 10;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        
+        .login-card { max-width: 400px; width: 100%; padding: 3.5rem 2rem; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border-radius: 28px; position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; }
         .login-logo { width: 100px; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); transition: transform 0.3s; }
         .login-logo:hover { transform: scale(1.05); }
-        
-        .login-title { 
-            font-size: 2.2rem; font-weight: 800; color: #1e1b4b; 
-            margin-bottom: 0.5rem; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(255,255,255,0.5);
-        }
-        .login-subtitle { 
-            font-size: 0.95rem; color: #4b5563; margin-bottom: 2.5rem; 
-            font-weight: 500; opacity: 0.9;
-        }
-        
+        .login-title { font-size: 2.2rem; font-weight: 800; color: #1e1b4b; margin-bottom: 0.5rem; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
+        .login-subtitle { font-size: 0.95rem; color: #4b5563; margin-bottom: 2.5rem; font-weight: 500; opacity: 0.9; }
         .login-footer { margin-top: 2.5rem; font-size: 0.75rem; color: #6b7280; font-weight: 500; opacity: 0.8; }
 
         /* Header & Nav */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
-        
-        /* User Profile & Dropdown */
         .user-profile-container { position: relative; cursor: pointer; }
-        
-        .user-info { 
-            display: flex; align-items: center; gap: 12px; 
-            background: rgba(255,255,255,0.6); padding: 6px 12px 6px 16px; 
-            border-radius: 50px; border: 1px solid rgba(255,255,255,0.5); 
-            backdrop-filter: blur(5px); transition: all 0.3s;
-        }
+        .user-info { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.6); padding: 6px 12px 6px 16px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(5px); transition: all 0.3s; }
         .user-info:hover { background: rgba(255,255,255,0.9); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        
         .user-text { text-align: right; line-height: 1.2; }
         .user-name { font-weight: 600; font-size: 0.9rem; color: #1e1b4b; }
         .user-role { font-size: 0.7rem; color: #6b7280; font-weight: 500; letter-spacing: 0.5px; }
-        
-        .user-avatar { 
-            width: 42px; height: 42px; border-radius: 50%; object-fit: cover; 
-            border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        }
-
-        .profile-dropdown {
-            position: absolute; top: 110%; right: 0; width: 200px;
-            background: white; border-radius: 16px; 
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255,255,255,0.8);
-            opacity: 0; transform: translateY(-10px); pointer-events: none;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 100; padding: 8px;
-            display: none;
-        }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .profile-dropdown { position: absolute; top: 110%; right: 0; width: 200px; background: white; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255,255,255,0.8); opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; padding: 8px; display: none; }
         .profile-dropdown.active { opacity: 1; transform: translateY(0); pointer-events: auto; display: block; }
-        
-        .dropdown-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 15px; border-radius: 10px;
-            color: #374151; text-decoration: none; font-size: 0.9rem; font-weight: 500;
-            transition: all 0.2s; cursor: pointer;
-        }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 10px; color: #374151; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; cursor: pointer; }
         .dropdown-item:hover { background-color: #f3f4f6; color: var(--primary); }
         .dropdown-item.logout { color: #ef4444; border-top: 1px solid #f3f4f6; margin-top: 5px; }
         .dropdown-item.logout:hover { background-color: #fef2f2; color: #dc2626; }
         .dropdown-icon { width: 20px; text-align: center; }
 
         /* Schedule & Admin List */
-        .booking-item, .admin-item {
-            background: white; padding: 1.25rem; border-radius: 16px; margin-bottom: 1rem;
-            border-left: 5px solid #ccc; transition: all 0.2s; position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; border-left-width: 5px;
-        }
+        .booking-item, .admin-item { background: white; padding: 1.25rem; border-radius: 16px; margin-bottom: 1rem; border-left: 5px solid #ccc; transition: all 0.2s; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; border-left-width: 5px; }
         .booking-item:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
-        
-        /* Status Colors */
         .status-disetujui { border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
         .status-belum-disetujui { border-left-color: #f59e0b; background: linear-gradient(to right, #fffbeb, #fff); }
         .status-ditolak { border-left-color: #ef4444; background: linear-gradient(to right, #fef2f2, #fff); }
 
-        /* Tables */
+        /* Tables & Floating */
         .table-responsive { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; margin-top: 0; background: white; overflow: hidden; }
         th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f3f4f6; }
         th { background: #f9fafb; color: var(--text-main); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
         tr:last-child td { border-bottom: none; }
-
-        /* Floating WA */
-        .float-wa {
-            position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px;
-            background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center;
-            font-size: 30px; box-shadow: 2px 2px 3px #999; z-index: 1000;
-            display: flex; align-items: center; justify-content: center;
-            text-decoration: none; transition: all 0.3s ease;
-        }
+        .float-wa { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 2px 2px 3px #999; z-index: 1000; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; }
         .float-wa:hover { transform: scale(1.1); background-color: #20b857; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4); }
 
+        /* --- STATS DASHBOARD GRID --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+        .chart-container { background: rgba(255,255,255,0.6); border-radius: 16px; padding: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
@@ -272,9 +167,7 @@
                 <div class="form-group"><label>Email (Google)</label><input type="text" id="setup-email" class="form-control" readonly style="background-color: #f3f4f6;"></div>
                 <div class="form-group"><label>Nama Lengkap</label><input type="text" id="setup-nama" class="form-control" required placeholder="Contoh: dr. Budi Santoso"></div>
                 <div class="form-group"><label>Unit / Bagian</label><input type="text" id="setup-unit" class="form-control" required placeholder="Contoh: Instalasi Farmasi"></div>
-                <div class="form-group">
-                    <label>Nomor WhatsApp (Aktif)</label>
-                    <input type="tel" id="setup-wa" class="form-control" required placeholder="081234567890">
+                <div class="form-group"><label>Nomor WhatsApp (Aktif)</label><input type="tel" id="setup-wa" class="form-control" required placeholder="081234567890">
                     <small style="color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem; display: block;">*Notifikasi status booking akan dikirim ke nomor ini.</small>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 mt-4" style="padding: 1rem;">Simpan & Lanjutkan <i class="fas fa-arrow-right ms-2"></i></button>
@@ -293,7 +186,6 @@
                 </div>
             </div>
             
-            <!-- User Profile & Dropdown -->
             <div class="user-profile-container" onclick="toggleDropdown(event)">
                 <div class="user-info">
                     <div class="user-text">
@@ -303,16 +195,9 @@
                     <img id="head-avatar" src="" class="user-avatar" alt="Profil">
                     <i class="fas fa-chevron-down" style="font-size: 0.8rem; color: #6b7280; margin-left: 5px;"></i>
                 </div>
-                
                 <div id="profileDropdown" class="profile-dropdown">
-                    <div class="dropdown-item" onclick="showEditProfile()">
-                        <div class="dropdown-icon"><i class="fas fa-user-edit"></i></div>
-                        Edit Profil
-                    </div>
-                    <div class="dropdown-item logout" onclick="logout()">
-                        <div class="dropdown-icon"><i class="fas fa-sign-out-alt"></i></div>
-                        Keluar
-                    </div>
+                    <div class="dropdown-item" onclick="showEditProfile()"><div class="dropdown-icon"><i class="fas fa-user-edit"></i></div>Edit Profil</div>
+                    <div class="dropdown-item logout" onclick="logout()"><div class="dropdown-icon"><i class="fas fa-sign-out-alt"></i></div>Keluar</div>
                 </div>
             </div>
         </header>
@@ -322,13 +207,38 @@
             <div class="glass-card" style="background: rgba(255,255,255,0.95); border-left: 5px solid var(--primary);">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3>👑 Admin Dashboard</h3>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 flex-wrap">
                         <button onclick="showUserMgmt()" class="btn btn-secondary">👥 Manajemen User</button>
                         <button onclick="showSettings()" class="btn btn-secondary">⚙️ Pengaturan</button>
+                        <button onclick="showStats()" class="btn btn-primary">📊 Statistik</button>
                         <button onclick="handleDeleteOldData()" class="btn btn-danger">📁 Arsipkan Data Lama</button>
                     </div>
                 </div>
                 <hr>
+                
+                <!-- CONTAINER STATISTIK (HIDDEN BY DEFAULT) -->
+                <div id="admin-stats-view" class="hidden" style="margin-top:20px; animation:fadeIn 0.5s;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 style="margin:0">Analisis Data Booking</h4>
+                        <button onclick="document.getElementById('admin-stats-view').classList.add('hidden')" class="btn btn-sm btn-secondary">Tutup</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="chart-container">
+                            <h5 class="text-center">Ruangan Terpopuler</h5>
+                            <canvas id="chartRoom"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h5 class="text-center">Unit Paling Aktif</h5>
+                            <canvas id="chartUnit"></canvas>
+                        </div>
+                        <div class="chart-container" style="grid-column: 1 / -1;">
+                            <h5 class="text-center">Jam Sibuk (Heatmap)</h5>
+                            <canvas id="chartTime" style="max-height:300px;"></canvas>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+
                 <h4>Persetujuan Booking</h4>
                 <div id="admin-approval-list"><p class="text-center">Memuat daftar...</p></div>
             </div>
@@ -347,10 +257,7 @@
                     <div class="form-group" style="flex: 1;"><label>Mulai</label><input type="datetime-local" id="book-mulai" class="form-control" required></div>
                     <div class="form-group" style="flex: 1;"><label>Selesai</label><input type="datetime-local" id="book-selesai" class="form-control" required></div>
                 </div>
-                <div class="form-group">
-                    <label>Kelengkapan (Opsional)</label>
-                    <input type="text" id="book-kelengkapan" class="form-control" placeholder="Contoh: Speaker, Proyektor, Snack, dsb">
-                </div>
+                <div class="form-group"><label>Kelengkapan (Opsional)</label><input type="text" id="book-kelengkapan" class="form-control" placeholder="Contoh: Speaker, Proyektor, Snack, dsb"></div>
                 <div class="form-group"><label>Keperluan</label><textarea id="book-keperluan" class="form-control" rows="3" required placeholder="Contoh: Rapat Evaluasi Bulanan"></textarea></div>
                 <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
             </form>
@@ -368,6 +275,7 @@
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
         let currentUser = null;
@@ -383,18 +291,8 @@
         function initApp() { const u = sessionStorage.getItem('sibora_user'); if (!u) { document.getElementById('view-login').classList.remove('hidden'); return; } currentUser = JSON.parse(u); document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role; document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; setDefaultBookingTime(); if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); fetchData(); }
         function logout() { sessionStorage.clear(); location.reload(); }
         
-        // --- DROPDOWN LOGIC ---
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('active');
-        }
-        window.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('profileDropdown');
-            if (dropdown && dropdown.classList.contains('active')) {
-                dropdown.classList.remove('active');
-            }
-        });
+        function toggleDropdown(event) { event.stopPropagation(); const dropdown = document.getElementById('profileDropdown'); dropdown.classList.toggle('active'); }
+        window.addEventListener('click', function(e) { const dropdown = document.getElementById('profileDropdown'); if (dropdown && dropdown.classList.contains('active')) { dropdown.classList.remove('active'); } });
 
         function setDefaultBookingTime() { const now = new Date(); const start = new Date(now.getTime() + 60 * 60 * 1000); const end = new Date(start.getTime() + 60 * 60 * 1000); const fmt = (d) => { const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); const hours = String(d.getHours()).padStart(2, '0'); const minutes = String(d.getMinutes()).padStart(2, '0'); return `${year}-${month}-${day}T${hours}:${minutes}`; }; document.getElementById('book-mulai').value = fmt(start); document.getElementById('book-selesai').value = fmt(end); }
         function formatDateToID(d) { if (!d) return ''; const p = d.split('-'); return (p.length === 3) ? `${p[2]}-${p[1]}-${p[0]}` : d; }
@@ -402,37 +300,9 @@
         async function fetchData() { try { const res = await fetch(GAS_URL); const data = await res.json(); if (data.status === 'success') { rooms = data.rooms; bookings = data.data; const s = document.getElementById('book-ruangan'); const cv = s.value; s.innerHTML = ''; const dopt = document.createElement('option'); dopt.value = ""; dopt.innerText = "Pilih Ruangan..."; s.appendChild(dopt); rooms.forEach(r => { const o = document.createElement('option'); o.value = r; o.innerText = r; s.appendChild(o); }); if(cv) s.value = cv; renderSchedule(); if (currentUser.role === 'ADMIN') renderAdminApproval(); if (data.background) document.body.style.backgroundImage = `url('${data.background}')`; } } catch (e) { console.error(e); } }
 
         function showEditProfile() { Swal.fire({ title: '✏️ Edit Profil', html: `<div style="text-align:left"><label>Email</label><input class="form-control mb-2" value="${currentUser.email}" readonly style="background:#eee"><label>Nama</label><input id="edit-nama" class="form-control mb-2" value="${currentUser.nama}"><label>Unit</label><input id="edit-unit" class="form-control mb-2" value="${currentUser.unit}"><label>WA</label><input id="edit-wa" class="form-control mb-2" value="${currentUser.wa}"><label>Foto</label><input type="file" id="edit-foto" class="form-control" accept="image/*"></div>`, showCancelButton: true, confirmButtonText: 'Simpan', showLoaderOnConfirm: true, preConfirm: async () => { const n = document.getElementById('edit-nama').value, u = document.getElementById('edit-unit').value, w = document.getElementById('edit-wa').value, f = document.getElementById('edit-foto').files[0]; if(!n||!u||!w) return Swal.showValidationMessage('Isi semua'); let pu = currentUser.foto; if (f) { try { const b64 = await compressImage(f); const ur = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'upload_foto', email: currentUser.email, base64: b64.split(',')[1], mimeType: 'image/jpeg' }) }).then(r=>r.json()); if(ur.status==='success') pu=ur.url; else return Swal.showValidationMessage(ur.message); } catch(e) { return Swal.showValidationMessage(e); } } return fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save_profile', email: currentUser.email, nama: n, unit: u, wa: w, foto: pu }) }).then(r=>r.json()); } }).then(r => { if(r.isConfirmed && r.value.status==='success') { currentUser = r.value.user; sessionStorage.setItem('sibora_user', JSON.stringify(currentUser)); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-avatar').src = currentUser.foto; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; Swal.fire('Berhasil','Profil diupdate','success'); } }); }
-        
         function handleSaveProfile(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Menyimpan..."; btn.disabled=true; const p={action:'save_profile', email:document.getElementById('setup-email').value, nama:document.getElementById('setup-nama').value, unit:document.getElementById('setup-unit').value, wa:document.getElementById('setup-wa').value, foto:sessionStorage.getItem('temp_photo')||""}; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ sessionStorage.setItem('sibora_user',JSON.stringify(d.user)); initApp(); }else{ Swal.fire('Error','Gagal','error'); btn.textContent="Simpan"; btn.disabled=false; } }); }
-        
-        function handleBookingSubmit(e) { 
-            e.preventDefault(); 
-            const btn=e.target.querySelector('button'); 
-            btn.textContent="Mengirim..."; btn.disabled=true; 
-            const p={
-                action:'booking', 
-                email:currentUser.email, 
-                namaRuangan:document.getElementById('book-ruangan').value, 
-                tanggalMulai:document.getElementById('book-mulai').value.split('T')[0], 
-                waktuMulai:document.getElementById('book-mulai').value.split('T')[1], 
-                tanggalSelesai:document.getElementById('book-selesai').value.split('T')[0], 
-                waktuSelesai:document.getElementById('book-selesai').value.split('T')[1], 
-                keperluan:document.getElementById('book-keperluan').value,
-                kelengkapan:document.getElementById('book-kelengkapan').value
-            }; 
-            fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ 
-                if(d.status==='success'){ 
-                    Swal.fire('Berhasil','Terkirim','success'); 
-                    e.target.reset(); setDefaultBookingTime(); 
-                    document.getElementById('book-nama').value = currentUser.nama; 
-                    document.getElementById('book-unit').value = currentUser.unit;
-                    fetchData(); 
-                } else { Swal.fire('Gagal',d.message,'error'); } 
-                btn.textContent="Kirim Pengajuan"; btn.disabled=false; 
-            }); 
-        }
+        function handleBookingSubmit(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Mengirim..."; btn.disabled=true; const p={ action:'booking', email:currentUser.email, namaRuangan:document.getElementById('book-ruangan').value, tanggalMulai:document.getElementById('book-mulai').value.split('T')[0], waktuMulai:document.getElementById('book-mulai').value.split('T')[1], tanggalSelesai:document.getElementById('book-selesai').value.split('T')[0], waktuSelesai:document.getElementById('book-selesai').value.split('T')[1], keperluan:document.getElementById('book-keperluan').value, kelengkapan:document.getElementById('book-kelengkapan').value }; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ Swal.fire('Berhasil','Terkirim','success'); e.target.reset(); setDefaultBookingTime(); document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; fetchData(); } else { Swal.fire('Gagal',d.message,'error'); } btn.textContent="Kirim Pengajuan"; btn.disabled=false; }); }
 
-        // --- RENDER SCHEDULE ---
         function renderSchedule() {
             const c = document.getElementById('schedule-container'); c.innerHTML = '';
             const v = bookings.filter(b => b.Status !== 'Ditolak');
@@ -447,23 +317,14 @@
                         const sc = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`;
                         const div = document.createElement('div'); div.className = `booking-item ${sc}`; div.style.marginBottom = '10px';
                         let statusColor = '#f59e0b', statusIcon = '⏳';
-                        if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; }
-                        else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
-
+                        if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; } else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
                         let adminControls = '';
                         if (currentUser.role === 'ADMIN') {
                             let waLink = '#', waStyle = 'opacity:0.5; cursor:not-allowed;', waTitle = 'No WA tidak tersedia';
-                            if (b['Nomor WA']) {
-                                let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, ''); if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1);
-                                const equip = b['Kelengkapan'] ? `\n🛠️ *Alat:* ${b['Kelengkapan']}` : '';
-                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nInfo Booking:\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*${equip}\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*`;
-                                waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`; waStyle = ''; waTitle = 'Kirim Detail WA';
-                            }
+                            if (b['Nomor WA']) { let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, ''); if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1); const equip = b['Kelengkapan'] ? `\n🛠️ *Alat:* ${b['Kelengkapan']}` : ''; const msg = `Halo *${b['Nama Peminjam']}*,\n\nInfo Booking:\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*${equip}\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*`; waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`; waStyle = ''; waTitle = 'Kirim Detail WA'; }
                             adminControls = `<div class="admin-controls-overlay"><a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a><button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
                         }
-
                         const kelengkapanHtml = b['Kelengkapan'] ? `<div style="font-size:0.85rem; color:#6b7280; margin-bottom:5px;">🛠️ ${b['Kelengkapan']}</div>` : '';
-
                         div.innerHTML = `${adminControls}<div style="font-weight:bold; font-size:1rem; padding-right:25px; margin-bottom: 5px;">${b.Keperluan}</div><div style="font-size:0.9rem; color:#555; margin-bottom: 8px;">👤 <b>${b['Nama Peminjam']}</b><br><span style="font-size:0.85rem; opacity:0.8;">(${b['Unit/Bagian']})</span></div>${kelengkapanHtml}<div style="background:#f9fafb; padding:8px; border-radius:8px; font-size:0.85rem;">🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}</div><div style="text-align:right; font-size:0.85rem; font-weight:bold; margin-top:8px; color:${statusColor};">${statusIcon} ${b.Status.toUpperCase()}</div>`;
                         col.appendChild(div);
                     });
@@ -473,8 +334,7 @@
         }
 
         function renderAdminApproval() {
-            const l = document.getElementById('admin-approval-list');
-            const p = bookings.filter(b => b.Status === 'Belum Disetujui');
+            const l = document.getElementById('admin-approval-list'); const p = bookings.filter(b => b.Status === 'Belum Disetujui');
             if (p.length === 0) { l.innerHTML = '<p class="text-center text-muted">Tidak ada pengajuan pending.</p>'; return; }
             l.innerHTML = '';
             p.forEach(b => {
@@ -489,25 +349,93 @@
         
         function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${u.role === 'ADMIN' ? `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">User</button>` : `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Admin</button>`}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
         window.changeRole = (e, r) => { Swal.fire({ title: `Ubah ke ${r}?`, showCancelButton: true }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
-        
-        function showSettings() {
-            let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:200px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">';
-            rooms.forEach(r => {
-                roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:500;">${r}</span><div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div></li>`;
-            });
-            roomHtml += '</ul>';
-            Swal.fire({
-                title: 'Pengaturan',
-                html: `<div style="text-align:left"><label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>${roomHtml}<div style="display:flex; gap:5px; margin-bottom:20px;"><input id="new-room" class="form-control" placeholder="Nama Ruangan Baru"><button onclick="addRoom()" class="btn btn-success" style="white-space:nowrap;">+ Tambah</button></div><hr><label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label><input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background"><button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button></div>`,
-                showConfirmButton: false, width: '600px'
-            });
-        }
+        function showSettings() { let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:200px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; rooms.forEach(r => { roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:500;">${r}</span><div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div></li>`; }); roomHtml += '</ul>'; Swal.fire({ title: 'Pengaturan', html: `<div style="text-align:left"><label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>${roomHtml}<div style="display:flex; gap:5px; margin-bottom:20px;"><input id="new-room" class="form-control" placeholder="Nama Ruangan Baru"><button onclick="addRoom()" class="btn btn-success" style="white-space:nowrap;">+ Tambah</button></div><hr><label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label><input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background"><button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button></div>`, showConfirmButton: false, width: '600px' }); }
         window.saveBg = () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: document.getElementById('bg-url').value }) }).then(() => { Swal.fire('Sukses'); fetchData(); }); };
         window.addRoom = () => { const n = document.getElementById('new-room').value; if(!n) return Swal.fire('Error','Nama kosong','error'); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n }) }).then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); };
         window.triggerEditRoom = async (o) => { const { value: n } = await Swal.fire({ title: 'Edit Ruangan', input: 'text', inputValue: o, showCancelButton: true }); if (n && n !== o) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: o, newName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
         window.triggerDeleteRoom = async (n) => { if((await Swal.fire({ title: `Hapus ${n}?`, icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRoom', roomName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
         function handleDeleteOldData() { Swal.fire({ title: 'Arsipkan Data Lama?', text: 'Data yang sudah berlalu akan dipindahkan ke sheet Arsip.', icon: 'info', showCancelButton: true, confirmButtonText: 'Ya, Arsipkan' }).then(r => { if (r.isConfirmed) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'archiveOldBookings' }) }).then(x => x.json()).then(y => Swal.fire('Info', y.message, 'info').then(() => fetchData())); }); }
         async function deleteBooking(id) { if((await Swal.fire({ title: 'Hapus Permanen?', icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteBooking', bookingId: id }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); } else Swal.fire('Gagal',d.message,'error'); }); } }
+
+        // --- STATS LOGIC ---
+        function showStats() {
+            document.getElementById('admin-stats-view').classList.remove('hidden');
+            Swal.showLoading(); // Indikator loading sementara
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getStatistics' }) })
+            .then(res => res.json())
+            .then(data => {
+                Swal.close();
+                if(data.status === 'success') {
+                    renderCharts(data.roomStats, data.unitStats, data.hourStats);
+                } else {
+                    Swal.fire('Gagal', 'Tidak bisa memuat statistik', 'error');
+                }
+            });
+        }
+
+        let chartRoom, chartUnit, chartTime;
+
+        function renderCharts(roomStats, unitStats, hourStats) {
+            // Helper untuk destroy chart lama sebelum bikin baru
+            if(chartRoom) chartRoom.destroy();
+            if(chartUnit) chartUnit.destroy();
+            if(chartTime) chartTime.destroy();
+
+            // 1. Room Chart (Bar)
+            const ctxRoom = document.getElementById('chartRoom').getContext('2d');
+            chartRoom = new Chart(ctxRoom, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(roomStats),
+                    datasets: [{
+                        label: 'Jumlah Booking',
+                        data: Object.values(roomStats),
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 5
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            // 2. Unit Chart (Pie)
+            const ctxUnit = document.getElementById('chartUnit').getContext('2d');
+            // Generate random colors
+            const bgColors = Object.keys(unitStats).map(() => `hsl(${Math.random() * 360}, 70%, 70%)`);
+            chartUnit = new Chart(ctxUnit, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(unitStats),
+                    datasets: [{
+                        data: Object.values(unitStats),
+                        backgroundColor: bgColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            // 3. Hour Chart (Line)
+            const ctxTime = document.getElementById('chartTime').getContext('2d');
+            // Sort keys (07:00, 08:00...)
+            const sortedHours = Object.keys(hourStats).sort();
+            const sortedValues = sortedHours.map(h => hourStats[h]);
+            
+            chartTime = new Chart(ctxTime, {
+                type: 'line',
+                data: {
+                    labels: sortedHours,
+                    datasets: [{
+                        label: 'Frekuensi',
+                        data: sortedValues,
+                        borderColor: '#ec4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
 
         initApp();
     </script>
