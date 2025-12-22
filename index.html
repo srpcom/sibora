@@ -59,9 +59,9 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         .btn-danger { background: #ef4444; color: white; }
+        .btn-success { background: #10b981; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
         .btn-secondary { background: #e5e7eb; color: #374151; }
-        .btn-success { background: #10b981; color: white; }
         .btn-icon { background: transparent; padding: 5px; color: var(--primary); font-size: 1.1rem; }
         .btn-icon:hover { color: var(--primary-hover); transform: scale(1.1); }
         
@@ -245,7 +245,7 @@
                     <div class="d-flex gap-2">
                         <button onclick="showUserMgmt()" class="btn btn-secondary">👥 Manajemen User</button>
                         <button onclick="showSettings()" class="btn btn-secondary">⚙️ Pengaturan</button>
-                        <button onclick="handleDeleteOldData()" class="btn btn-danger">🗑️ Hapus Data Lama</button>
+                        <button onclick="handleDeleteOldData()" class="btn btn-danger">📁 Arsipkan Data Lama</button>
                     </div>
                 </div>
                 <hr>
@@ -414,7 +414,7 @@
         window.addRoom = () => { const n = document.getElementById('new-room').value; if(!n) return Swal.fire('Error','Nama kosong','error'); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n }) }).then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); };
         window.triggerEditRoom = async (o) => { const { value: n } = await Swal.fire({ title: 'Edit Ruangan', input: 'text', inputValue: o, showCancelButton: true }); if (n && n !== o) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: o, newName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
         window.triggerDeleteRoom = async (n) => { if((await Swal.fire({ title: `Hapus ${n}?`, icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRoom', roomName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
-        function handleDeleteOldData() { Swal.fire({ title: 'Hapus Data Lama?', showCancelButton: true }).then(r => { if (r.isConfirmed) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOldBookings' }) }).then(x => x.json()).then(y => Swal.fire('Info', y.message, 'info').then(() => fetchData())); }); }
+        function handleDeleteOldData() { Swal.fire({ title: 'Arsipkan Data Lama?', text: 'Data yang sudah berlalu akan dipindahkan ke sheet Arsip.', icon: 'info', showCancelButton: true, confirmButtonText: 'Ya, Arsipkan' }).then(r => { if (r.isConfirmed) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'archiveOldBookings' }) }).then(x => x.json()).then(y => Swal.fire('Info', y.message, 'info').then(() => fetchData())); }); }
         async function deleteBooking(id) { if((await Swal.fire({ title: 'Hapus Permanen?', icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteBooking', bookingId: id }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); } else Swal.fire('Gagal',d.message,'error'); }); } }
 
         initApp();
