@@ -88,6 +88,7 @@
                 <p id="login-message" style="color: red; text-align: center; margin-top: 1rem;"></p>
             </div>
             <div id="admin-dashboard-view" style="display: none;">
+                <!-- Daftar Pengajuan (Approval List) -->
                 <div class="card-header">
                     <h2>Daftar Pengajuan</h2>
                     <div>
@@ -95,7 +96,15 @@
                         <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
                     </div>
                 </div>
-                <ul id="booking-list" style="list-style: none; padding: 0;"></ul>
+                <ul id="booking-list" style="list-style: none; padding: 0; margin-bottom: 3rem;"></ul>
+
+                <!-- Monitor Jadwal Ruangan (Visual Schedule for Admin) -->
+                <div class="card-header" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <h2>Monitor Jadwal Ruangan</h2>
+                </div>
+                <div id="adminScheduleContainer" class="schedule-rooms">
+                    <p>Memuat jadwal...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -110,15 +119,34 @@
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
         const rooms = ["Gajah Mada", "Ronggolawe", "Aryo Tejo", "Diponegoro", "Komite Keperawatan"];
-        const userSection = document.getElementById('user-section'), adminSection = document.getElementById('admin-section');
-        const scheduleContainer = document.getElementById('scheduleContainer'), loadingMessage = document.getElementById('loadingMessage'), bookingForm = document.getElementById('bookingForm');
-        const adminLoginView = document.getElementById('admin-login-view'), adminDashboardView = document.getElementById('admin-dashboard-view');
-        const adminLoginBtn = document.getElementById('adminLoginBtn'), adminPasswordInput = document.getElementById('adminPassword');
-        const bookingList = document.getElementById('booking-list'), loginMessage = document.getElementById('login-message');
+        
+        // Elemen DOM
+        const userSection = document.getElementById('user-section');
+        const adminSection = document.getElementById('admin-section');
+        const scheduleContainer = document.getElementById('scheduleContainer');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const bookingForm = document.getElementById('bookingForm');
+        
+        // Elemen Admin
+        const adminLoginView = document.getElementById('admin-login-view');
+        const adminDashboardView = document.getElementById('admin-dashboard-view');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const bookingList = document.getElementById('booking-list');
+        const adminScheduleContainer = document.getElementById('adminScheduleContainer'); // Container baru untuk jadwal admin
+        const loginMessage = document.getElementById('login-message');
+        
+        // Tombol
         const refreshUserBtn = document.getElementById('refreshUserBtn');
         const refreshAdminBtn = document.getElementById('refreshAdminBtn');
         const deleteOldDataBtn = document.getElementById('deleteOldDataBtn');
-        const modal = document.getElementById('modal'), modalMessage = document.getElementById('modalMessage'), modalButtons = document.getElementById('modalButtons'), modalContent = document.getElementById('modalContent');
+        
+        // Modal
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalButtons = document.getElementById('modalButtons');
+        const modalContent = document.getElementById('modalContent');
+        
         let currentAdminPassword = '';
 
         // --- Modal Functions ---
@@ -185,6 +213,7 @@
             refreshUserBtn.addEventListener('click', fetchUserSchedule);
             fetchUserSchedule();
         }
+
         async function fetchUserSchedule() {
             loadingMessage.textContent = 'Memuat jadwal...';
             loadingMessage.style.display = 'block';
@@ -202,6 +231,7 @@
                 loadingMessage.style.display = 'none';
             }
         }
+
         function renderUserSchedule(data) {
             scheduleContainer.innerHTML = '';
             const visibleBookings = data.filter(b => b.Status === "Disetujui" || b.Status === "Belum Disetujui" || b.Status === "Ditolak");
@@ -303,14 +333,65 @@
         
         async function fetchAdminData() {
             bookingList.innerHTML = '<p>Memuat data terbaru...</p>';
+            adminScheduleContainer.innerHTML = '<p>Memuat jadwal ruangan...</p>'; // Teks loading untuk jadwal admin
             try {
                 const dataResponse = await fetch(GAS_WEB_APP_URL);
                 const dataResult = await dataResponse.json();
                 if (dataResult.status !== 'success') throw new Error(dataResult.message);
+                
+                // Render List (Daftar Approval)
                 renderAdminList(dataResult.data);
+                
+                // Render Schedule (Visualisasi Jadwal untuk Admin)
+                renderAdminSchedule(dataResult.data);
             } catch (error) {
                 bookingList.innerHTML = `<p style="color:red">Gagal memuat data: ${error.message}</p>`;
+                adminScheduleContainer.innerHTML = `<p style="color:red">Gagal memuat jadwal.</p>`;
             }
+        }
+
+        // Fungsi Baru: Merender Jadwal Visual untuk Admin
+        function renderAdminSchedule(data) {
+            adminScheduleContainer.innerHTML = '';
+            
+            // Filter: Admin hanya perlu melihat yang DISETUJUI (Aktif) dan BELUM DISETUJUI (Pending) untuk melihat bentrok
+            // Kita sembunyikan yang DITOLAK agar tidak memenuhi tampilan monitor, 
+            // tapi jika Anda ingin menampilkan yang ditolak juga, hapus bagian filter ini.
+            const visibleBookings = data.filter(b => b.Status === "Disetujui" || b.Status === "Belum Disetujui");
+            
+            // Urutkan berdasarkan waktu
+            visibleBookings.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
+            
+            rooms.forEach(room => {
+                const roomColumn = document.createElement('div');
+                roomColumn.className = 'room-column';
+                roomColumn.innerHTML = `<h3>${room}</h3>`;
+                
+                const bookingsForRoom = visibleBookings.filter(b => b['Nama Ruangan'] === room);
+                
+                if (bookingsForRoom.length === 0) {
+                    roomColumn.innerHTML += '<p style="opacity:0.6; text-align:center; font-size: 0.85rem;">Tidak ada jadwal aktif/pending.</p>';
+                } else {
+                    bookingsForRoom.forEach(booking => {
+                        const item = document.createElement('div');
+                        const statusClass = `status-${booking.Status.toLowerCase().replace(/ /g, '-')}`;
+                        item.className = `booking-item ${statusClass}`;
+                        
+                        const startDate = new Date(`${booking['Tanggal Mulai']}T${booking['Waktu Mulai']}`);
+                        const endDate = new Date(`${booking['Tanggal Selesai']}T${booking['Waktu Selesai']}`);
+                        
+                        // Tampilan kartu untuk admin (bisa lebih ringkas atau sama detailnya)
+                        item.innerHTML = `
+                            <p class="keperluan" style="font-weight:bold;">${booking.Keperluan}</p>
+                            <p class="peminjam" style="font-size:0.85rem;">${booking['Nama Peminjam']}</p>
+                            <p style="font-size:0.85rem;">${startDate.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'})}, ${booking['Waktu Mulai']} - ${booking['Waktu Selesai']}</p>
+                            <p class="status" style="font-size:0.8rem;">${booking.Status.toUpperCase()}</p>
+                        `;
+                        roomColumn.appendChild(item);
+                    });
+                }
+                adminScheduleContainer.appendChild(roomColumn);
+            });
         }
 
         async function handleAdminLogin() {
@@ -335,6 +416,7 @@
                 adminLoginBtn.disabled = false;
             }
         }
+        
         function renderAdminList(data) {
             bookingList.innerHTML = '';
             data.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
@@ -429,4 +511,3 @@
     </script>
 </body>
 </html>
-
