@@ -23,7 +23,7 @@
     <style>
         :root {
             --primary: #4f46e5; --primary-hover: #4338ca;
-            --glass-bg: rgba(255, 255, 255, 0.85); /* Default glass for dashboard */
+            --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(255, 255, 255, 0.9);
             --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
             --text-main: #1f2937;
@@ -43,7 +43,7 @@
         /* Typography */
         h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; margin: 0; color: #1e1b4b; }
         
-        /* Glass Card (Global) */
+        /* Glass Card */
         .glass-card {
             background: var(--glass-bg); backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -93,63 +93,77 @@
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); background: white; }
         .form-control:read-only { background: #e5e7eb; color: #6b7280; cursor: not-allowed; }
 
-        /* --- LOGIN SCREEN REDESIGN (Beautiful Glass) --- */
+        /* --- LOGIN SCREEN REDESIGN --- */
         .login-wrapper {
             display: flex; justify-content: center; align-items: center; min-height: 100vh;
             flex-direction: column; text-align: center; padding: 20px;
-            position: relative; overflow: hidden; /* For decoration */
+            position: relative; overflow: hidden; 
         }
-        
-        /* Decorative Blobs for Glass Effect */
-        .login-bg-decoration {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; pointer-events: none;
-        }
-        .blob {
-            position: absolute; filter: blur(50px); opacity: 0.6;
-        }
-        .blob-1 {
-            top: 20%; left: 20%; width: 300px; height: 300px;
-            background: #a78bfa; border-radius: 50%;
-            animation: moveBlob 8s infinite alternate;
-        }
-        .blob-2 {
-            bottom: 20%; right: 20%; width: 250px; height: 250px;
-            background: #f472b6; border-radius: 50%;
-            animation: moveBlob 10s infinite alternate-reverse;
-        }
+        .login-bg-decoration { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; pointer-events: none; }
+        .blob { position: absolute; filter: blur(50px); opacity: 0.6; }
+        .blob-1 { top: 20%; left: 20%; width: 300px; height: 300px; background: #a78bfa; border-radius: 50%; animation: moveBlob 8s infinite alternate; }
+        .blob-2 { bottom: 20%; right: 20%; width: 250px; height: 250px; background: #f472b6; border-radius: 50%; animation: moveBlob 10s infinite alternate-reverse; }
         @keyframes moveBlob { from { transform: translate(0, 0); } to { transform: translate(20px, -20px); } }
 
         .login-card { 
-            max-width: 400px; width: 100%; 
-            padding: 3.5rem 2rem; 
-            background: rgba(255, 255, 255, 0.2); /* Sangat transparan */
-            backdrop-filter: blur(20px); /* Blur kuat */
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.6); /* Border es */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            border-radius: 28px;
-            position: relative; z-index: 10;
+            max-width: 400px; width: 100%; padding: 3.5rem 2rem; 
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border-radius: 28px; position: relative; z-index: 10;
             display: flex; flex-direction: column; align-items: center;
         }
-        
         .login-logo { width: 100px; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); transition: transform 0.3s; }
         .login-logo:hover { transform: scale(1.05); }
-        
-        .login-title { 
-            font-size: 2.2rem; font-weight: 800; color: #1e1b4b; 
-            margin-bottom: 0.5rem; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(255,255,255,0.5);
-        }
-        .login-subtitle { 
-            font-size: 0.95rem; color: #4b5563; margin-bottom: 2.5rem; 
-            font-weight: 500; opacity: 0.9;
-        }
-        
+        .login-title { font-size: 2.2rem; font-weight: 800; color: #1e1b4b; margin-bottom: 0.5rem; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
+        .login-subtitle { font-size: 0.95rem; color: #4b5563; margin-bottom: 2.5rem; font-weight: 500; opacity: 0.9; }
         .login-footer { margin-top: 2.5rem; font-size: 0.75rem; color: #6b7280; font-weight: 500; opacity: 0.8; }
 
-        /* Header & Nav */
+        /* --- HEADER & USER PROFILE DROPDOWN --- */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
-        .user-info { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(5px); }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        /* Container User Info + Dropdown */
+        .user-profile-container { position: relative; cursor: pointer; }
+        
+        .user-info { 
+            display: flex; align-items: center; gap: 12px; 
+            background: rgba(255,255,255,0.6); padding: 6px 12px 6px 16px; 
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.5); 
+            backdrop-filter: blur(5px); transition: all 0.3s;
+        }
+        .user-info:hover { background: rgba(255,255,255,0.9); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .user-text { text-align: right; line-height: 1.2; }
+        .user-name { font-weight: 600; font-size: 0.9rem; color: #1e1b4b; }
+        .user-role { font-size: 0.7rem; color: #6b7280; font-weight: 500; letter-spacing: 0.5px; }
+        
+        .user-avatar { 
+            width: 42px; height: 42px; border-radius: 50%; object-fit: cover; 
+            border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+
+        /* Dropdown Menu */
+        .profile-dropdown {
+            position: absolute; top: 110%; right: 0; width: 200px;
+            background: white; border-radius: 16px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.8);
+            opacity: 0; transform: translateY(-10px); pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100; padding: 8px;
+            display: none; /* JS will toggle this */
+        }
+        .profile-dropdown.active { opacity: 1; transform: translateY(0); pointer-events: auto; display: block; }
+        
+        .dropdown-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 15px; border-radius: 10px;
+            color: #374151; text-decoration: none; font-size: 0.9rem; font-weight: 500;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .dropdown-item:hover { background-color: #f3f4f6; color: var(--primary); }
+        .dropdown-item.logout { color: #ef4444; border-top: 1px solid #f3f4f6; margin-top: 5px; }
+        .dropdown-item.logout:hover { background-color: #fef2f2; color: #dc2626; }
+        .dropdown-icon { width: 20px; text-align: center; }
 
         /* Schedule & Admin List */
         .booking-item, .admin-item {
@@ -171,7 +185,7 @@
         th { background: #f9fafb; color: var(--text-main); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
         tr:last-child td { border-bottom: none; }
 
-        /* --- FLOATING WHATSAPP BUTTON --- */
+        /* Floating WA */
         .float-wa {
             position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px;
             background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center;
@@ -179,17 +193,12 @@
             display: flex; align-items: center; justify-content: center;
             text-decoration: none; transition: all 0.3s ease;
         }
-        .float-wa:hover {
-            transform: scale(1.1); background-color: #20b857; color: #fff;
-            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4);
-        }
-        .my-float { margin-top: 0; }
+        .float-wa:hover { transform: scale(1.1); background-color: #20b857; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4); }
 
     </style>
 </head>
 <body>
 
-    <!-- FLOATING WA BUTTON -->
     <a href="https://wa.me/628819933004?text=Halo%20admin%20SIBORA,%20mohon%20bantuannya..." class="float-wa" target="_blank" title="Chat Admin via WhatsApp">
         <i class="fa-brands fa-whatsapp my-float"></i>
     </a>
@@ -242,18 +251,28 @@
                     <p style="opacity: 0.8; margin: 0;">RSUD dr. R. Koesma Tuban</p>
                 </div>
             </div>
-            <div class="d-flex gap-2 align-items-center">
+            
+            <!-- User Profile & Dropdown -->
+            <div class="user-profile-container" onclick="toggleDropdown(event)">
                 <div class="user-info">
-                    <img id="head-avatar" src="" class="user-avatar">
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <span id="head-nama" style="font-weight: 600; font-size: 0.9rem;">User</span>
-                            <button onclick="showEditProfile()" class="btn-icon" title="Edit Profil">✏️</button>
-                        </div>
-                        <div id="head-role" style="font-size: 0.75rem; color: #666;">USER</div>
+                    <div class="user-text">
+                        <div id="head-nama" class="user-name">User</div>
+                        <div id="head-role" class="user-role">USER</div>
+                    </div>
+                    <img id="head-avatar" src="" class="user-avatar" alt="Profil">
+                    <i class="fas fa-chevron-down" style="font-size: 0.8rem; color: #6b7280; margin-left: 5px;"></i>
+                </div>
+                
+                <div id="profileDropdown" class="profile-dropdown">
+                    <div class="dropdown-item" onclick="showEditProfile()">
+                        <div class="dropdown-icon"><i class="fas fa-user-edit"></i></div>
+                        Edit Profil
+                    </div>
+                    <div class="dropdown-item logout" onclick="logout()">
+                        <div class="dropdown-icon"><i class="fas fa-sign-out-alt"></i></div>
+                        Keluar
                     </div>
                 </div>
-                <button onclick="logout()" class="btn btn-danger btn-sm">Keluar</button>
             </div>
         </header>
 
@@ -323,6 +342,22 @@
         function showSetupProfile(e, n, p) { document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.remove('hidden'); document.getElementById('setup-email').value = e; document.getElementById('setup-nama').value = n; sessionStorage.setItem('temp_photo', p); }
         function initApp() { const u = sessionStorage.getItem('sibora_user'); if (!u) { document.getElementById('view-login').classList.remove('hidden'); return; } currentUser = JSON.parse(u); document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role; document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; setDefaultBookingTime(); if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); fetchData(); }
         function logout() { sessionStorage.clear(); location.reload(); }
+        
+        // --- DROPDOWN LOGIC ---
+        function toggleDropdown(event) {
+            event.stopPropagation(); // Mencegah event klik menyebar ke window
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Tutup dropdown jika klik di luar
+        window.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown && dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            }
+        });
+
         function setDefaultBookingTime() { const now = new Date(); const start = new Date(now.getTime() + 60 * 60 * 1000); const end = new Date(start.getTime() + 60 * 60 * 1000); const fmt = (d) => { const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); const hours = String(d.getHours()).padStart(2, '0'); const minutes = String(d.getMinutes()).padStart(2, '0'); return `${year}-${month}-${day}T${hours}:${minutes}`; }; document.getElementById('book-mulai').value = fmt(start); document.getElementById('book-selesai').value = fmt(end); }
         function formatDateToID(d) { if (!d) return ''; const p = d.split('-'); return (p.length === 3) ? `${p[2]}-${p[1]}-${p[0]}` : d; }
 
@@ -389,7 +424,6 @@
                             adminControls = `<div class="admin-controls-overlay"><a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a><button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
                         }
 
-                        // Menampilkan Kelengkapan jika ada
                         const kelengkapanHtml = b['Kelengkapan'] ? `<div style="font-size:0.85rem; color:#6b7280; margin-bottom:5px;">🛠️ ${b['Kelengkapan']}</div>` : '';
 
                         div.innerHTML = `${adminControls}<div style="font-weight:bold; font-size:1rem; padding-right:25px; margin-bottom: 5px;">${b.Keperluan}</div><div style="font-size:0.9rem; color:#555; margin-bottom: 8px;">👤 <b>${b['Nama Peminjam']}</b><br><span style="font-size:0.85rem; opacity:0.8;">(${b['Unit/Bagian']})</span></div>${kelengkapanHtml}<div style="background:#f9fafb; padding:8px; border-radius:8px; font-size:0.85rem;">🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}</div><div style="text-align:right; font-size:0.85rem; font-weight:bold; margin-top:8px; color:${statusColor};">${statusIcon} ${b.Status.toUpperCase()}</div>`;
