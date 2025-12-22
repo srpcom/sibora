@@ -59,9 +59,9 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         .btn-danger { background: #ef4444; color: white; }
-        .btn-success { background: #10b981; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
         .btn-secondary { background: #e5e7eb; color: #374151; }
+        .btn-success { background: #10b981; color: white; }
         .btn-icon { background: transparent; padding: 5px; color: var(--primary); font-size: 1.1rem; }
         .btn-icon:hover { color: var(--primary-hover); transform: scale(1.1); }
         
@@ -174,47 +174,23 @@
 </head>
 <body>
 
-    <!-- 1. VIEW: LOGIN SCREEN (REDESIGNED) -->
+    <!-- 1. VIEW: LOGIN SCREEN -->
     <div id="view-login" class="login-wrapper">
-        <!-- Background Ornaments -->
-        <div class="login-bg-decoration">
-            <div class="blob blob-1"></div>
-            <div class="blob blob-2"></div>
-        </div>
-
+        <div class="login-bg-decoration"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
         <div class="glass-card login-card">
             <img src="https://github.com/srpcom/bookingruangan/blob/main/logo%20rsud%202025%20tansparent2.png?raw=true" class="login-logo" alt="Logo RSUD">
-            
-            <!-- Judul Diperbarui -->
             <h1 class="login-title">SIBORA</h1>
             <p class="login-subtitle">Sistem Booking Ruangan<br>RSUD dr. R. Koesma Tuban</p>
-            
             <div style="display: flex; justify-content: center; margin-bottom: 1rem; width: 100%;">
-                <div id="g_id_onload"
-                     data-client_id="783459415718-mp0vsmd2lopajf2ut0aqc6drjrs95pu8.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-shape="pill"
-                     data-theme="filled_blue"
-                     data-text="signin_with"
-                     data-size="large"
-                     data-logo_alignment="center"
-                     data-width="280">
-                </div>
+                <div id="g_id_onload" data-client_id="783459415718-mp0vsmd2lopajf2ut0aqc6drjrs95pu8.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
+                <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="signin_with" data-size="large" data-logo_alignment="center" data-width="280"></div>
             </div>
-            
             <p id="login-msg" style="margin-top: 15px; font-size: 0.85rem; color: #ef4444; min-height: 20px;"></p>
-            
-            <div class="login-footer">
-                &copy; 2025 RSUD dr. R. Koesma Tuban.<br>All rights reserved.
-            </div>
+            <div class="login-footer">&copy; 2025 RSUD dr. R. Koesma Tuban.<br>All rights reserved.</div>
         </div>
     </div>
 
-    <!-- 2. VIEW: SETUP PROFIL (NEW USER) -->
+    <!-- 2. VIEW: SETUP PROFIL -->
     <div id="view-setup" class="container hidden" style="margin-top: 5vh;">
         <div class="glass-card" style="max-width: 550px; margin: auto; padding: 3rem;">
             <div style="text-align: center; margin-bottom: 2rem;">
@@ -223,18 +199,9 @@
                 <p class="text-muted">Mohon lengkapi data diri Anda untuk melanjutkan.</p>
             </div>
             <form onsubmit="handleSaveProfile(event, 'setup')">
-                <div class="form-group">
-                    <label>Email (Google)</label>
-                    <input type="text" id="setup-email" class="form-control" readonly style="background-color: #f3f4f6;">
-                </div>
-                <div class="form-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" id="setup-nama" class="form-control" required placeholder="Contoh: dr. Budi Santoso">
-                </div>
-                <div class="form-group">
-                    <label>Unit / Bagian</label>
-                    <input type="text" id="setup-unit" class="form-control" required placeholder="Contoh: Instalasi Farmasi">
-                </div>
+                <div class="form-group"><label>Email (Google)</label><input type="text" id="setup-email" class="form-control" readonly style="background-color: #f3f4f6;"></div>
+                <div class="form-group"><label>Nama Lengkap</label><input type="text" id="setup-nama" class="form-control" required placeholder="Contoh: dr. Budi Santoso"></div>
+                <div class="form-group"><label>Unit / Bagian</label><input type="text" id="setup-unit" class="form-control" required placeholder="Contoh: Instalasi Farmasi"></div>
                 <div class="form-group">
                     <label>Nomor WhatsApp (Aktif)</label>
                     <input type="tel" id="setup-wa" class="form-control" required placeholder="081234567890">
@@ -270,7 +237,7 @@
             </div>
         </header>
 
-        <!-- ADMIN PANEL (Hidden for normal users) -->
+        <!-- ADMIN PANEL -->
         <div id="admin-panel" class="hidden mb-4">
             <div class="glass-card" style="background: rgba(255,255,255,0.95); border-left: 5px solid var(--primary);">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -283,9 +250,7 @@
                 </div>
                 <hr>
                 <h4>Persetujuan Booking</h4>
-                <div id="admin-approval-list">
-                    <p class="text-center">Memuat daftar...</p>
-                </div>
+                <div id="admin-approval-list"><p class="text-center">Memuat daftar...</p></div>
             </div>
         </div>
 
@@ -294,39 +259,20 @@
             <h3>📅 Buat Booking Baru</h3>
             <form onsubmit="handleBookingSubmit(event)" class="mt-4">
                 <div class="row" style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Nama Peminjam</label>
-                        <input type="text" id="book-nama" class="form-control" readonly>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Unit / Bagian</label>
-                        <input type="text" id="book-unit" class="form-control" readonly>
-                    </div>
+                    <div class="form-group" style="flex: 1;"><label>Nama Peminjam</label><input type="text" id="book-nama" class="form-control" readonly></div>
+                    <div class="form-group" style="flex: 1;"><label>Unit / Bagian</label><input type="text" id="book-unit" class="form-control" readonly></div>
                 </div>
-                
-                <div class="form-group">
-                    <label>Pilih Ruangan</label>
-                    <select id="book-ruangan" class="form-control" required>
-                        <option value="">Memuat ruangan...</option>
-                    </select>
-                </div>
-
+                <div class="form-group"><label>Pilih Ruangan</label><select id="book-ruangan" class="form-control" required><option value="">Memuat ruangan...</option></select></div>
                 <div class="row" style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Mulai</label>
-                        <input type="datetime-local" id="book-mulai" class="form-control" required>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Selesai (Default: +60 Menit)</label>
-                        <input type="datetime-local" id="book-selesai" class="form-control" required>
-                    </div>
+                    <div class="form-group" style="flex: 1;"><label>Mulai</label><input type="datetime-local" id="book-mulai" class="form-control" required></div>
+                    <div class="form-group" style="flex: 1;"><label>Selesai</label><input type="datetime-local" id="book-selesai" class="form-control" required></div>
                 </div>
-
+                <!-- BARU: KELENGKAPAN -->
                 <div class="form-group">
-                    <label>Keperluan</label>
-                    <textarea id="book-keperluan" class="form-control" rows="3" required placeholder="Contoh: Rapat Evaluasi Bulanan"></textarea>
+                    <label>Kelengkapan (Opsional)</label>
+                    <input type="text" id="book-kelengkapan" class="form-control" placeholder="Contoh: Speaker, Proyektor, Snack, dsb">
                 </div>
-
+                <div class="form-group"><label>Keperluan</label><textarea id="book-keperluan" class="form-control" rows="3" required placeholder="Contoh: Rapat Evaluasi Bulanan"></textarea></div>
                 <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
             </form>
         </div>
@@ -337,9 +283,7 @@
                 <h3>🖥️ Monitor Jadwal</h3>
                 <button onclick="fetchData()" class="btn btn-secondary">Refresh</button>
             </div>
-            <div id="schedule-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                <p>Memuat jadwal...</p>
-            </div>
+            <div id="schedule-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;"><p>Memuat jadwal...</p></div>
         </div>
     </div>
 
@@ -347,746 +291,133 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
-        
         let currentUser = null;
         let rooms = [];
         let bookings = [];
 
-        // --- UTILS: COMPRESS IMAGE FUNCTION ---
-        function compressImage(file, maxWidth = 800, quality = 0.7) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = event => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
+        function toBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
+        function compressImage(file, maxWidth = 800, quality = 0.7) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = event => { const img = new Image(); img.src = event.target.result; img.onload = () => { const canvas = document.createElement('canvas'); let width = img.width; let height = img.height; if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/jpeg', quality)); }; img.onerror = error => reject(error); }; reader.onerror = error => reject(error); }); }
 
-                        // Calculate new dimensions
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
+        function handleCredentialResponse(r) { const p = decodeJwtResponse(r.credential); document.getElementById('login-msg').innerText = "Memeriksa akun..."; fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'google_login', email: p.email, name: p.name, photo: p.picture }) }).then(res => res.json()).then(data => { if (data.status === 'success') { sessionStorage.setItem('sibora_user', JSON.stringify(data.user)); initApp(); } else if (data.status === 'new_user') { showSetupProfile(data.email, p.name, p.picture); } else { document.getElementById('login-msg').innerText = "Gagal Login: " + data.message; } }).catch(err => document.getElementById('login-msg').innerText = "Koneksi Error."); }
+        function decodeJwtResponse(t) { var base64Url = t.split('.')[1]; var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); }).join('')); return JSON.parse(jsonPayload); }
+        function showSetupProfile(e, n, p) { document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.remove('hidden'); document.getElementById('setup-email').value = e; document.getElementById('setup-nama').value = n; sessionStorage.setItem('temp_photo', p); }
+        function initApp() { const u = sessionStorage.getItem('sibora_user'); if (!u) { document.getElementById('view-login').classList.remove('hidden'); return; } currentUser = JSON.parse(u); document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role; document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; setDefaultBookingTime(); if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); fetchData(); }
+        function logout() { sessionStorage.clear(); location.reload(); }
+        function setDefaultBookingTime() { const now = new Date(); const start = new Date(now.getTime() + 60 * 60 * 1000); const end = new Date(start.getTime() + 60 * 60 * 1000); const fmt = (d) => { const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); const hours = String(d.getHours()).padStart(2, '0'); const minutes = String(d.getMinutes()).padStart(2, '0'); return `${year}-${month}-${day}T${hours}:${minutes}`; }; document.getElementById('book-mulai').value = fmt(start); document.getElementById('book-selesai').value = fmt(end); }
+        function formatDateToID(d) { if (!d) return ''; const p = d.split('-'); return (p.length === 3) ? `${p[2]}-${p[1]}-${p[0]}` : d; }
 
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // Output compressed data URL
-                        resolve(canvas.toDataURL('image/jpeg', quality));
-                    };
-                    img.onerror = error => reject(error);
-                };
-                reader.onerror = error => reject(error);
-            });
-        }
+        async function fetchData() { try { const res = await fetch(GAS_URL); const data = await res.json(); if (data.status === 'success') { rooms = data.rooms; bookings = data.data; const s = document.getElementById('book-ruangan'); const cv = s.value; s.innerHTML = ''; const dopt = document.createElement('option'); dopt.value = ""; dopt.innerText = "Pilih Ruangan..."; s.appendChild(dopt); rooms.forEach(r => { const o = document.createElement('option'); o.value = r; o.innerText = r; s.appendChild(o); }); if(cv) s.value = cv; renderSchedule(); if (currentUser.role === 'ADMIN') renderAdminApproval(); if (data.background) document.body.style.backgroundImage = `url('${data.background}')`; } } catch (e) { console.error(e); } }
+
+        function showEditProfile() { Swal.fire({ title: '✏️ Edit Profil', html: `<div style="text-align:left"><label>Email</label><input class="form-control mb-2" value="${currentUser.email}" readonly style="background:#eee"><label>Nama</label><input id="edit-nama" class="form-control mb-2" value="${currentUser.nama}"><label>Unit</label><input id="edit-unit" class="form-control mb-2" value="${currentUser.unit}"><label>WA</label><input id="edit-wa" class="form-control mb-2" value="${currentUser.wa}"><label>Foto</label><input type="file" id="edit-foto" class="form-control" accept="image/*"></div>`, showCancelButton: true, confirmButtonText: 'Simpan', showLoaderOnConfirm: true, preConfirm: async () => { const n = document.getElementById('edit-nama').value, u = document.getElementById('edit-unit').value, w = document.getElementById('edit-wa').value, f = document.getElementById('edit-foto').files[0]; if(!n||!u||!w) return Swal.showValidationMessage('Isi semua'); let pu = currentUser.foto; if (f) { try { const b64 = await compressImage(f); const ur = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'upload_foto', email: currentUser.email, base64: b64.split(',')[1], mimeType: 'image/jpeg' }) }).then(r=>r.json()); if(ur.status==='success') pu=ur.url; else return Swal.showValidationMessage(ur.message); } catch(e) { return Swal.showValidationMessage(e); } } return fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save_profile', email: currentUser.email, nama: n, unit: u, wa: w, foto: pu }) }).then(r=>r.json()); } }).then(r => { if(r.isConfirmed && r.value.status==='success') { currentUser = r.value.user; sessionStorage.setItem('sibora_user', JSON.stringify(currentUser)); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-avatar').src = currentUser.foto; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; Swal.fire('Berhasil','Profil diupdate','success'); } }); }
         
-        // Helper to Base64 (Fallback if compression not needed for small files)
-        function toBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        // --- AUTH LOGIC ---
-        function handleCredentialResponse(response) {
-            const responsePayload = decodeJwtResponse(response.credential);
-            const email = responsePayload.email;
-            const photo = responsePayload.picture;
-            const name = responsePayload.name;
-
-            document.getElementById('login-msg').innerText = "Memeriksa akun...";
-            
-            fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'google_login', email: email, name: name, photo: photo })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Login Berhasil
-                    sessionStorage.setItem('sibora_user', JSON.stringify(data.user));
-                    initApp();
-                } else if (data.status === 'new_user') {
-                    // Harus isi profil
-                    showSetupProfile(data.email, name, photo);
-                } else {
-                    document.getElementById('login-msg').innerText = "Gagal Login: " + data.message;
-                }
-            })
-            .catch(err => document.getElementById('login-msg').innerText = "Koneksi Error.");
-        }
-
-        function decodeJwtResponse(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        function showSetupProfile(email, name, photo) {
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-setup').classList.remove('hidden');
-            document.getElementById('setup-email').value = email;
-            document.getElementById('setup-nama').value = name;
-            // Simpan foto sementara di session
-            sessionStorage.setItem('temp_photo', photo);
-        }
-
-        // --- EDIT PROFILE LOGIC (WITH COMPRESSION) ---
-        function showEditProfile() {
-            Swal.fire({
-                title: '✏️ Edit Profil',
-                html: `
-                    <div style="text-align: left; margin-top: 10px;">
-                        <label style="font-weight:600; font-size:0.9rem;">Email (Tidak dapat diubah)</label>
-                        <input id="edit-email" class="form-control mb-2" value="${currentUser.email}" readonly style="background-color:#e9ecef;">
-                        
-                        <label style="font-weight:600; font-size:0.9rem;">Nama Lengkap</label>
-                        <input id="edit-nama" class="form-control mb-2" value="${currentUser.nama}">
-                        
-                        <label style="font-weight:600; font-size:0.9rem;">Unit / Bagian</label>
-                        <input id="edit-unit" class="form-control mb-2" value="${currentUser.unit}">
-                        
-                        <label style="font-weight:600; font-size:0.9rem;">Nomor WhatsApp</label>
-                        <input id="edit-wa" class="form-control mb-2" value="${currentUser.wa}">
-
-                        <label style="font-weight:600; font-size:0.9rem;">Ganti Foto Profil (Opsional)</label>
-                        <input type="file" id="edit-foto" class="form-control mb-2" accept="image/*">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Simpan Perubahan',
-                confirmButtonColor: '#4f46e5',
-                showLoaderOnConfirm: true,
-                preConfirm: async () => {
-                    const nama = document.getElementById('edit-nama').value;
-                    const unit = document.getElementById('edit-unit').value;
-                    const wa = document.getElementById('edit-wa').value;
-                    const fileInput = document.getElementById('edit-foto').files[0];
-                    
-                    if(!nama || !unit || !wa) {
-                        Swal.showValidationMessage('Semua field harus diisi');
-                        return false;
-                    }
-
-                    // Handle Photo Upload with Compression
-                    let newPhotoUrl = currentUser.foto;
-                    if (fileInput) {
-                        try {
-                            // COMPRESS IMAGE HERE (Max Width 800px, Quality 70%)
-                            const compressedBase64 = await compressImage(fileInput, 800, 0.7);
-                            
-                            const uploadRes = await fetch(GAS_URL, {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    action: 'upload_foto',
-                                    email: currentUser.email,
-                                    // Remove 'data:image/jpeg;base64,' prefix before sending
-                                    base64: compressedBase64.split(',')[1],
-                                    mimeType: 'image/jpeg' 
-                                })
-                            }).then(r => r.json());
-
-                            if (uploadRes.status === 'success') {
-                                newPhotoUrl = uploadRes.url;
-                            } else {
-                                Swal.showValidationMessage('Gagal upload foto: ' + uploadRes.message);
-                                return false;
-                            }
-                        } catch (e) {
-                            Swal.showValidationMessage('Error processing image: ' + e.toString());
-                            return false;
-                        }
-                    }
-
-                    return fetch(GAS_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'save_profile',
-                            email: currentUser.email,
-                            nama: nama,
-                            unit: unit,
-                            wa: wa,
-                            foto: newPhotoUrl
-                        })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error(response.statusText);
-                        return response.json();
-                    })
-                    .catch(error => Swal.showValidationMessage(`Request failed: ${error}`));
-                }
-            }).then((result) => {
-                if (result.isConfirmed && result.value.status === 'success') {
-                    // Update Local Session
-                    currentUser = result.value.user;
-                    sessionStorage.setItem('sibora_user', JSON.stringify(currentUser));
-                    
-                    // Update UI
-                    document.getElementById('head-nama').innerText = currentUser.nama;
-                    document.getElementById('book-nama').value = currentUser.nama;
-                    document.getElementById('book-unit').value = currentUser.unit;
-                    document.getElementById('head-avatar').src = currentUser.foto;
-                    
-                    Swal.fire('Berhasil', 'Profil berhasil diperbarui.', 'success');
-                } else if (result.isConfirmed) {
-                    Swal.fire('Gagal', result.value.message || 'Terjadi kesalahan', 'error');
-                }
-            });
-        }
-
-        // Handle Setup Awal (New User)
-        function handleSaveProfile(e, mode) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            btn.textContent = "Menyimpan..."; btn.disabled = true;
-
-            const payload = {
-                action: 'save_profile',
-                email: document.getElementById('setup-email').value,
-                nama: document.getElementById('setup-nama').value,
-                unit: document.getElementById('setup-unit').value,
-                wa: document.getElementById('setup-wa').value,
-                foto: sessionStorage.getItem('temp_photo') || ""
-            };
-
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    sessionStorage.setItem('sibora_user', JSON.stringify(data.user));
-                    initApp();
-                } else {
-                    Swal.fire('Error', 'Gagal menyimpan profil', 'error');
-                    btn.textContent = "Simpan & Lanjutkan"; btn.disabled = false;
-                }
-            });
-        }
-
-        function initApp() {
-            const userStr = sessionStorage.getItem('sibora_user');
-            if (!userStr) {
-                document.getElementById('view-login').classList.remove('hidden');
-                document.getElementById('view-dashboard').classList.add('hidden');
-                document.getElementById('view-setup').classList.add('hidden');
-                return;
-            }
-
-            currentUser = JSON.parse(userStr);
-            
-            // Tampilkan Dashboard
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-setup').classList.add('hidden');
-            document.getElementById('view-dashboard').classList.remove('hidden');
-
-            // Set Header Info
-            document.getElementById('head-nama').innerText = currentUser.nama;
-            document.getElementById('head-role').innerText = currentUser.role;
-            document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40";
-
-            // Pre-fill Booking Form
-            document.getElementById('book-nama').value = currentUser.nama;
-            document.getElementById('book-unit').value = currentUser.unit;
-            
-            // --- SET DEFAULT TIME ---
-            setDefaultBookingTime();
-
-            // Show Admin Panel if Role is ADMIN
-            if (currentUser.role === 'ADMIN') {
-                document.getElementById('admin-panel').classList.remove('hidden');
-            }
-
-            fetchData();
-        }
+        function handleSaveProfile(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Menyimpan..."; btn.disabled=true; const p={action:'save_profile', email:document.getElementById('setup-email').value, nama:document.getElementById('setup-nama').value, unit:document.getElementById('setup-unit').value, wa:document.getElementById('setup-wa').value, foto:sessionStorage.getItem('temp_photo')||""}; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ sessionStorage.setItem('sibora_user',JSON.stringify(d.user)); initApp(); }else{ Swal.fire('Error','Gagal','error'); btn.textContent="Simpan"; btn.disabled=false; } }); }
         
-        // --- FUNGSI WAKTU DEFAULT ---
-        function setDefaultBookingTime() {
-            const now = new Date();
-            // Start: Now + 1 hour
-            const start = new Date(now.getTime() + 60 * 60 * 1000); 
-            // End: Start + 60 minutes
-            const end = new Date(start.getTime() + 60 * 60 * 1000);
-
-            const formatDateTime = (date) => {
-                // Adjust for local timezone manual to avoid UTC confusion
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                return `${year}-${month}-${day}T${hours}:${minutes}`;
-            };
-
-            document.getElementById('book-mulai').value = formatDateTime(start);
-            document.getElementById('book-selesai').value = formatDateTime(end);
-        }
-
-        function logout() {
-            sessionStorage.clear();
-            location.reload();
-        }
-
-        // --- HELPER FORMAT TANGGAL ---
-        function formatDateToID(dateStr) {
-            if (!dateStr) return '';
-            const parts = dateStr.split('-');
-            if (parts.length === 3) {
-                return `${parts[2]}-${parts[1]}-${parts[0]}`;
-            }
-            return dateStr;
-        }
-
-        // --- DATA & BOOKING LOGIC ---
-        
-        async function fetchData() {
-            try {
-                const res = await fetch(GAS_URL);
-                const data = await res.json();
-                
-                if (data.status === 'success') {
-                    rooms = data.rooms;
-                    bookings = data.data;
-                    
-                    // Render Room Options
-                    const select = document.getElementById('book-ruangan');
-                    // Simpan value saat ini jika ada (agar tidak reset saat refresh otomatis)
-                    const currentVal = select.value;
-                    select.innerHTML = '';
-                    
-                    // Add default option
-                    const defOpt = document.createElement('option');
-                    defOpt.value = ""; defOpt.innerText = "Pilih Ruangan...";
-                    select.appendChild(defOpt);
-
-                    rooms.forEach(r => {
-                        const opt = document.createElement('option');
-                        opt.value = r; opt.innerText = r;
-                        select.appendChild(opt);
-                    });
-                    
-                    if(currentVal) select.value = currentVal;
-
-                    // Render Schedule
-                    renderSchedule();
-
-                    // Render Admin Approval (If Admin)
-                    if (currentUser.role === 'ADMIN') renderAdminApproval();
-
-                    // Apply Background
-                    if (data.background) {
-                        document.body.style.backgroundImage = `url('${data.background}')`;
-                    }
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        function handleBookingSubmit(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            btn.textContent = "Mengirim..."; btn.disabled = true;
-
-            const payload = {
-                action: 'booking', // Default action in backend logic
-                email: currentUser.email, // Send Email to verify user
-                namaRuangan: document.getElementById('book-ruangan').value,
-                tanggalMulai: document.getElementById('book-mulai').value.split('T')[0],
-                waktuMulai: document.getElementById('book-mulai').value.split('T')[1],
-                tanggalSelesai: document.getElementById('book-selesai').value.split('T')[0],
-                waktuSelesai: document.getElementById('book-selesai').value.split('T')[1],
-                keperluan: document.getElementById('book-keperluan').value
-            };
-
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    Swal.fire('Berhasil', 'Pengajuan dikirim. Cek notifikasi Email/WA.', 'success');
-                    e.target.reset();
-                    // Reset field readonly
+        function handleBookingSubmit(e) { 
+            e.preventDefault(); 
+            const btn=e.target.querySelector('button'); 
+            btn.textContent="Mengirim..."; btn.disabled=true; 
+            const p={
+                action:'booking', 
+                email:currentUser.email, 
+                namaRuangan:document.getElementById('book-ruangan').value, 
+                tanggalMulai:document.getElementById('book-mulai').value.split('T')[0], 
+                waktuMulai:document.getElementById('book-mulai').value.split('T')[1], 
+                tanggalSelesai:document.getElementById('book-selesai').value.split('T')[0], 
+                waktuSelesai:document.getElementById('book-selesai').value.split('T')[1], 
+                keperluan:document.getElementById('book-keperluan').value,
+                kelengkapan:document.getElementById('book-kelengkapan').value
+            }; 
+            fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ 
+                if(d.status==='success'){ 
+                    Swal.fire('Berhasil','Terkirim','success'); 
+                    e.target.reset(); setDefaultBookingTime(); 
                     document.getElementById('book-nama').value = currentUser.nama; 
                     document.getElementById('book-unit').value = currentUser.unit;
-                    // Reset waktu default
-                    setDefaultBookingTime();
-                    fetchData();
-                } else {
-                    Swal.fire('Gagal', data.message, 'error');
-                }
-                btn.textContent = "Kirim Pengajuan"; btn.disabled = false;
-            });
+                    fetchData(); 
+                } else { Swal.fire('Gagal',d.message,'error'); } 
+                btn.textContent="Kirim Pengajuan"; btn.disabled=false; 
+            }); 
         }
 
-        // --- RENDER FUNCTIONS ---
-
+        // --- RENDER SCHEDULE ---
         function renderSchedule() {
-            const container = document.getElementById('schedule-container');
-            container.innerHTML = '';
-            
-            // Filter Active Bookings
-            const visible = bookings.filter(b => b.Status !== 'Ditolak');
-            visible.sort((a,b) => new Date(a['Tanggal Mulai']+'T'+a['Waktu Mulai']) - new Date(b['Tanggal Mulai']+'T'+b['Waktu Mulai']));
-
-            rooms.forEach(room => {
-                const col = document.createElement('div');
-                col.className = 'booking-item'; // Reusing style class for container look
-                col.style.borderLeft = 'none';
-                col.innerHTML = `<h4 style="border-bottom:1px solid #eee; padding-bottom:10px; text-align:center; color:var(--primary);">${room}</h4>`;
-                
-                const roomBookings = visible.filter(b => b['Nama Ruangan'] === room);
-                
-                if (roomBookings.length === 0) {
-                    col.innerHTML += `<p style="text-align:center; opacity:0.5; font-size:0.9rem;">Tidak ada jadwal.</p>`;
-                } else {
-                    roomBookings.forEach(b => {
-                        const statusClass = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`;
-                        const div = document.createElement('div');
-                        div.className = `booking-item ${statusClass}`;
-                        div.style.marginBottom = '10px';
-                        
-                        // MOVE STATUS LOGIC UP TO BE USED IN WA MSG
-                        let statusColor = '#f59e0b'; // Default Pending
-                        let statusIcon = '⏳';
+            const c = document.getElementById('schedule-container'); c.innerHTML = '';
+            const v = bookings.filter(b => b.Status !== 'Ditolak');
+            v.sort((a,b) => new Date(a['Tanggal Mulai']+'T'+a['Waktu Mulai']) - new Date(b['Tanggal Mulai']+'T'+b['Waktu Mulai']));
+            rooms.forEach(r => {
+                const col = document.createElement('div'); col.className = 'booking-item'; col.style.borderLeft = 'none';
+                col.innerHTML = `<h4 style="border-bottom:1px solid #eee; padding-bottom:10px; text-align:center; color:var(--primary);">${r}</h4>`;
+                const rb = v.filter(b => b['Nama Ruangan'] === r);
+                if (rb.length === 0) { col.innerHTML += `<p style="text-align:center; opacity:0.5; font-size:0.9rem;">Tidak ada jadwal.</p>`; } 
+                else {
+                    rb.forEach(b => {
+                        const sc = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`;
+                        const div = document.createElement('div'); div.className = `booking-item ${sc}`; div.style.marginBottom = '10px';
+                        let statusColor = '#f59e0b', statusIcon = '⏳';
                         if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; }
                         else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
 
                         let adminControls = '';
                         if (currentUser.role === 'ADMIN') {
-                            // WA Logic
-                            let waLink = '#';
-                            let waStyle = 'opacity:0.5; cursor:not-allowed;';
-                            let waTitle = 'No WA tidak tersedia';
-                            
+                            let waLink = '#', waStyle = 'opacity:0.5; cursor:not-allowed;', waTitle = 'No WA tidak tersedia';
                             if (b['Nomor WA']) {
-                                let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, '');
-                                if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1);
-                                
-                                // NEW FORMATTED MESSAGE
-                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nInformasi Booking Ruangan:\n\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n🕒 Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*\n\nTerima kasih.`;
-                                
-                                waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`;
-                                waStyle = '';
-                                waTitle = 'Kirim Detail via WA';
+                                let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, ''); if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1);
+                                const equip = b['Kelengkapan'] ? `\n🛠️ *Alat:* ${b['Kelengkapan']}` : '';
+                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nInfo Booking:\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*${equip}\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*`;
+                                waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`; waStyle = ''; waTitle = 'Kirim Detail WA';
                             }
-
-                            adminControls = `
-                                <div class="admin-controls-overlay">
-                                    <a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a>
-                                    <button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')" title="Hapus Permanen">🗑️</button>
-                                </div>
-                            `;
+                            adminControls = `<div class="admin-controls-overlay"><a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a><button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
                         }
 
-                        div.innerHTML = `
-                            ${adminControls}
-                            <div style="font-weight:bold; font-size:1rem; padding-right:25px; margin-bottom: 5px;">${b.Keperluan}</div>
-                            <div style="font-size:0.9rem; color:#555; margin-bottom: 8px;">
-                                👤 <b>${b['Nama Peminjam']}</b><br>
-                                <span style="font-size:0.85rem; opacity:0.8;">(${b['Unit/Bagian']})</span>
-                            </div>
-                            <div style="background:#f9fafb; padding:8px; border-radius:8px; font-size:0.85rem;">
-                                🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>
-                                🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}
-                            </div>
-                            <div style="text-align:right; font-size:0.85rem; font-weight:bold; margin-top:8px; color:${statusColor};">
-                                ${statusIcon} ${b.Status.toUpperCase()}
-                            </div>
-                        `;
+                        // Menampilkan Kelengkapan jika ada
+                        const kelengkapanHtml = b['Kelengkapan'] ? `<div style="font-size:0.85rem; color:#6b7280; margin-bottom:5px;">🛠️ ${b['Kelengkapan']}</div>` : '';
+
+                        div.innerHTML = `${adminControls}<div style="font-weight:bold; font-size:1rem; padding-right:25px; margin-bottom: 5px;">${b.Keperluan}</div><div style="font-size:0.9rem; color:#555; margin-bottom: 8px;">👤 <b>${b['Nama Peminjam']}</b><br><span style="font-size:0.85rem; opacity:0.8;">(${b['Unit/Bagian']})</span></div>${kelengkapanHtml}<div style="background:#f9fafb; padding:8px; border-radius:8px; font-size:0.85rem;">🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}</div><div style="text-align:right; font-size:0.85rem; font-weight:bold; margin-top:8px; color:${statusColor};">${statusIcon} ${b.Status.toUpperCase()}</div>`;
                         col.appendChild(div);
                     });
                 }
-                container.appendChild(col);
+                c.appendChild(col);
             });
         }
 
         function renderAdminApproval() {
             const l = document.getElementById('admin-approval-list');
             const p = bookings.filter(b => b.Status === 'Belum Disetujui');
-            
-            if (p.length === 0) {
-                l.innerHTML = '<p class="text-center text-muted">Tidak ada pengajuan pending.</p>';
-                return;
-            }
-
+            if (p.length === 0) { l.innerHTML = '<p class="text-center text-muted">Tidak ada pengajuan pending.</p>'; return; }
             l.innerHTML = '';
             p.forEach(b => {
-                const div = document.createElement('div');
-                div.className = 'booking-item status-belum-disetujui';
-                
-                const tglMulai = formatDateToID(b['Tanggal Mulai']);
-                
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <div>
-                            <h4>${b.Keperluan}</h4>
-                            <p><b>${b['Nama Peminjam']}</b> (${b['Unit/Bagian']}) - WA: ${b['Nomor WA']}</p>
-                            <p>🏠 Ruang: <b>${b['Nama Ruangan']}</b></p>
-                            <p>⏰ ${tglMulai} ${b['Waktu Mulai']} s.d ${b['Waktu Selesai']}</p>
-                        </div>
-                        <div>
-                            <button onclick="updateStatus('${b['ID Booking']}', 'Disetujui')" class="btn btn-primary btn-sm mb-1 w-100">✅ Setujui</button><br>
-                            <button onclick="updateStatus('${b['ID Booking']}', 'Ditolak')" class="btn btn-danger btn-sm w-100">❌ Tolak</button>
-                        </div>
-                    </div>
-                `;
+                const equip = b['Kelengkapan'] ? `<br><small>🛠️ ${b['Kelengkapan']}</small>` : '';
+                const div = document.createElement('div'); div.className = 'booking-item status-belum-disetujui';
+                div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:start;"><div><h4>${b.Keperluan}</h4><p><b>${b['Nama Peminjam']}</b> (${b['Unit/Bagian']})${equip}</p><p>🏠 ${b['Nama Ruangan']} | ⏰ ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']}</p></div><div style="min-width:90px;"><button onclick="updateStatus('${b['ID Booking']}', 'Disetujui')" class="btn btn-primary btn-sm mb-1 w-100">✅ Setuju</button><br><button onclick="updateStatus('${b['ID Booking']}', 'Ditolak')" class="btn btn-danger btn-sm w-100">❌ Tolak</button></div></div>`;
                 l.appendChild(div);
             });
         }
 
-        async function updateStatus(id, status) {
-            let reason = "";
-            if (status === 'Ditolak') {
-                const { value: text, isDismissed } = await Swal.fire({
-                    input: 'textarea',
-                    inputLabel: 'Alasan Penolakan',
-                    inputPlaceholder: 'Tuliskan alasan penolakan di sini...',
-                    inputAttributes: { 'aria-label': 'Tulis alasan penolakan' },
-                    showCancelButton: true,
-                    confirmButtonText: 'Kirim Penolakan',
-                    cancelButtonText: 'Batal',
-                    confirmButtonColor: '#d33'
-                });
-                if (isDismissed) return;
-                if (!text) { Swal.fire('Error', 'Alasan harus diisi', 'warning'); return; }
-                reason = text;
-            } else {
-                const c = await Swal.fire({ title: 'Setujui Pengajuan?', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Setujui' });
-                if (!c.isConfirmed) return;
-            }
-
-            Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() });
-            fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'updateStatus', bookingId: id, newStatus: status, reason: reason })
-            })
-            .then(res => res.json())
-            .then(data => {
-                Swal.fire('Sukses', data.message, 'success');
-                fetchData();
-            });
-        }
-
-        // --- ADMIN: USER MANAGEMENT ---
-        function showUserMgmt() {
-            Swal.fire({
-                title: 'Manajemen User',
-                html: '<div id="user-list-container">Memuat data user...</div>',
-                width: '800px',
-                showCloseButton: true,
-                showConfirmButton: false,
-                didOpen: () => {
-                    fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.status === 'success') {
-                            let html = `<div class="table-responsive"><table><thead><tr><th>Nama</th><th>Email</th><th>Unit</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`;
-                            data.users.forEach(u => {
-                                let btnAction = '';
-                                if(u.role === 'ADMIN') {
-                                    btnAction = `<button onclick="changeRole('${u.email}', 'USER')" class="btn btn-warning btn-sm" style="font-size:0.7rem">Jadi User</button>`;
-                                } else {
-                                    btnAction = `<button onclick="changeRole('${u.email}', 'ADMIN')" class="btn btn-primary btn-sm" style="font-size:0.7rem">Jadi Admin</button>`;
-                                }
-                                html += `<tr>
-                                    <td>${u.nama}</td>
-                                    <td style="font-size:0.85rem">${u.email}</td>
-                                    <td>${u.unit}</td>
-                                    <td><b>${u.role}</b></td>
-                                    <td>${btnAction}</td>
-                                </tr>`;
-                            });
-                            html += `</tbody></table></div>`;
-                            document.getElementById('user-list-container').innerHTML = html;
-                        } else {
-                            document.getElementById('user-list-container').innerText = "Gagal memuat data.";
-                        }
-                    });
-                }
-            });
-        }
-
-        window.changeRole = function(email, newRole) {
-            Swal.fire({
-                title: `Ubah role ${email}?`,
-                text: `Menjadi ${newRole}`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Ubah'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.showLoading();
-                    fetch(GAS_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'update_user_role', targetEmail: email, newRole: newRole })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.status === 'success') {
-                            Swal.fire('Sukses', data.message, 'success');
-                            showUserMgmt(); // Reload modal content
-                        } else {
-                            Swal.fire('Gagal', data.message, 'error');
-                        }
-                    });
-                }
-            });
-        };
-
-        // --- ADMIN: SETTINGS (REVISED FOR ROOM MANAGEMENT) ---
+        async function updateStatus(id, status) { let r = ""; if (status === 'Ditolak') { const { value: t, isDismissed: d } = await Swal.fire({ input: 'textarea', inputLabel: 'Alasan Penolakan', showCancelButton: true }); if (d) return; if (!t) return Swal.fire('Error', 'Alasan wajib', 'warning'); r = t; } else { if (!(await Swal.fire({ title: 'Setujui?', icon: 'question', showCancelButton: true })).isConfirmed) return; } Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() }); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', bookingId: id, newStatus: status, reason: r }) }).then(x => x.json()).then(y => { Swal.fire('Sukses', y.message, 'success'); fetchData(); }); }
+        
+        function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${u.role === 'ADMIN' ? `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">User</button>` : `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Admin</button>`}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
+        window.changeRole = (e, r) => { Swal.fire({ title: `Ubah ke ${r}?`, showCancelButton: true }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
+        
         function showSettings() {
-            // Generate Room List HTML
             let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:200px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">';
             rooms.forEach(r => {
-                roomHtml += `
-                    <li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:500;">${r}</span>
-                        <div style="display:flex; gap:5px;">
-                            <button onclick="triggerEditRoom('${r}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit Nama">✏️</button>
-                            <button onclick="triggerDeleteRoom('${r}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus Ruangan">🗑️</button>
-                        </div>
-                    </li>
-                `;
+                roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:500;">${r}</span><div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div></li>`;
             });
             roomHtml += '</ul>';
-
             Swal.fire({
                 title: 'Pengaturan',
-                html: `
-                    <div style="text-align:left">
-                        <label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>
-                        ${roomHtml}
-                        <div style="display:flex; gap:5px; margin-bottom:20px;">
-                            <input id="new-room" class="form-control" placeholder="Nama Ruangan Baru">
-                            <button onclick="addRoom()" class="btn btn-success" style="white-space:nowrap;">+ Tambah</button>
-                        </div>
-                        <hr>
-                        <label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label>
-                        <input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background">
-                        <button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button>
-                    </div>
-                `,
-                showConfirmButton: false,
-                width: '600px'
+                html: `<div style="text-align:left"><label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>${roomHtml}<div style="display:flex; gap:5px; margin-bottom:20px;"><input id="new-room" class="form-control" placeholder="Nama Ruangan Baru"><button onclick="addRoom()" class="btn btn-success" style="white-space:nowrap;">+ Tambah</button></div><hr><label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label><input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background"><button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button></div>`,
+                showConfirmButton: false, width: '600px'
             });
         }
+        window.saveBg = () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: document.getElementById('bg-url').value }) }).then(() => { Swal.fire('Sukses'); fetchData(); }); };
+        window.addRoom = () => { const n = document.getElementById('new-room').value; if(!n) return Swal.fire('Error','Nama kosong','error'); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n }) }).then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); };
+        window.triggerEditRoom = async (o) => { const { value: n } = await Swal.fire({ title: 'Edit Ruangan', input: 'text', inputValue: o, showCancelButton: true }); if (n && n !== o) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: o, newName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
+        window.triggerDeleteRoom = async (n) => { if((await Swal.fire({ title: `Hapus ${n}?`, icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRoom', roomName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
+        function handleDeleteOldData() { Swal.fire({ title: 'Hapus Data Lama?', showCancelButton: true }).then(r => { if (r.isConfirmed) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOldBookings' }) }).then(x => x.json()).then(y => Swal.fire('Info', y.message, 'info').then(() => fetchData())); }); }
+        async function deleteBooking(id) { if((await Swal.fire({ title: 'Hapus Permanen?', icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteBooking', bookingId: id }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); } else Swal.fire('Gagal',d.message,'error'); }); } }
 
-        window.saveBg = function() {
-            const url = document.getElementById('set-bg') ? document.getElementById('set-bg').value : document.getElementById('bg-url').value;
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: url, password: 'lia' }) }) 
-            .then(() => { Swal.fire('Sukses','Background disimpan','success'); fetchData(); });
-        }
-
-        window.addRoom = function() {
-            const name = document.getElementById('new-room').value; // Corrected ID to match HTML above
-            if(!name) return Swal.fire('Error', 'Nama ruangan tidak boleh kosong', 'error');
-            
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: name, password: 'lia' }) })
-            .then(() => { Swal.fire('Sukses','Ruangan ditambah','success'); fetchData(); showSettings(); });
-        }
-        
-        window.triggerEditRoom = async function(oldName) {
-            const { value: newName } = await Swal.fire({
-                title: 'Edit Nama Ruangan',
-                input: 'text',
-                inputLabel: 'Nama Baru',
-                inputValue: oldName,
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'Nama tidak boleh kosong!'
-                    }
-                }
-            });
-
-            if (newName && newName !== oldName) {
-                Swal.showLoading();
-                const res = await fetch(GAS_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName }) 
-                });
-                const data = await res.json();
-                if(data.status === 'success') {
-                    Swal.fire('Berhasil', 'Nama ruangan diperbarui', 'success');
-                    fetchData();
-                    // Re-open settings to show updated list (optional but good UX)
-                    // Wait a bit for fetch to update global rooms variable
-                    setTimeout(() => showSettings(), 1000); 
-                } else {
-                    Swal.fire('Gagal', data.message, 'error');
-                }
-            }
-        };
-
-        window.triggerDeleteRoom = async function(roomName) {
-            const result = await Swal.fire({
-                title: `Hapus ${roomName}?`,
-                text: "Tindakan ini tidak dapat dibatalkan.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Ya, Hapus'
-            });
-
-            if (result.isConfirmed) {
-                Swal.showLoading();
-                const res = await fetch(GAS_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'deleteRoom', roomName: roomName }) 
-                });
-                const data = await res.json();
-                if(data.status === 'success') {
-                    Swal.fire('Terhapus', 'Ruangan berhasil dihapus', 'success');
-                    fetchData();
-                    setTimeout(() => showSettings(), 1000);
-                } else {
-                    Swal.fire('Gagal', data.message, 'error');
-                }
-            }
-        };
-
-        function handleDeleteOldData() {
-            Swal.fire({ title: 'Hapus Data Lama?', text: 'Data lampau akan dihapus permanen', icon: 'warning', showCancelButton: true, confirmButtonText: 'Hapus' })
-            .then(res => {
-                if(res.isConfirmed) {
-                    fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOldBookings', password: 'lia' }) })
-                    .then(r=>r.json()).then(d => Swal.fire('Info', d.message, 'info').then(()=>fetchData()));
-                }
-            });
-        }
-        
-        async function deleteBooking(id) {
-            const c = await Swal.fire({ 
-                title: 'Hapus Permanen?', 
-                text: "Data ini akan dihapus dari database dan tidak bisa dikembalikan.", 
-                icon: 'warning', 
-                showCancelButton: true, 
-                confirmButtonColor: '#d33', 
-                confirmButtonText: 'Ya, Hapus' 
-            });
-            
-            if (c.isConfirmed) {
-                Swal.fire({ title: 'Menghapus...', didOpen: () => Swal.showLoading() });
-                fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'deleteBooking', bookingId: id })
-                }).then(r => r.json()).then(d => {
-                    if(d.status === 'success') { Swal.fire('Terhapus', d.message, 'success'); fetchData(); }
-                    else { Swal.fire('Gagal', d.message, 'error'); }
-                });
-            }
-        }
-
-        // Initialize
         initApp();
-
     </script>
 </body>
 </html>
