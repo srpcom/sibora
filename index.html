@@ -79,7 +79,7 @@
         /* Header & Nav */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
         .user-info { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 50px; }
-        .user-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         /* Schedule & Admin List */
         .booking-item, .admin-item {
@@ -258,6 +258,39 @@
         let rooms = [];
         let bookings = [];
 
+        // --- UTILS: COMPRESS IMAGE FUNCTION ---
+        function compressImage(file, maxWidth = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Calculate new dimensions
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Output compressed data URL
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = error => reject(error);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
         // --- AUTH LOGIC ---
         function handleCredentialResponse(response) {
             const responsePayload = decodeJwtResponse(response.credential);
@@ -305,7 +338,7 @@
             sessionStorage.setItem('temp_photo', photo);
         }
 
-        // --- EDIT PROFILE LOGIC ---
+        // --- EDIT PROFILE LOGIC (WITH COMPRESSION) ---
         function showEditProfile() {
             Swal.fire({
                 title: '✏️ Edit Profil',
@@ -322,20 +355,54 @@
                         
                         <label style="font-weight:600; font-size:0.9rem;">Nomor WhatsApp</label>
                         <input id="edit-wa" class="form-control mb-2" value="${currentUser.wa}">
+
+                        <label style="font-weight:600; font-size:0.9rem;">Ganti Foto Profil (Opsional)</label>
+                        <input type="file" id="edit-foto" class="form-control mb-2" accept="image/*">
                     </div>
                 `,
                 showCancelButton: true,
                 confirmButtonText: 'Simpan Perubahan',
                 confirmButtonColor: '#4f46e5',
                 showLoaderOnConfirm: true,
-                preConfirm: () => {
+                preConfirm: async () => {
                     const nama = document.getElementById('edit-nama').value;
                     const unit = document.getElementById('edit-unit').value;
                     const wa = document.getElementById('edit-wa').value;
+                    const fileInput = document.getElementById('edit-foto').files[0];
                     
                     if(!nama || !unit || !wa) {
                         Swal.showValidationMessage('Semua field harus diisi');
                         return false;
+                    }
+
+                    // Handle Photo Upload with Compression
+                    let newPhotoUrl = currentUser.foto;
+                    if (fileInput) {
+                        try {
+                            // COMPRESS IMAGE HERE (Max Width 800px, Quality 70%)
+                            const compressedBase64 = await compressImage(fileInput, 800, 0.7);
+                            
+                            const uploadRes = await fetch(GAS_URL, {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    action: 'upload_foto',
+                                    email: currentUser.email,
+                                    // Remove 'data:image/jpeg;base64,' prefix before sending
+                                    base64: compressedBase64.split(',')[1],
+                                    mimeType: 'image/jpeg' 
+                                })
+                            }).then(r => r.json());
+
+                            if (uploadRes.status === 'success') {
+                                newPhotoUrl = uploadRes.url;
+                            } else {
+                                Swal.showValidationMessage('Gagal upload foto: ' + uploadRes.message);
+                                return false;
+                            }
+                        } catch (e) {
+                            Swal.showValidationMessage('Error processing image: ' + e.toString());
+                            return false;
+                        }
                     }
 
                     return fetch(GAS_URL, {
@@ -346,7 +413,7 @@
                             nama: nama,
                             unit: unit,
                             wa: wa,
-                            foto: currentUser.foto
+                            foto: newPhotoUrl
                         })
                     })
                     .then(response => {
@@ -365,6 +432,7 @@
                     document.getElementById('head-nama').innerText = currentUser.nama;
                     document.getElementById('book-nama').value = currentUser.nama;
                     document.getElementById('book-unit').value = currentUser.unit;
+                    document.getElementById('head-avatar').src = currentUser.foto;
                     
                     Swal.fire('Berhasil', 'Profil berhasil diperbarui.', 'success');
                 } else if (result.isConfirmed) {
