@@ -99,9 +99,16 @@
         }
         .booking-item:hover { transform: translateY(-2px); }
         
-        .status-disetujui { border-left-color: #10b981; }
-        .status-belum-disetujui { border-left-color: #f59e0b; }
-        .status-ditolak { border-left-color: #ef4444; }
+        /* Status Colors */
+        .status-disetujui { border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
+        .status-belum-disetujui { border-left-color: #f59e0b; background: linear-gradient(to right, #fffbeb, #fff); }
+        .status-ditolak { border-left-color: #ef4444; background: linear-gradient(to right, #fef2f2, #fff); }
+
+        /* Tables */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f3f4f6; color: var(--primary); font-weight: 700; }
 
     </style>
 </head>
@@ -243,18 +250,31 @@
                         const sc = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`;
                         const div = document.createElement('div'); div.className = `booking-item ${sc}`; div.style.marginBottom = '10px';
                         
-                        // DELETE BUTTON LOGIC (ADMIN ONLY)
                         let delBtn = '';
                         if (currentUser.role === 'ADMIN') {
                             delBtn = `<button class="btn-delete-card" onclick="deleteBooking('${b['ID Booking']}')" title="Hapus Permanen">🗑️</button>`;
                         }
 
+                        // STATUS ESTETIS
+                        let statusColor = '#f59e0b'; // Default Pending
+                        let statusIcon = '⏳';
+                        if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; }
+                        else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
+
                         div.innerHTML = `
                             ${delBtn}
-                            <div style="font-weight:bold; font-size:0.95rem; padding-right:25px;">${b.Keperluan}</div>
-                            <div style="font-size:0.85rem; color:#555;">${b['Nama Peminjam']} (${b['Unit/Bagian']})</div>
-                            <div style="font-size:0.85rem; margin-top:5px;">🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}</div>
-                            <div style="text-align:right; font-size:0.8rem; font-weight:bold; margin-top:5px; text-transform:uppercase;">${b.Status}</div>
+                            <div style="font-weight:bold; font-size:1rem; padding-right:25px; margin-bottom: 5px;">${b.Keperluan}</div>
+                            <div style="font-size:0.9rem; color:#555; margin-bottom: 8px;">
+                                👤 <b>${b['Nama Peminjam']}</b><br>
+                                <span style="font-size:0.85rem; opacity:0.8;">(${b['Unit/Bagian']})</span>
+                            </div>
+                            <div style="background:#f9fafb; padding:8px; border-radius:8px; font-size:0.85rem;">
+                                🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>
+                                🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}
+                            </div>
+                            <div style="text-align:right; font-size:0.85rem; font-weight:bold; margin-top:8px; color:${statusColor};">
+                                ${statusIcon} ${b.Status.toUpperCase()}
+                            </div>
                         `;
                         col.appendChild(div);
                     });
