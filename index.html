@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
@@ -59,9 +60,9 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         .btn-danger { background: #ef4444; color: white; }
-        .btn-success { background: #10b981; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
         .btn-secondary { background: #e5e7eb; color: #374151; }
+        .btn-success { background: #10b981; color: white; }
         .btn-icon { background: transparent; padding: 5px; color: var(--primary); font-size: 1.1rem; }
         .btn-icon:hover { color: var(--primary-hover); transform: scale(1.1); }
         
@@ -170,9 +171,28 @@
         th { background: #f9fafb; color: var(--text-main); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
         tr:last-child td { border-bottom: none; }
 
+        /* --- FLOATING WHATSAPP BUTTON --- */
+        .float-wa {
+            position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px;
+            background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center;
+            font-size: 30px; box-shadow: 2px 2px 3px #999; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; transition: all 0.3s ease;
+        }
+        .float-wa:hover {
+            transform: scale(1.1); background-color: #20b857; color: #fff;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4);
+        }
+        .my-float { margin-top: 0; }
+
     </style>
 </head>
 <body>
+
+    <!-- FLOATING WA BUTTON -->
+    <a href="https://wa.me/628819933004?text=Halo%20admin%20SIBORA,%20mohon%20bantuannya..." class="float-wa" target="_blank" title="Chat Admin via WhatsApp">
+        <i class="fa-brands fa-whatsapp my-float"></i>
+    </a>
 
     <!-- 1. VIEW: LOGIN SCREEN -->
     <div id="view-login" class="login-wrapper">
