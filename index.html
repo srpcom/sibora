@@ -4,112 +4,205 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Ruang Rapat - RSUD dr. R. Koesma</title>
+    <!-- Menambahkan Font Poppins untuk Estetika Header -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --iron-red: #c82a1d; --iron-gold: #f8d452; --arc-blue: #00b8ff;
-            --status-approved: #28a745; --status-pending: #ffc107; --status-rejected: #6c757d;
-            --bg-dark: #101419; --bg-admin: #1a1a2e; --text-light: #f0f0f0;
+            /* Palette Warna Ceria & Estetik */
+            --primary-color: #4f46e5; 
+            --primary-hover: #4338ca;
+            --secondary-color: #ec4899;
+            
+            /* Status Colors */
+            --status-approved-bg: #d1fae5; --status-approved-text: #065f46; 
+            --status-pending-bg: #fef3c7; --status-pending-text: #92400e; 
+            --status-rejected-bg: #fee2e2; --status-rejected-text: #991b1b; 
+            
+            /* Backgrounds & Text */
+            --glass-bg: rgba(255, 255, 255, 0.85); /* Kartu Putih Sangat Opaque agar tulisan terbaca */
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+            
+            --text-main: #1f2937; 
+            --text-muted: #6b7280;
         }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 1rem; min-height: 100vh; color: var(--text-light); transition: background-color: 0.5s; }
-        .user-view-bg { background: linear-gradient(rgba(16, 20, 25, 0.85), rgba(16, 20, 25, 0.85)), url('https://raw.githubusercontent.com/srpcom/bookingruangan/main/photo_2025-07-11_16-49-46.jpg'); background-size: cover; background-position: center; background-attachment: fixed; }
-        .admin-view-bg { background-color: var(--bg-admin); }
-        .container { max-width: 1200px; margin: auto; padding: 0; }
-        header { text-align: center; margin-bottom: 2rem; }
-        header h1 { font-size: 2rem; color: var(--iron-gold); margin: 0; }
-        .user-content { display: flex; flex-direction: column; gap: 2rem; }
-        .glass-card { background: rgba(20, 30, 40, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 1.5rem; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--iron-red); padding-bottom: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;}
-        .card-header h2 { color: var(--iron-gold); margin: 0; font-size: 1.5rem; border: none; padding: 0; }
-        .btn-refresh { background: transparent; border: 1px solid var(--arc-blue); color: var(--arc-blue); padding: 0.4rem 0.8rem; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
-        .btn-refresh:hover { background: var(--arc-blue); color: white; }
-        .booking-item { background: rgba(10, 20, 30, 0.5); padding: 0.75rem; border-radius: 5px; margin-bottom: 0.75rem; font-size: 0.9rem; }
-        .booking-item.status-disetujui { border-left: 4px solid var(--status-approved); }
-        .booking-item.status-belum-disetujui { border-left: 4px solid var(--status-pending); }
-        .booking-item.status-ditolak { border-left: 4px solid var(--status-rejected); background: rgba(40,20,20,0.5); }
-        .booking-item .status { font-weight: bold; text-align: right; margin-top: 5px; }
-        .status-disetujui .status { color: var(--status-approved); }
-        .status-belum-disetujui .status { color: var(--status-pending); }
-        .status-ditolak .status { color: var(--status-rejected); }
-        .schedule-rooms { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-        .room-column { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 1rem; }
-        .room-column h3 { margin-top: 0; color: var(--arc-blue); text-align: center; }
-        #admin-section { display: none; }
-        .admin-booking-item { background: #16213e; margin-bottom: 1rem; padding: 1rem; border-radius: 8px; border-left: 5px solid var(--status-pending); }
-        .admin-booking-item[data-status="Disetujui"] { border-color: var(--status-approved); }
-        .admin-booking-item[data-status="Ditolak"] { border-color: var(--status-rejected); background: #2a2a3e; opacity: 0.7; }
-        .actions { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1rem; }
-        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-approve { background-color: var(--status-approved); color: white; }
-        .btn-reject { background-color: #ffc107; color: black; }
-        .btn-delete { background-color: var(--iron-red); color: white; }
-        .btn-settings { background-color: var(--arc-blue); color: white; }
-        .login-form { max-width: 400px; margin: 5rem auto; padding: 2rem; background: #16213e; border-radius: 8px; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background-color: rgba(0,0,0,0.3); color: var(--text-light); font-size: 1rem; box-sizing: border-box; }
-        .btn-submit { width: 100%; padding: 0.8rem 1rem; font-size: 1.1rem; font-weight: 700; color: var(--text-light); background: linear-gradient(45deg, var(--iron-red), #a01010); border: none; border-radius: 8px; cursor: pointer; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 1rem; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            transition: background 0.5s ease;
+            background-color: #f3f4f6; /* Fallback color */
+        }
+
+        /* Background User: Default Gradient Ceria */
+        .user-view-bg { 
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Background Admin: Bersih */
+        .admin-view-bg { 
+            background-color: #f1f5f9; 
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container { max-width: 1200px; margin: auto; padding: 10px; }
+
+        h1, h2, h3 { font-family: 'Poppins', sans-serif; margin: 0; }
         
-        /* Modal Styles */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #16213e; padding: 2rem; border-radius: 10px; text-align: center; max-width: 90%; width: 400px; border-top: 4px solid var(--arc-blue); }
-        .modal-content.error { border-top-color: var(--iron-red); }
+        header { text-align: center; margin-bottom: 2.5rem; }
+        /* Shadow teks header agar terbaca di background foto gelap/terang */
+        header h1 { font-size: 2.2rem; color: #1e1b4b; text-shadow: 2px 2px 4px rgba(255,255,255,0.8); margin-bottom: 0.5rem; }
+        header p { font-size: 1rem; color: #1e1b4b; font-weight: 600; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
+
+        .user-content { display: flex; flex-direction: column; gap: 2rem; }
+
+        /* Estetika Kartu (Glassmorphism High Contrast) */
+        .glass-card { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border-radius: 20px; 
+            border: 1px solid var(--glass-border); 
+            padding: 2rem; 
+            box-shadow: var(--card-shadow); 
+        }
+
+        .card-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+        }
+        .card-header h2 { color: var(--primary-color); font-size: 1.5rem; font-weight: 600; }
+
+        .btn-refresh { 
+            background: white; border: 1px solid var(--primary-color); color: var(--primary-color); 
+            padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; 
+        }
+        .btn-refresh:hover { background: var(--primary-color); color: white; transform: translateY(-2px); }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; padding: 0.85rem; border-radius: 12px; border: 1px solid #d1d5db; 
+            background-color: #ffffff; color: var(--text-main); font-size: 1rem; font-family: 'Inter', sans-serif; box-sizing: border-box; 
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+            outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn-submit { 
+            width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 600; color: white; 
+            background: linear-gradient(135deg, var(--primary-color), #818cf8); border: none; border-radius: 12px; 
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+        .schedule-rooms { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        .room-column { 
+            background: #ffffff; border-radius: 16px; padding: 1.25rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6;
+        }
+        .room-column h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-main); text-align: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; }
+
+        .booking-item { 
+            background: #ffffff; padding: 1rem; border-radius: 10px; margin-bottom: 0.75rem; font-size: 0.9rem; border: 1px solid #e5e7eb; transition: transform 0.2s;
+        }
+        .booking-item:hover { transform: scale(1.02); }
+        .booking-item.status-disetujui { border-left: 5px solid #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
+        .booking-item.status-belum-disetujui { border-left: 5px solid #f59e0b; background: linear-gradient(to right, #fffbeb, #fff); }
+        .booking-item.status-ditolak { border-left: 5px solid #ef4444; background: linear-gradient(to right, #fef2f2, #fff); opacity: 0.8; }
+        .booking-item .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; float: right; }
+        .status-disetujui .status { background: var(--status-approved-bg); color: var(--status-approved-text); }
+        .status-belum-disetujui .status { background: var(--status-pending-bg); color: var(--status-pending-text); }
+        .status-ditolak .status { background: var(--status-rejected-bg); color: var(--status-rejected-text); }
+        .booking-item .keperluan { font-weight: 700; color: #111827; font-size: 1rem; margin-bottom: 0.25rem; }
+        .booking-item .peminjam { color: #4b5563; font-style: italic; margin-bottom: 0.5rem; }
+
+        #admin-section { display: none; }
+        .admin-booking-item { background: white; margin-bottom: 1rem; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
+        .admin-booking-item[data-status="Belum Disetujui"] { border-left: 5px solid #f59e0b; }
+        .admin-booking-item[data-status="Disetujui"] { border-left: 5px solid #10b981; }
+        .admin-booking-item[data-status="Ditolak"] { border-left: 5px solid #ef4444; background: #f9fafb; }
+        .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .item-header .status { font-size: 0.85rem; padding: 2px 8px; border-radius: 4px; background: #f3f4f6; color: #6b7280; font-weight: 600; }
+        .actions { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+        .btn:hover { opacity: 0.9; }
+        .btn-approve { background-color: #10b981; color: white; }
+        .btn-reject { background-color: #f59e0b; color: white; }
+        .btn-delete { background-color: #ef4444; color: white; }
+        .btn-settings { background-color: #4f46e5; color: white; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3); }
+
+        .login-form { max-width: 400px; margin: 5rem auto; padding: 2.5rem; background: white; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .login-form h2 { text-align: center; color: var(--primary-color); margin-bottom: 1.5rem; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 2rem; border-radius: 20px; text-align: center; max-width: 90%; width: 450px; border-top: 5px solid var(--primary-color); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .modal-buttons { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; }
         
-        /* Room Settings Styles */
-        .room-list-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; margin-bottom: 0.5rem; border-radius: 5px; }
-        .room-list-item span { font-weight: 500; }
-        .btn-icon { background: none; border: none; cursor: pointer; color: var(--iron-red); font-size: 1.2rem; }
-        
-        @media (min-width: 992px) { .user-content { display: grid; grid-template-columns: 400px 1fr; gap: 2rem; } .schedule-rooms { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
+        .room-list-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 10px; border: 1px solid #e5e7eb; color: #374151; }
+        .settings-section { margin-bottom: 1.5rem; text-align: left; }
+        .settings-section h4 { margin-top: 0; margin-bottom: 0.8rem; color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+
+        @media (min-width: 992px) { 
+            .user-content { display: grid; grid-template-columns: 400px 1fr; gap: 2.5rem; } 
+            .schedule-rooms { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } 
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- User View -->
         <div id="user-section">
-            <header><h1>Sistem Booking Ruang Rapat</h1><p>RSUD dr. R. Koesma Tuban</p></header>
+            <header>
+                <h1>Sistem Booking Ruang Rapat</h1>
+                <p>RSUD dr. R. Koesma Tuban</p>
+            </header>
             <div class="user-content">
                 <div class="form-card glass-card">
-                    <div class="card-header"><h2>Buat Booking Baru</h2></div>
+                    <div class="card-header"><h2>✨ Buat Booking Baru</h2></div>
                     <form id="bookingForm"></form>
                 </div>
                 <div class="schedule-card glass-card">
                     <div class="card-header">
-                        <h2>Jadwal Penggunaan Ruangan</h2>
-                        <button id="refreshUserBtn" class="btn-refresh">↻ Refresh</button>
+                        <h2>📅 Jadwal Ruangan</h2>
+                        <button id="refreshUserBtn" class="btn-refresh">↻ Refresh Data</button>
                     </div>
-                    <div id="scheduleContainer" class="schedule-rooms"><p id="loadingMessage">Memuat jadwal...</p></div>
+                    <div id="scheduleContainer" class="schedule-rooms"><p id="loadingMessage">Sedang memuat jadwal terbaru...</p></div>
                 </div>
             </div>
         </div>
         <!-- Admin View -->
         <div id="admin-section">
-            <header><h1>Halaman Admin Approval</h1></header>
+            <header><h1>Dashboard Admin</h1></header>
             <div id="admin-login-view" class="login-form">
-                <h2>Login Admin</h2>
-                <div class="form-group"><label for="adminPassword">Password</label><input type="password" id="adminPassword" placeholder="Masukkan password admin"></div>
-                <button id="adminLoginBtn" class="btn-submit">Lihat Data</button>
-                <p id="login-message" style="color: red; text-align: center; margin-top: 1rem;"></p>
+                <h2>🔐 Login Admin</h2>
+                <div class="form-group"><label for="adminPassword">Password Akses</label><input type="password" id="adminPassword" placeholder="Masukkan password admin"></div>
+                <button id="adminLoginBtn" class="btn-submit">Masuk Dashboard</button>
+                <p id="login-message" style="color: #ef4444; text-align: center; margin-top: 1rem; font-weight:500;"></p>
             </div>
             <div id="admin-dashboard-view" style="display: none;">
-                <!-- Daftar Pengajuan (Approval List) -->
                 <div class="card-header">
-                    <h2>Daftar Pengajuan</h2>
+                    <h2>Daftar Pengajuan (Approval)</h2>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button id="roomSettingsBtn" class="btn btn-settings">⚙️ Ruangan</button>
-                        <button id="deleteOldDataBtn" class="btn btn-delete">Hapus Data Lama</button>
+                        <button id="settingsBtn" class="btn btn-settings">⚙️ Pengaturan</button>
+                        <button id="deleteOldDataBtn" class="btn btn-delete">🗑️ Bersihkan Data Lama</button>
                         <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
                     </div>
                 </div>
                 <ul id="booking-list" style="list-style: none; padding: 0; margin-bottom: 3rem;"></ul>
 
-                <!-- Monitor Jadwal Ruangan (Visual Schedule for Admin) -->
-                <div class="card-header" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-                    <h2>Monitor Jadwal Ruangan</h2>
+                <div class="card-header" style="border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 2rem;">
+                    <h2>🖥️ Monitor Jadwal Aktif</h2>
                 </div>
                 <div id="adminScheduleContainer" class="schedule-rooms">
                     <p>Memuat jadwal...</p>
@@ -117,28 +210,26 @@
             </div>
         </div>
     </div>
-    <!-- Modal Umum -->
+    <!-- Modal -->
     <div id="modal" class="modal-overlay">
         <div id="modalContent" class="modal-content">
-            <h3 id="modalTitle" style="margin-top:0; color:var(--arc-blue);">Pemberitahuan</h3>
-            <div id="modalBody"></div>
+            <h3 id="modalTitle" style="margin-top:0; color:var(--primary-color);">Pemberitahuan</h3>
+            <div id="modalBody" style="color: #4b5563; margin: 1rem 0;"></div>
             <div id="modalButtons" class="modal-buttons"></div>
         </div>
     </div>
 
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
-        // Variabel global 'rooms' tidak lagi hardcoded, akan diisi dari server
         let rooms = []; 
+        let appBackground = "";
         
-        // Elemen DOM
         const userSection = document.getElementById('user-section');
         const adminSection = document.getElementById('admin-section');
         const scheduleContainer = document.getElementById('scheduleContainer');
         const loadingMessage = document.getElementById('loadingMessage');
         const bookingForm = document.getElementById('bookingForm');
         
-        // Elemen Admin
         const adminLoginView = document.getElementById('admin-login-view');
         const adminDashboardView = document.getElementById('admin-dashboard-view');
         const adminLoginBtn = document.getElementById('adminLoginBtn');
@@ -147,27 +238,24 @@
         const adminScheduleContainer = document.getElementById('adminScheduleContainer');
         const loginMessage = document.getElementById('login-message');
         
-        // Tombol
         const refreshUserBtn = document.getElementById('refreshUserBtn');
         const refreshAdminBtn = document.getElementById('refreshAdminBtn');
         const deleteOldDataBtn = document.getElementById('deleteOldDataBtn');
-        const roomSettingsBtn = document.getElementById('roomSettingsBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
         
-        // Modal
         const modal = document.getElementById('modal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
         const modalButtons = document.getElementById('modalButtons');
-        const modalContent = document.getElementById('modalContent');
         
         let currentAdminPassword = '';
 
-        // --- Modal Functions ---
+        // --- Core Functions ---
         const showModal = (message, type = 'info', title = 'Pemberitahuan') => {
             modalTitle.textContent = title;
             modalBody.textContent = message;
             modalContent.className = `modal-content ${type}`;
-            modalButtons.innerHTML = `<button class="btn btn-submit">OK</button>`;
+            modalButtons.innerHTML = `<button class="btn btn-submit" style="width: auto; padding: 0.5rem 2rem;">OK</button>`;
             modal.style.display = 'flex';
             modalButtons.querySelector('button').onclick = () => modal.style.display = 'none';
         };
@@ -177,36 +265,63 @@
                 modalTitle.textContent = 'Konfirmasi';
                 modalBody.textContent = message;
                 modalContent.className = 'modal-content';
-                modalButtons.innerHTML = `<button id="confirm-yes" class="btn btn-delete">Ya</button><button id="confirm-no" class="btn">Tidak</button>`;
+                modalButtons.innerHTML = `<button id="confirm-yes" class="btn btn-delete">Ya</button><button id="confirm-no" class="btn" style="background:#e5e7eb; color:#374151;">Tidak</button>`;
                 modal.style.display = 'flex';
                 document.getElementById('confirm-yes').onclick = () => { modal.style.display = 'none'; resolve(true); };
                 document.getElementById('confirm-no').onclick = () => { modal.style.display = 'none'; resolve(false); };
             });
         };
+
+        // --- Background Logic ---
+        function applyBackground(url) {
+            appBackground = url; // Simpan state
+            if (url && url.trim() !== "") {
+                document.body.style.backgroundImage = `url('${url}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundPosition = 'center';
+            } else {
+                // Default Gradient
+                document.body.style.backgroundImage = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
+            }
+        }
         
-        // --- Room Settings Modal ---
-        const showRoomSettings = () => {
-            modalTitle.textContent = 'Pengaturan Ruangan';
+        // --- Settings Modal ---
+        const showSettings = () => {
+            modalTitle.textContent = 'Pengaturan Aplikasi';
             modalContent.className = 'modal-content';
+            modalContent.style.width = '500px'; // Lebih lebar dikit
             
-            // Build List HTML
-            let listHtml = '<div style="max-height: 200px; overflow-y: auto; margin-bottom: 1rem; text-align: left;">';
+            // Build Rooms HTML
+            let roomListHtml = '<div style="max-height: 150px; overflow-y: auto; margin-bottom: 1rem; text-align: left;">';
             rooms.forEach(r => {
-                listHtml += `<div class="room-list-item">
-                    <span>${r}</span>
-                    <button onclick="handleDeleteRoom('${r}')" class="btn-icon" title="Hapus">🗑️</button>
-                </div>`;
+                roomListHtml += `<div class="room-list-item"><span>${r}</span><button onclick="handleDeleteRoom('${r}')" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">❌</button></div>`;
             });
-            listHtml += '</div>';
+            roomListHtml += '</div>';
             
-            // Add Form HTML
-            listHtml += `<div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="newRoomName" placeholder="Nama Ruangan Baru" style="flex:1; padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; color: black;">
-                <button onclick="handleAddRoom()" class="btn btn-submit" style="width: auto;">+</button>
-            </div>`;
+            let modalHtml = `
+                <div class="settings-section">
+                    <h4>🖼️ Tampilan Aplikasi</h4>
+                    <p style="font-size:0.9rem; margin-bottom:0.5rem;">Ganti Background (Direct Link Gambar):</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="bgUrlInput" placeholder="https://contoh.com/gambar.jpg" value="${appBackground || ''}" style="flex:1; padding: 0.75rem; border-radius: 8px; border: 1px solid #d1d5db;">
+                        <button onclick="handleSaveBackground()" class="btn" style="background:var(--primary-color); color:white;">Simpan</button>
+                    </div>
+                    <button onclick="handleDeleteBackground()" class="btn" style="background:transparent; color:#ef4444; border:1px solid #ef4444; margin-top:0.5rem; font-size:0.8rem;">Hapus/Reset Background</button>
+                </div>
+
+                <div class="settings-section">
+                    <h4>🏢 Manajemen Ruangan</h4>
+                    ${roomListHtml}
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="newRoomName" placeholder="Nama Ruangan Baru" style="flex:1; padding: 0.75rem; border-radius: 8px; border: 1px solid #d1d5db;">
+                        <button onclick="handleAddRoom()" class="btn" style="background:var(--primary-color); color:white;">Tambah</button>
+                    </div>
+                </div>
+            `;
             
-            modalBody.innerHTML = listHtml;
-            modalButtons.innerHTML = `<button onclick="document.getElementById('modal').style.display='none'" class="btn">Tutup</button>`;
+            modalBody.innerHTML = modalHtml;
+            modalButtons.innerHTML = `<button onclick="document.getElementById('modal').style.display='none'" class="btn" style="background:#e5e7eb; color:#374151;">Tutup</button>`;
             modal.style.display = 'flex';
         };
 
@@ -216,16 +331,91 @@
             window.addEventListener('hashchange', () => { if (window.location.hash === '#admin') { showAdminView(); } else { window.location.reload(); } });
         });
         
-        roomSettingsBtn.addEventListener('click', showRoomSettings);
+        settingsBtn.addEventListener('click', showSettings);
 
-        // --- Logic User View ---
+        // --- Initial Load Logic ---
+        async function fetchUserSchedule() {
+            loadingMessage.textContent = 'Sedang memuat data...';
+            loadingMessage.style.display = 'block';
+            scheduleContainer.innerHTML = '';
+            try {
+                const response = await fetch(GAS_WEB_APP_URL);
+                if (!response.ok) throw new Error('Respon jaringan tidak baik.');
+                const result = await response.json();
+                if (result.status === 'success') { 
+                    rooms = result.rooms || []; 
+                    applyBackground(result.background); // Terapkan background
+                    updateRoomDropdown();
+                    renderUserSchedule(result.data); 
+                } 
+                else { throw new Error(result.message); }
+            } catch (error) {
+                scheduleContainer.innerHTML = `<p style="color:#ef4444; text-align:center;">Gagal memuat data. Periksa koneksi internet Anda.</p>`;
+            } finally {
+                loadingMessage.style.display = 'none';
+            }
+        }
+        
+        async function fetchAdminData() {
+            bookingList.innerHTML = '<p>Memuat data terbaru...</p>';
+            adminScheduleContainer.innerHTML = '<p>Memuat jadwal ruangan...</p>'; 
+            try {
+                const dataResponse = await fetch(GAS_WEB_APP_URL);
+                const dataResult = await dataResponse.json();
+                if (dataResult.status !== 'success') throw new Error(dataResult.message);
+                
+                rooms = dataResult.rooms || []; 
+                applyBackground(dataResult.background); // Terapkan background juga di admin
+                renderAdminList(dataResult.data);
+                renderAdminSchedule(dataResult.data);
+            } catch (error) {
+                bookingList.innerHTML = `<p style="color:red">Gagal: ${error.message}</p>`;
+                adminScheduleContainer.innerHTML = '';
+            }
+        }
+
+        // --- Background Handlers ---
+        async function handleSaveBackground() {
+            const url = document.getElementById('bgUrlInput').value.trim();
+            if (!url) return alert("URL tidak boleh kosong");
+            
+            const btn = event.target; btn.textContent = "..."; btn.disabled = true;
+            try {
+                const payload = { action: 'saveBackground', password: currentAdminPassword, url: url };
+                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    applyBackground(url);
+                    alert("Background berhasil disimpan!");
+                } else { alert(json.message); }
+            } catch(e) { alert("Gagal koneksi"); }
+            finally { btn.textContent = "Simpan"; btn.disabled = false; }
+        }
+
+        async function handleDeleteBackground() {
+            if(!confirm("Kembalikan background ke default?")) return;
+            const btn = event.target; btn.textContent = "..."; btn.disabled = true;
+            try {
+                const payload = { action: 'deleteBackground', password: currentAdminPassword };
+                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    applyBackground("");
+                    document.getElementById('bgUrlInput').value = "";
+                    alert("Background di-reset.");
+                } else { alert(json.message); }
+            } catch(e) { alert("Gagal koneksi"); }
+            finally { btn.textContent = "Hapus/Reset Background"; btn.disabled = false; }
+        }
+
+        // --- Existing Handlers (User View, Admin Login, Room Mgmt, etc.) ---
+        
         function showUserView() {
             document.body.className = 'user-view-bg';
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
-            
-            // Form render awal (Select masih kosong / loading)
-            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="">Memuat data ruangan...</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="nomorWa">Nomor WA (Opsional)</label><input type="tel" id="nomorWa" name="nomorWa" placeholder="Contoh: 0812-3456-7890" inputmode="tel"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
+            // Render Form Initial
+            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="">Memuat data ruangan...</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required placeholder="Nama Lengkap Anda"></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="nomorWa">Nomor WA (Opsional)</label><input type="tel" id="nomorWa" name="nomorWa" placeholder="Contoh: 0812-3456-7890" inputmode="tel"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required placeholder="Contoh: Rapat Koordinasi Bulanan"></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
             
             const unitBagianSelect = document.getElementById('unitBagianSelect');
             const unitBagianLainnyaContainer = document.getElementById('unitBagianLainnyaContainer');
@@ -242,7 +432,6 @@
                 }
             });
             
-            // Set waktu default
             const tanggalMulaiInput = document.getElementById('tanggalMulai');
             const tanggalSelesaiInput = document.getElementById('tanggalSelesai');
             const timezoneOffset = (new Date()).getTimezoneOffset() * 60000;
@@ -260,35 +449,10 @@
             fetchUserSchedule();
         }
 
-        async function fetchUserSchedule() {
-            loadingMessage.textContent = 'Memuat jadwal & ruangan...';
-            loadingMessage.style.display = 'block';
-            scheduleContainer.innerHTML = '';
-            try {
-                const response = await fetch(GAS_WEB_APP_URL);
-                if (!response.ok) throw new Error('Respon jaringan tidak baik.');
-                const result = await response.json();
-                if (result.status === 'success') { 
-                    // 1. Update Data Ruangan Global
-                    rooms = result.rooms || []; 
-                    
-                    // 2. Update Dropdown di Form
-                    updateRoomDropdown();
-                    
-                    // 3. Render Jadwal
-                    renderUserSchedule(result.data); 
-                } 
-                else { throw new Error(result.message); }
-            } catch (error) {
-                scheduleContainer.innerHTML = `<p style="color:var(--iron-red);">Gagal memuat data. Error: ${error.message}</p>`;
-            } finally {
-                loadingMessage.style.display = 'none';
-            }
-        }
-        
         function updateRoomDropdown() {
             const select = document.getElementById('namaRuangan');
             if(select) {
+                const currentVal = select.value;
                 select.innerHTML = '';
                 rooms.forEach(r => {
                    const opt = document.createElement('option');
@@ -296,6 +460,7 @@
                    opt.textContent = r;
                    select.appendChild(opt);
                 });
+                if(currentVal && rooms.includes(currentVal)) select.value = currentVal;
             }
         }
 
@@ -304,14 +469,13 @@
             const visibleBookings = data.filter(b => b.Status === "Disetujui" || b.Status === "Belum Disetujui" || b.Status === "Ditolak");
             visibleBookings.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
             
-            // Loop berdasarkan ruangan dinamis
             rooms.forEach(room => {
                 const roomColumn = document.createElement('div');
                 roomColumn.className = 'room-column';
                 roomColumn.innerHTML = `<h3>${room}</h3>`;
                 const bookingsForRoom = visibleBookings.filter(b => b['Nama Ruangan'] === room);
                 if (bookingsForRoom.length === 0) {
-                    roomColumn.innerHTML += '<p style="opacity:0.6; text-align:center;">Belum ada jadwal.</p>';
+                    roomColumn.innerHTML += '<p style="opacity:0.6; text-align:center; color:#6b7280; font-style:italic;">Belum ada jadwal.</p>';
                 } else {
                     bookingsForRoom.forEach(booking => {
                         const item = document.createElement('div');
@@ -319,7 +483,7 @@
                         item.className = `booking-item ${statusClass}`;
                         const startDate = new Date(`${booking['Tanggal Mulai']}T${booking['Waktu Mulai']}`);
                         const endDate = new Date(`${booking['Tanggal Selesai']}T${booking['Waktu Selesai']}`);
-                        const statusText = booking.Status === 'Ditolak' ? 'TIDAK DISETUJUI' : booking.Status;
+                        const statusText = booking.Status === 'Ditolak' ? 'DITOLAK' : booking.Status;
                         item.innerHTML = `<p class="keperluan">${booking.Keperluan}</p><p class="peminjam">Oleh: ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>Mulai:</strong> ${startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} ${booking['Waktu Mulai']}</p><p><strong>Selesai:</strong> ${endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} ${booking['Waktu Selesai']}</p><p class="status">${statusText}</p>`;
                         roomColumn.appendChild(item);
                     });
@@ -331,11 +495,10 @@
         async function handleUserSubmit(e) {
             e.preventDefault();
             const submitButton = document.getElementById('submitButton');
-            // ... (logika validasi waktu sama seperti sebelumnya) ...
             const startDateTime = new Date(document.getElementById('tanggalMulai').value);
             const endDateTime = new Date(document.getElementById('tanggalSelesai').value);
             const now = new Date(); now.setSeconds(0,0);
-             if (startDateTime < now) { showModal('Waktu mulai tidak valid.', 'error'); return; }
+             if (startDateTime < now) { showModal('Waktu mulai tidak valid (sudah lewat).', 'error'); return; }
              if (endDateTime <= startDateTime) { showModal('Waktu selesai harus setelah waktu mulai.', 'error'); return; }
 
             submitButton.disabled = true; submitButton.textContent = 'Mengirim...';
@@ -357,15 +520,14 @@
                 const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(bookingData), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await response.json();
                 if (result.status === 'success') { 
-                    showModal(result.message); 
+                    showModal(result.message, 'success', 'Berhasil!'); 
                     bookingForm.reset();
                     fetchUserSchedule();
                 } else { showModal(result.message, 'error'); }
-            } catch (error) { showModal('Gagal mengirim booking.', 'error'); } 
+            } catch (error) { showModal('Gagal mengirim booking. Cek koneksi internet.', 'error'); } 
             finally { submitButton.disabled = false; submitButton.textContent = 'Kirim Permintaan Booking'; }
         }
 
-        // --- Logic Admin View ---
         function showAdminView() {
             document.body.className = 'admin-view-bg';
             userSection.style.display = 'none';
@@ -375,28 +537,71 @@
             refreshAdminBtn.addEventListener('click', fetchAdminData);
             deleteOldDataBtn.addEventListener('click', handleDeleteOldData);
         }
-        
-        async function fetchAdminData() {
-            bookingList.innerHTML = '<p>Memuat data terbaru...</p>';
-            adminScheduleContainer.innerHTML = '<p>Memuat jadwal ruangan...</p>'; 
+
+        async function handleAdminLogin() {
+            loginMessage.textContent = "Sedang memvalidasi...";
+            adminLoginBtn.disabled = true;
+            currentAdminPassword = adminPasswordInput.value;
+            if (!currentAdminPassword) { loginMessage.textContent = "Password kosong."; adminLoginBtn.disabled = false; return; }
             try {
-                const dataResponse = await fetch(GAS_WEB_APP_URL);
-                const dataResult = await dataResponse.json();
-                if (dataResult.status !== 'success') throw new Error(dataResult.message);
-                
-                rooms = dataResult.rooms || []; // Update rooms saat admin refresh
-                renderAdminList(dataResult.data);
-                renderAdminSchedule(dataResult.data);
-            } catch (error) {
-                bookingList.innerHTML = `<p style="color:red">Gagal: ${error.message}</p>`;
-                adminScheduleContainer.innerHTML = '';
-            }
+                const validationResponse = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'validatePassword', password: currentAdminPassword }) });
+                const validationResult = await validationResponse.json();
+                if (validationResult.status !== 'success') throw new Error(validationResult.message);
+                adminLoginView.style.display = 'none';
+                adminDashboardView.style.display = 'block';
+                await fetchAdminData();
+            } catch (error) { loginMessage.textContent = `Gagal: ${error.message}`; } 
+            finally { adminLoginBtn.disabled = false; }
         }
 
-        // Render Jadwal di Dashboard Admin
+        async function handleAddRoom() {
+            const input = document.getElementById('newRoomName');
+            const roomName = input.value.trim();
+            if (!roomName) return;
+            const btn = event.target; btn.textContent = "..."; btn.disabled = true;
+            const payload = { action: 'addRoom', password: currentAdminPassword, roomName: roomName };
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                if(result.status === 'success') {
+                    rooms.push(roomName); showSettings(); fetchAdminData();
+                } else { alert(result.message); }
+            } catch(e) { alert("Gagal koneksi"); }
+            finally { input.value = ""; btn.textContent = "Tambah"; btn.disabled = false; }
+        }
+
+        async function handleDeleteRoom(roomName) {
+            if(!confirm(`Yakin hapus ruangan "${roomName}"?`)) return;
+            const payload = { action: 'deleteRoom', password: currentAdminPassword, roomName: roomName };
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                if(result.status === 'success') {
+                    rooms = rooms.filter(r => r !== roomName); showSettings(); fetchAdminData();
+                } else { alert(result.message); showSettings(); }
+            } catch(e) { alert("Gagal koneksi"); showSettings(); }
+        }
+
+        function renderAdminList(data) {
+            bookingList.innerHTML = '';
+            data.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+            if (data.length === 0) { bookingList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Tidak ada data.</p>'; return; }
+            data.forEach(booking => {
+                const item = document.createElement('li');
+                item.className = 'admin-booking-item';
+                item.dataset.status = booking.Status;
+                const actionsHtml = booking.Status === 'Belum Disetujui' 
+                    ? `<div class="actions"><button class="btn btn-approve" data-id="${booking['ID Booking']}" data-status="Disetujui">Setujui</button><button class="btn btn-reject" data-id="${booking['ID Booking']}" data-status="Ditolak">Tolak</button><button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`
+                    : `<div class="actions"><button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`;
+                
+                item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruang:</strong> ${booking['Nama Ruangan']}</p><p><strong>Oleh:</strong> ${booking['Nama Peminjam']}</p><p><strong>Waktu:</strong> ${booking['Tanggal Mulai']} ${booking['Waktu Mulai']}</p>${actionsHtml}`;
+                bookingList.appendChild(item);
+            });
+            bookingList.addEventListener('click', handleAdminAction);
+        }
+
         function renderAdminSchedule(data) {
             adminScheduleContainer.innerHTML = '';
-            // Admin melihat status Disetujui & Belum Disetujui
             const visibleBookings = data.filter(b => b.Status === "Disetujui" || b.Status === "Belum Disetujui");
             visibleBookings.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
             
@@ -420,90 +625,7 @@
                 adminScheduleContainer.appendChild(roomColumn);
             });
         }
-        
-        // --- Logic Manajemen Ruangan (Add/Delete) ---
-        async function handleAddRoom() {
-            const input = document.getElementById('newRoomName');
-            const roomName = input.value.trim();
-            if (!roomName) return;
-            
-            // UI Feedback (sementara)
-            const oldText = input.value;
-            input.value = "Menyimpan...";
-            input.disabled = true;
 
-            const payload = { action: 'addRoom', password: currentAdminPassword, roomName: roomName };
-            try {
-                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if(result.status === 'success') {
-                    rooms.push(roomName); // Update lokal biar cepat
-                    showRoomSettings(); // Refresh modal
-                    fetchAdminData(); // Refresh background
-                } else {
-                    alert(result.message);
-                }
-            } catch(e) { alert("Gagal koneksi"); }
-            finally { input.value = ""; input.disabled = false; }
-        }
-
-        async function handleDeleteRoom(roomName) {
-            if(!confirm(`Yakin hapus ruangan "${roomName}"?`)) return;
-            
-            // Tutup modal loading
-            modalBody.innerHTML = '<p>Menghapus...</p>';
-            
-            const payload = { action: 'deleteRoom', password: currentAdminPassword, roomName: roomName };
-            try {
-                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if(result.status === 'success') {
-                    rooms = rooms.filter(r => r !== roomName); // Update lokal
-                    showRoomSettings(); // Buka lagi modalnya
-                    fetchAdminData();
-                } else {
-                    alert(result.message);
-                    showRoomSettings();
-                }
-            } catch(e) { alert("Gagal koneksi"); showRoomSettings(); }
-        }
-
-        async function handleAdminLogin() {
-            loginMessage.textContent = "Validasi...";
-            adminLoginBtn.disabled = true;
-            currentAdminPassword = adminPasswordInput.value;
-            if (!currentAdminPassword) { loginMessage.textContent = "Password kosong."; adminLoginBtn.disabled = false; return; }
-            try {
-                const validationResponse = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'validatePassword', password: currentAdminPassword }) });
-                const validationResult = await validationResponse.json();
-                if (validationResult.status !== 'success') throw new Error(validationResult.message);
-                adminLoginView.style.display = 'none';
-                adminDashboardView.style.display = 'block';
-                await fetchAdminData();
-            } catch (error) { loginMessage.textContent = `Gagal: ${error.message}`; } 
-            finally { adminLoginBtn.disabled = false; }
-        }
-        
-        // Render List Approval (Logic lama dipertahankan)
-        function renderAdminList(data) {
-            bookingList.innerHTML = '';
-            data.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-            if (data.length === 0) { bookingList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Tidak ada data.</p>'; return; }
-            data.forEach(booking => {
-                const item = document.createElement('li');
-                item.className = 'admin-booking-item';
-                item.dataset.status = booking.Status;
-                const actionsHtml = booking.Status === 'Belum Disetujui' 
-                    ? `<div class="actions"><button class="btn btn-approve" data-id="${booking['ID Booking']}" data-status="Disetujui">Setujui</button><button class="btn btn-reject" data-id="${booking['ID Booking']}" data-status="Ditolak">Tolak</button><button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`
-                    : `<div class="actions"><button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`;
-                
-                item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruang:</strong> ${booking['Nama Ruangan']}</p><p><strong>Oleh:</strong> ${booking['Nama Peminjam']}</p><p><strong>Waktu:</strong> ${booking['Tanggal Mulai']} ${booking['Waktu Mulai']}</p>${actionsHtml}`;
-                bookingList.appendChild(item);
-            });
-            bookingList.addEventListener('click', handleAdminAction);
-        }
-
-        // Logic Delete Old Data
         async function handleDeleteOldData() {
             const confirmed = await showConfirm('Hapus semua data booking lampau?');
             if (!confirmed) return;
@@ -512,19 +634,16 @@
                 const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOldBookings', password: currentAdminPassword }) });
                 const json = await res.json();
                 showModal(json.message); fetchAdminData();
-            } catch(e) { showModal('Gagal', 'error'); } finally { btn.disabled = false; btn.textContent = 'Hapus Data Lama'; }
+            } catch(e) { showModal('Gagal', 'error'); } finally { btn.disabled = false; btn.textContent = 'Bersihkan Data Lama'; }
         }
         
-        // Logic Admin Action (Approve/Reject/Delete)
         async function handleAdminAction(e) {
             if(!e.target.matches('button')) return;
             const btn = e.target;
             const action = btn.classList.contains('btn-delete') ? 'deleteBooking' : 'updateStatus';
             const payload = { action: action, password: currentAdminPassword, bookingId: btn.dataset.id };
             if(action === 'updateStatus') payload.newStatus = btn.dataset.status;
-            
             if(action === 'deleteBooking' && !(await showConfirm('Hapus permanen?'))) return;
-
             btn.disabled = true; btn.textContent = '...';
             try {
                 const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
