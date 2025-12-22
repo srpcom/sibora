@@ -305,7 +305,7 @@
             sessionStorage.setItem('temp_photo', photo);
         }
 
-        // --- EDIT PROFILE LOGIC (BARU) ---
+        // --- EDIT PROFILE LOGIC ---
         function showEditProfile() {
             Swal.fire({
                 title: '✏️ Edit Profil',
@@ -426,7 +426,7 @@
             document.getElementById('book-nama').value = currentUser.nama;
             document.getElementById('book-unit').value = currentUser.unit;
             
-            // --- SET DEFAULT TIME (BARU) ---
+            // --- SET DEFAULT TIME ---
             setDefaultBookingTime();
 
             // Show Admin Panel if Role is ADMIN
@@ -437,7 +437,7 @@
             fetchData();
         }
         
-        // --- FUNGSI WAKTU DEFAULT (BARU) ---
+        // --- FUNGSI WAKTU DEFAULT ---
         function setDefaultBookingTime() {
             const now = new Date();
             // Start: Now + 1 hour
@@ -462,6 +462,16 @@
         function logout() {
             sessionStorage.clear();
             location.reload();
+        }
+
+        // --- HELPER FORMAT TANGGAL ---
+        function formatDateToID(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return dateStr;
         }
 
         // --- DATA & BOOKING LOGIC ---
@@ -569,12 +579,17 @@
                         const div = document.createElement('div');
                         div.className = `booking-item ${statusClass}`;
                         div.style.marginBottom = '10px';
+                        
+                        // Gunakan Helper formatDateToID
+                        const tglMulai = formatDateToID(b['Tanggal Mulai']);
+                        const tglSelesai = formatDateToID(b['Tanggal Selesai']);
+
                         div.innerHTML = `
                             <div style="font-weight:bold; font-size:0.95rem;">${b.Keperluan}</div>
                             <div style="font-size:0.85rem; color:#555;">${b['Nama Peminjam']} (${b['Unit/Bagian']})</div>
                             <div style="font-size:0.85rem; margin-top:5px;">
-                                🕒 ${b['Tanggal Mulai']} ${b['Waktu Mulai']} <br>
-                                🏁 ${b['Tanggal Selesai']} ${b['Waktu Selesai']}
+                                🕒 ${tglMulai} ${b['Waktu Mulai']} <br>
+                                🏁 ${tglSelesai} ${b['Waktu Selesai']}
                             </div>
                             <div style="text-align:right; font-size:0.8rem; font-weight:bold; margin-top:5px; text-transform:uppercase;">${b.Status}</div>
                         `;
@@ -598,13 +613,16 @@
             pending.forEach(b => {
                 const div = document.createElement('div');
                 div.className = 'booking-item status-belum-disetujui';
+                
+                const tglMulai = formatDateToID(b['Tanggal Mulai']);
+                
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:start;">
                         <div>
                             <h4>${b.Keperluan}</h4>
                             <p><b>${b['Nama Peminjam']}</b> (${b['Unit/Bagian']}) - WA: ${b['Nomor WA']}</p>
                             <p>🏠 Ruang: <b>${b['Nama Ruangan']}</b></p>
-                            <p>⏰ ${b['Tanggal Mulai']} ${b['Waktu Mulai']} s.d ${b['Waktu Selesai']}</p>
+                            <p>⏰ ${tglMulai} ${b['Waktu Mulai']} s.d ${b['Waktu Selesai']}</p>
                         </div>
                         <div>
                             <button onclick="updateStatus('${b['ID Booking']}', 'Disetujui')" class="btn btn-primary btn-sm mb-1">✅ Setujui</button><br>
