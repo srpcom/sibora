@@ -77,6 +77,18 @@
         .btn-del { background: #fee2e2; color: #ef4444; } .btn-del:hover { background: #ef4444; color: white; }
         .btn-wa { background: #dcfce7; color: #16a34a; } .btn-wa:hover { background: #16a34a; color: white; }
         .btn-pic { background: #e0c3fc; color: #7c3aed; } .btn-pic:hover { background: #7c3aed; color: white; }
+        
+        /* User Cancel Button */
+        .btn-user-cancel {
+            position: absolute; top: 10px; right: 10px; 
+            background: #fff; color: #ef4444; 
+            border: 1px solid #ef4444; 
+            font-size: 0.75rem; padding: 4px 10px; 
+            border-radius: 20px; cursor: pointer;
+            display: flex; align-items: center; gap: 4px;
+            transition: all 0.2s;
+        }
+        .btn-user-cancel:hover { background: #ef4444; color: white; }
 
         /* Form Elements */
         .form-group { margin-bottom: 1.2rem; }
@@ -122,6 +134,7 @@
         .status-disetujui { border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
         .status-belum-disetujui { border-left-color: #f59e0b; background: linear-gradient(to right, #fffbeb, #fff); }
         .status-ditolak { border-left-color: #ef4444; background: linear-gradient(to right, #fef2f2, #fff); }
+        .status-dibatalkan { border-left-color: #6b7280; background: linear-gradient(to right, #f3f4f6, #fff); opacity: 0.7; }
 
         /* Tables & Floating */
         .table-responsive { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -501,6 +514,7 @@
             return bookings.filter(b => b.Status !== 'Ditolak').map(b => {
                 let color = '#f59e0b'; // pending
                 if(b.Status === 'Disetujui') color = '#10b981';
+                else if (b.Status === 'Dibatalkan') color = '#9ca3af'; // Grey for cancelled
                 
                 // Construct ISO strings
                 const startStr = `${b['Tanggal Mulai']}T${b['Waktu Mulai']}`;
@@ -542,7 +556,9 @@
                         const sc = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`;
                         const div = document.createElement('div'); div.className = `booking-item ${sc}`; div.style.marginBottom = '10px';
                         let statusColor = '#f59e0b', statusIcon = '⏳';
-                        if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; } else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
+                        if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; } 
+                        else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
+                        else if (b.Status === 'Dibatalkan') { statusColor = '#6b7280'; statusIcon = '🚫'; }
                         
                         let adminControls = '';
                         if (currentUser.role === 'ADMIN') {
@@ -572,6 +588,17 @@
                                 btnPic = `<a href="${linkPic}" target="_blank" class="btn-mini btn-pic" title="Info ke Petugas (${r.pic})">👨‍🔧</a>`;
                             }
                             adminControls = `<div class="admin-controls-overlay">${btnPic}<a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a><button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
+                        } else {
+                            // --- USER SELF CANCEL LOGIC ---
+                            // Check ownership (Nama & Unit harus match) & Status bukan ditolak/batal
+                            if (b['Nama Peminjam'] === currentUser.nama && b['Unit/Bagian'] === currentUser.unit && b.Status !== 'Ditolak' && b.Status !== 'Dibatalkan') {
+                                // Check date (Only allow cancel future events or today)
+                                const bookingStart = new Date(b['Tanggal Mulai'] + 'T' + b['Waktu Mulai']);
+                                const now = new Date();
+                                if (bookingStart > now) {
+                                    adminControls = `<button class="btn-user-cancel" onclick="userCancelBooking('${b['ID Booking']}')"><i class="fas fa-times"></i> Batalkan</button>`;
+                                }
+                            }
                         }
                         
                         const kelengkapanHtml = b['Kelengkapan'] ? `<div style="font-size:0.85rem; color:#6b7280; margin-bottom:5px;">🛠️ ${b['Kelengkapan']}</div>` : '';
@@ -581,6 +608,49 @@
                 }
                 c.appendChild(col);
             });
+        }
+
+        async function userCancelBooking(id) {
+            const { value: reason } = await Swal.fire({
+                title: 'Batalkan Booking?',
+                text: "Apakah Anda yakin ingin membatalkan jadwal ini?",
+                icon: 'warning',
+                input: 'textarea',
+                inputLabel: 'Alasan Pembatalan (Wajib)',
+                inputPlaceholder: 'Contoh: Narasumber berhalangan hadir...',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Ya, Batalkan',
+                cancelButtonText: 'Tidak',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Anda harus menuliskan alasan pembatalan!'
+                    }
+                }
+            });
+
+            if (reason) {
+                Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() });
+                fetch(GAS_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'cancelBooking', 
+                        bookingId: id, 
+                        reason: reason,
+                        userName: currentUser.nama // Pass name for ownership verification
+                    }) 
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'success') {
+                        Swal.fire('Dibatalkan!', 'Jadwal telah dibatalkan.', 'success');
+                        fetchData();
+                    } else {
+                        Swal.fire('Gagal', d.message, 'error');
+                    }
+                })
+                .catch(err => Swal.fire('Error', 'Terjadi kesalahan koneksi', 'error'));
+            }
         }
 
         function renderAdminApproval() {
