@@ -280,7 +280,7 @@
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
         let currentUser = null;
-        let rooms = []; // Sekarang Array of Object: {name, pic, wa}
+        let rooms = []; // Sekarang Array of Object: {name, pic, wa, email}
         let bookings = [];
 
         function toBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
@@ -360,13 +360,12 @@
                                 waTitle = 'Kirim Detail WA ke Peminjam'; 
                             }
 
-                            // --- LOGIKA TOMBOL PIC (BARU & UPDATE TEMPLATE) ---
+                            // --- LOGIKA TOMBOL PIC ---
                             let btnPic = '';
                             if (r.pic && r.wa) {
                                 let picNum = r.wa.toString().replace(/[^0-9]/g, '');
                                 if (picNum.startsWith('0')) picNum = '62' + picNum.substring(1);
                                 
-                                // Logic hari
                                 const dateParts = b['Tanggal Mulai'].split('-'); // YYYY-MM-DD
                                 const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
                                 const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -416,23 +415,28 @@ PIC Rapat : ${b['Nama Peminjam']}`;
         function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${u.role === 'ADMIN' ? `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">User</button>` : `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Admin</button>`}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
         window.changeRole = (e, r) => { Swal.fire({ title: `Ubah ke ${r}?`, showCancelButton: true }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
         
-        // --- LOGIKA SETTINGS (Update PIC) ---
+        // --- LOGIKA SETTINGS (Update PIC & EMAIL) ---
         function showSettings() { 
             let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; 
-            rooms.forEach(r => { // r is object
+            rooms.forEach(r => { 
+                const emailDisplay = r.email ? ` | ✉️ ${r.email}` : '';
                 roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <div><span style="font-weight:600;">${r.name}</span><br><small style="color:#666">PIC: ${r.pic || '-'} (${r.wa || '-'})</small></div>
-                    <div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r.name}', '${r.pic}', '${r.wa}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r.name}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div>
+                    <div>
+                        <span style="font-weight:600;">${r.name}</span><br>
+                        <small style="color:#666">PIC: ${r.pic || '-'} (${r.wa || '-'}${emailDisplay})</small>
+                    </div>
+                    <div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r.name}', '${r.pic}', '${r.wa}', '${r.email}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r.name}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div>
                 </li>`; 
             }); 
             roomHtml += '</ul>'; 
             
-            // Form Add Room (HTML)
+            // Form Add Room (HTML) - Update input email
             const formAdd = `<div style="text-align:left; background:#f9fafb; padding:10px; border-radius:8px;">
                 <label style="font-size:0.85rem; font-weight:bold;">Tambah Ruangan Baru</label>
                 <input id="new-room" class="form-control mb-2" placeholder="Nama Ruangan">
                 <input id="new-pic" class="form-control mb-2" placeholder="Nama Petugas (PIC)">
                 <input id="new-pic-wa" class="form-control mb-2" placeholder="WA Petugas (08xxx)">
+                <input id="new-pic-email" class="form-control mb-2" placeholder="Email Petugas (Untuk Notifikasi)">
                 <button onclick="addRoom()" class="btn btn-success w-100">+ Simpan Ruangan</button>
             </div>`;
 
@@ -449,35 +453,43 @@ PIC Rapat : ${b['Nama Peminjam']}`;
             const n = document.getElementById('new-room').value; 
             const p = document.getElementById('new-pic').value; 
             const w = document.getElementById('new-pic-wa').value; 
+            const e = document.getElementById('new-pic-email').value; // Get Email
             if(!n) return Swal.fire('Error','Nama ruangan wajib diisi','error'); 
             
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n, picName: p, picWa: w }) })
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n, picName: p, picWa: w, picEmail: e }) })
             .then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); 
         };
 
-        window.triggerEditRoom = async (oldName, oldPic, oldWa) => { 
+        window.triggerEditRoom = async (oldName, oldPic, oldWa, oldEmail) => { 
+            // Handle null values
+            oldPic = oldPic === 'undefined' ? '' : oldPic;
+            oldWa = oldWa === 'undefined' ? '' : oldWa;
+            oldEmail = oldEmail === 'undefined' ? '' : oldEmail;
+
             const { value: formValues } = await Swal.fire({
                 title: 'Edit Ruangan',
                 html:
                     `<label>Nama Ruangan</label><input id="swal-input1" class="form-control mb-2" value="${oldName}">` +
                     `<label>Nama Petugas</label><input id="swal-input2" class="form-control mb-2" value="${oldPic}">` +
-                    `<label>WA Petugas</label><input id="swal-input3" class="form-control" value="${oldWa}">`,
+                    `<label>WA Petugas</label><input id="swal-input3" class="form-control mb-2" value="${oldWa}">` +
+                    `<label>Email Petugas</label><input id="swal-input4" class="form-control" value="${oldEmail}" placeholder="Email untuk notifikasi">`,
                 focusConfirm: false,
                 showCancelButton: true,
                 preConfirm: () => {
                     return [
                         document.getElementById('swal-input1').value,
                         document.getElementById('swal-input2').value,
-                        document.getElementById('swal-input3').value
+                        document.getElementById('swal-input3').value,
+                        document.getElementById('swal-input4').value
                     ]
                 }
             });
 
             if (formValues) {
-                const [newName, newPic, newWa] = formValues;
+                const [newName, newPic, newWa, newEmail] = formValues;
                 if (!newName) return;
                 Swal.showLoading(); 
-                fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName, picName: newPic, picWa: newWa }) })
+                fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName, picName: newPic, picWa: newWa, picEmail: newEmail }) })
                 .then(r=>r.json())
                 .then(d => { 
                     if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } 
@@ -493,7 +505,7 @@ PIC Rapat : ${b['Nama Peminjam']}`;
         // --- STATS LOGIC ---
         function showStats() {
             document.getElementById('admin-stats-view').classList.remove('hidden');
-            Swal.showLoading(); // Indikator loading sementara
+            Swal.showLoading(); 
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getStatistics' }) })
             .then(res => res.json())
             .then(data => {
@@ -509,12 +521,10 @@ PIC Rapat : ${b['Nama Peminjam']}`;
         let chartRoom, chartUnit, chartTime;
 
         function renderCharts(roomStats, unitStats, hourStats) {
-            // Helper untuk destroy chart lama sebelum bikin baru
             if(chartRoom) chartRoom.destroy();
             if(chartUnit) chartUnit.destroy();
             if(chartTime) chartTime.destroy();
 
-            // 1. Room Chart (Bar)
             const ctxRoom = document.getElementById('chartRoom').getContext('2d');
             chartRoom = new Chart(ctxRoom, {
                 type: 'bar',
@@ -530,9 +540,7 @@ PIC Rapat : ${b['Nama Peminjam']}`;
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
 
-            // 2. Unit Chart (Pie)
             const ctxUnit = document.getElementById('chartUnit').getContext('2d');
-            // Generate random colors
             const bgColors = Object.keys(unitStats).map(() => `hsl(${Math.random() * 360}, 70%, 70%)`);
             chartUnit = new Chart(ctxUnit, {
                 type: 'doughnut',
@@ -547,9 +555,7 @@ PIC Rapat : ${b['Nama Peminjam']}`;
                 options: { responsive: true }
             });
 
-            // 3. Hour Chart (Line)
             const ctxTime = document.getElementById('chartTime').getContext('2d');
-            // Sort keys (07:00, 08:00...)
             const sortedHours = Object.keys(hourStats).sort();
             const sortedValues = sortedHours.map(h => hourStats[h]);
             
