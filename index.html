@@ -146,6 +146,58 @@
             .fc-header-toolbar { flex-direction: column; align-items: flex-start; } 
             .fc-toolbar-chunk { margin-bottom: 5px; }
         }
+
+        /* --- MOBILE OPTIMIZATION (RESPONSIVE) --- */
+        @media (max-width: 768px) {
+            .container { 
+                padding: 10px; /* Lebih mepet ke pinggir */
+                max-width: 100%;
+            }
+            
+            /* Compact Card Style */
+            .glass-card {
+                padding: 1.25rem; /* Kurangi padding dalam card (was 2.5rem) */
+                border-radius: 16px; /* Sudut lebih kecil */
+                margin-bottom: 1rem;
+                box-shadow: 0 4px 15px rgba(31, 38, 135, 0.05); /* Shadow lebih tipis */
+            }
+
+            /* Compact Header */
+            .app-header {
+                flex-direction: row; 
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: space-between;
+            }
+            .app-header img { height: 40px !important; } /* Logo lebih kecil */
+            .app-header h1 { font-size: 1.5rem; }
+            .user-info { padding: 4px 10px; } /* Profil lebih kecil */
+            .user-name { font-size: 0.8rem; }
+            .user-role { font-size: 0.6rem; }
+            .user-avatar { width: 32px; height: 32px; }
+
+            /* Thin Border & Compact List */
+            .booking-item, .admin-item {
+                padding: 1rem; /* Kurangi padding item */
+                border-left-width: 3px !important; /* Border warna status lebih tipis (was 5px) */
+                border-radius: 12px;
+                margin-bottom: 0.8rem;
+                border: 1px solid #f3f4f6; /* Border keliling sangat tipis */
+            }
+
+            /* Form Compact */
+            .form-control {
+                padding: 0.7rem; /* Input lebih pendek */
+                font-size: 0.95rem;
+            }
+            .form-group { margin-bottom: 1rem; }
+
+            /* Stats Grid Single Column */
+            .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
+
+            /* Floating Button Smaller */
+            .float-wa { width: 50px; height: 50px; font-size: 24px; bottom: 20px; right: 20px; }
+        }
     </style>
 </head>
 <body>
