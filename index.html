@@ -360,17 +360,21 @@
                                 waTitle = 'Kirim Detail WA ke Peminjam'; 
                             }
 
-                            // --- LOGIKA TOMBOL PIC (BARU) ---
+                            // --- LOGIKA TOMBOL PIC (BARU & UPDATE TEMPLATE) ---
                             let btnPic = '';
                             if (r.pic && r.wa) {
                                 let picNum = r.wa.toString().replace(/[^0-9]/g, '');
                                 if (picNum.startsWith('0')) picNum = '62' + picNum.substring(1);
                                 
-                                const dateString = formatDateToID(b['Tanggal Mulai']);
+                                // Logic hari
+                                const dateParts = b['Tanggal Mulai'].split('-'); // YYYY-MM-DD
+                                const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+                                const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                                const dayName = days[dateObj.getDay()];
+                                const dateString = `${dayName}, ${formatDateToID(b['Tanggal Mulai'])}`;
+                                
                                 const msgPic = `Informasi Rapat
 Ruangan : ${b['Nama Ruangan']}
-untuk kegiatan:
-
 📅 ${dateString}
 ⏰ Pukul: ${b['Waktu Mulai']} - ${b['Waktu Selesai']}
 📝 Acara: ${b.Keperluan}
