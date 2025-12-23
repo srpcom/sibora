@@ -73,6 +73,7 @@
         .btn-mini:hover { transform: scale(1.1); }
         .btn-del { background: #fee2e2; color: #ef4444; } .btn-del:hover { background: #ef4444; color: white; }
         .btn-wa { background: #dcfce7; color: #16a34a; } .btn-wa:hover { background: #16a34a; color: white; }
+        .btn-pic { background: #e0c3fc; color: #7c3aed; } .btn-pic:hover { background: #7c3aed; color: white; }
 
         /* Form Elements */
         .form-group { margin-bottom: 1.2rem; }
@@ -279,7 +280,7 @@
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
         let currentUser = null;
-        let rooms = [];
+        let rooms = []; // Sekarang Array of Object: {name, pic, wa}
         let bookings = [];
 
         function toBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
@@ -297,7 +298,33 @@
         function setDefaultBookingTime() { const now = new Date(); const start = new Date(now.getTime() + 60 * 60 * 1000); const end = new Date(start.getTime() + 60 * 60 * 1000); const fmt = (d) => { const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); const hours = String(d.getHours()).padStart(2, '0'); const minutes = String(d.getMinutes()).padStart(2, '0'); return `${year}-${month}-${day}T${hours}:${minutes}`; }; document.getElementById('book-mulai').value = fmt(start); document.getElementById('book-selesai').value = fmt(end); }
         function formatDateToID(d) { if (!d) return ''; const p = d.split('-'); return (p.length === 3) ? `${p[2]}-${p[1]}-${p[0]}` : d; }
 
-        async function fetchData() { try { const res = await fetch(GAS_URL); const data = await res.json(); if (data.status === 'success') { rooms = data.rooms; bookings = data.data; const s = document.getElementById('book-ruangan'); const cv = s.value; s.innerHTML = ''; const dopt = document.createElement('option'); dopt.value = ""; dopt.innerText = "Pilih Ruangan..."; s.appendChild(dopt); rooms.forEach(r => { const o = document.createElement('option'); o.value = r; o.innerText = r; s.appendChild(o); }); if(cv) s.value = cv; renderSchedule(); if (currentUser.role === 'ADMIN') renderAdminApproval(); if (data.background) document.body.style.backgroundImage = `url('${data.background}')`; } } catch (e) { console.error(e); } }
+        async function fetchData() { 
+            try { 
+                const res = await fetch(GAS_URL); 
+                const data = await res.json(); 
+                if (data.status === 'success') { 
+                    rooms = data.rooms; 
+                    bookings = data.data; 
+                    const s = document.getElementById('book-ruangan'); 
+                    const cv = s.value; 
+                    s.innerHTML = ''; 
+                    const dopt = document.createElement('option'); 
+                    dopt.value = ""; 
+                    dopt.innerText = "Pilih Ruangan..."; 
+                    s.appendChild(dopt); 
+                    rooms.forEach(r => { 
+                        const o = document.createElement('option'); 
+                        o.value = r.name; // Use .name because r is object now
+                        o.innerText = r.name; 
+                        s.appendChild(o); 
+                    }); 
+                    if(cv) s.value = cv; 
+                    renderSchedule(); 
+                    if (currentUser.role === 'ADMIN') renderAdminApproval(); 
+                    if (data.background) document.body.style.backgroundImage = `url('${data.background}')`; 
+                } 
+            } catch (e) { console.error(e); } 
+        }
 
         function showEditProfile() { Swal.fire({ title: '✏️ Edit Profil', html: `<div style="text-align:left"><label>Email</label><input class="form-control mb-2" value="${currentUser.email}" readonly style="background:#eee"><label>Nama</label><input id="edit-nama" class="form-control mb-2" value="${currentUser.nama}"><label>Unit</label><input id="edit-unit" class="form-control mb-2" value="${currentUser.unit}"><label>WA</label><input id="edit-wa" class="form-control mb-2" value="${currentUser.wa}"><label>Foto</label><input type="file" id="edit-foto" class="form-control" accept="image/*"></div>`, showCancelButton: true, confirmButtonText: 'Simpan', showLoaderOnConfirm: true, preConfirm: async () => { const n = document.getElementById('edit-nama').value, u = document.getElementById('edit-unit').value, w = document.getElementById('edit-wa').value, f = document.getElementById('edit-foto').files[0]; if(!n||!u||!w) return Swal.showValidationMessage('Isi semua'); let pu = currentUser.foto; if (f) { try { const b64 = await compressImage(f); const ur = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'upload_foto', email: currentUser.email, base64: b64.split(',')[1], mimeType: 'image/jpeg' }) }).then(r=>r.json()); if(ur.status==='success') pu=ur.url; else return Swal.showValidationMessage(ur.message); } catch(e) { return Swal.showValidationMessage(e); } } return fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save_profile', email: currentUser.email, nama: n, unit: u, wa: w, foto: pu }) }).then(r=>r.json()); } }).then(r => { if(r.isConfirmed && r.value.status==='success') { currentUser = r.value.user; sessionStorage.setItem('sibora_user', JSON.stringify(currentUser)); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-avatar').src = currentUser.foto; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; Swal.fire('Berhasil','Profil diupdate','success'); } }); }
         function handleSaveProfile(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Menyimpan..."; btn.disabled=true; const p={action:'save_profile', email:document.getElementById('setup-email').value, nama:document.getElementById('setup-nama').value, unit:document.getElementById('setup-unit').value, wa:document.getElementById('setup-wa').value, foto:sessionStorage.getItem('temp_photo')||""}; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ sessionStorage.setItem('sibora_user',JSON.stringify(d.user)); initApp(); }else{ Swal.fire('Error','Gagal','error'); btn.textContent="Simpan"; btn.disabled=false; } }); }
@@ -307,10 +334,10 @@
             const c = document.getElementById('schedule-container'); c.innerHTML = '';
             const v = bookings.filter(b => b.Status !== 'Ditolak');
             v.sort((a,b) => new Date(a['Tanggal Mulai']+'T'+a['Waktu Mulai']) - new Date(b['Tanggal Mulai']+'T'+b['Waktu Mulai']));
-            rooms.forEach(r => {
+            rooms.forEach(r => { // r is object {name, pic, wa}
                 const col = document.createElement('div'); col.className = 'booking-item'; col.style.borderLeft = 'none';
-                col.innerHTML = `<h4 style="border-bottom:1px solid #eee; padding-bottom:10px; text-align:center; color:var(--primary);">${r}</h4>`;
-                const rb = v.filter(b => b['Nama Ruangan'] === r);
+                col.innerHTML = `<h4 style="border-bottom:1px solid #eee; padding-bottom:10px; text-align:center; color:var(--primary);">${r.name}</h4>`;
+                const rb = v.filter(b => b['Nama Ruangan'] === r.name);
                 if (rb.length === 0) { col.innerHTML += `<p style="text-align:center; opacity:0.5; font-size:0.9rem;">Tidak ada jadwal.</p>`; } 
                 else {
                     rb.forEach(b => {
@@ -318,12 +345,46 @@
                         const div = document.createElement('div'); div.className = `booking-item ${sc}`; div.style.marginBottom = '10px';
                         let statusColor = '#f59e0b', statusIcon = '⏳';
                         if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; } else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
+                        
                         let adminControls = '';
                         if (currentUser.role === 'ADMIN') {
+                            // WA Peminjam logic
                             let waLink = '#', waStyle = 'opacity:0.5; cursor:not-allowed;', waTitle = 'No WA tidak tersedia';
-                            if (b['Nomor WA']) { let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, ''); if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1); const equip = b['Kelengkapan'] ? `\n🛠️ *Alat:* ${b['Kelengkapan']}` : ''; const msg = `Halo *${b['Nama Peminjam']}*,\n\nInfo Booking:\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*${equip}\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*`; waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`; waStyle = ''; waTitle = 'Kirim Detail WA'; }
-                            adminControls = `<div class="admin-controls-overlay"><a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a><button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
+                            if (b['Nomor WA']) { 
+                                let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, ''); 
+                                if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1); 
+                                const equip = b['Kelengkapan'] ? `\n🛠️ *Alat:* ${b['Kelengkapan']}` : ''; 
+                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nInfo Booking:\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*${equip}\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*`; 
+                                waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`; 
+                                waStyle = ''; 
+                                waTitle = 'Kirim Detail WA ke Peminjam'; 
+                            }
+
+                            // --- LOGIKA TOMBOL PIC (BARU) ---
+                            let btnPic = '';
+                            if (r.pic && r.wa) {
+                                let picNum = r.wa.toString().replace(/[^0-9]/g, '');
+                                if (picNum.startsWith('0')) picNum = '62' + picNum.substring(1);
+                                
+                                const dateString = formatDateToID(b['Tanggal Mulai']);
+                                const msgPic = `Informasi Rapat
+Ruangan : ${b['Nama Ruangan']}
+untuk kegiatan:
+
+📅 ${dateString}
+⏰ Pukul: ${b['Waktu Mulai']} - ${b['Waktu Selesai']}
+📝 Acara: ${b.Keperluan}
+🛠 Kelengkapan: ${b['Kelengkapan'] || '-'}
+
+PIC Rapat : ${b['Nama Peminjam']}`;
+                                
+                                const linkPic = `https://wa.me/${picNum}?text=${encodeURIComponent(msgPic)}`;
+                                btnPic = `<a href="${linkPic}" target="_blank" class="btn-mini btn-pic" title="Info ke Petugas (${r.pic})">🧹</a>`;
+                            }
+
+                            adminControls = `<div class="admin-controls-overlay">${btnPic}<a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a><button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
                         }
+                        
                         const kelengkapanHtml = b['Kelengkapan'] ? `<div style="font-size:0.85rem; color:#6b7280; margin-bottom:5px;">🛠️ ${b['Kelengkapan']}</div>` : '';
                         div.innerHTML = `${adminControls}<div style="font-weight:bold; font-size:1rem; padding-right:25px; margin-bottom: 5px;">${b.Keperluan}</div><div style="font-size:0.9rem; color:#555; margin-bottom: 8px;">👤 <b>${b['Nama Peminjam']}</b><br><span style="font-size:0.85rem; opacity:0.8;">(${b['Unit/Bagian']})</span></div>${kelengkapanHtml}<div style="background:#f9fafb; padding:8px; border-radius:8px; font-size:0.85rem;">🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}</div><div style="text-align:right; font-size:0.85rem; font-weight:bold; margin-top:8px; color:${statusColor};">${statusIcon} ${b.Status.toUpperCase()}</div>`;
                         col.appendChild(div);
@@ -349,10 +410,77 @@
         
         function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${u.role === 'ADMIN' ? `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">User</button>` : `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Admin</button>`}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
         window.changeRole = (e, r) => { Swal.fire({ title: `Ubah ke ${r}?`, showCancelButton: true }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
-        function showSettings() { let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:200px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; rooms.forEach(r => { roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:500;">${r}</span><div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div></li>`; }); roomHtml += '</ul>'; Swal.fire({ title: 'Pengaturan', html: `<div style="text-align:left"><label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>${roomHtml}<div style="display:flex; gap:5px; margin-bottom:20px;"><input id="new-room" class="form-control" placeholder="Nama Ruangan Baru"><button onclick="addRoom()" class="btn btn-success" style="white-space:nowrap;">+ Tambah</button></div><hr><label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label><input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background"><button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button></div>`, showConfirmButton: false, width: '600px' }); }
+        
+        // --- LOGIKA SETTINGS (Update PIC) ---
+        function showSettings() { 
+            let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; 
+            rooms.forEach(r => { // r is object
+                roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                    <div><span style="font-weight:600;">${r.name}</span><br><small style="color:#666">PIC: ${r.pic || '-'} (${r.wa || '-'})</small></div>
+                    <div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r.name}', '${r.pic}', '${r.wa}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r.name}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div>
+                </li>`; 
+            }); 
+            roomHtml += '</ul>'; 
+            
+            // Form Add Room (HTML)
+            const formAdd = `<div style="text-align:left; background:#f9fafb; padding:10px; border-radius:8px;">
+                <label style="font-size:0.85rem; font-weight:bold;">Tambah Ruangan Baru</label>
+                <input id="new-room" class="form-control mb-2" placeholder="Nama Ruangan">
+                <input id="new-pic" class="form-control mb-2" placeholder="Nama Petugas (PIC)">
+                <input id="new-pic-wa" class="form-control mb-2" placeholder="WA Petugas (08xxx)">
+                <button onclick="addRoom()" class="btn btn-success w-100">+ Simpan Ruangan</button>
+            </div>`;
+
+            Swal.fire({ 
+                title: 'Pengaturan', 
+                html: `<div style="text-align:left"><label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>${roomHtml}${formAdd}<hr><label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label><input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background"><button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button></div>`, 
+                showConfirmButton: false, width: '600px' 
+            }); 
+        }
+
         window.saveBg = () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: document.getElementById('bg-url').value }) }).then(() => { Swal.fire('Sukses'); fetchData(); }); };
-        window.addRoom = () => { const n = document.getElementById('new-room').value; if(!n) return Swal.fire('Error','Nama kosong','error'); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n }) }).then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); };
-        window.triggerEditRoom = async (o) => { const { value: n } = await Swal.fire({ title: 'Edit Ruangan', input: 'text', inputValue: o, showCancelButton: true }); if (n && n !== o) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: o, newName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
+        
+        window.addRoom = () => { 
+            const n = document.getElementById('new-room').value; 
+            const p = document.getElementById('new-pic').value; 
+            const w = document.getElementById('new-pic-wa').value; 
+            if(!n) return Swal.fire('Error','Nama ruangan wajib diisi','error'); 
+            
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n, picName: p, picWa: w }) })
+            .then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); 
+        };
+
+        window.triggerEditRoom = async (oldName, oldPic, oldWa) => { 
+            const { value: formValues } = await Swal.fire({
+                title: 'Edit Ruangan',
+                html:
+                    `<label>Nama Ruangan</label><input id="swal-input1" class="form-control mb-2" value="${oldName}">` +
+                    `<label>Nama Petugas</label><input id="swal-input2" class="form-control mb-2" value="${oldPic}">` +
+                    `<label>WA Petugas</label><input id="swal-input3" class="form-control" value="${oldWa}">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                preConfirm: () => {
+                    return [
+                        document.getElementById('swal-input1').value,
+                        document.getElementById('swal-input2').value,
+                        document.getElementById('swal-input3').value
+                    ]
+                }
+            });
+
+            if (formValues) {
+                const [newName, newPic, newWa] = formValues;
+                if (!newName) return;
+                Swal.showLoading(); 
+                fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName, picName: newPic, picWa: newWa }) })
+                .then(r=>r.json())
+                .then(d => { 
+                    if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } 
+                    else Swal.fire('Gagal',d.message,'error'); 
+                }); 
+            } 
+        };
+
         window.triggerDeleteRoom = async (n) => { if((await Swal.fire({ title: `Hapus ${n}?`, icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRoom', roomName: n }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
         function handleDeleteOldData() { Swal.fire({ title: 'Arsipkan Data Lama?', text: 'Data yang sudah berlalu akan dipindahkan ke sheet Arsip.', icon: 'info', showCancelButton: true, confirmButtonText: 'Ya, Arsipkan' }).then(r => { if (r.isConfirmed) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'archiveOldBookings' }) }).then(x => x.json()).then(y => Swal.fire('Info', y.message, 'info').then(() => fetchData())); }); }
         async function deleteBooking(id) { if((await Swal.fire({ title: 'Hapus Permanen?', icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteBooking', bookingId: id }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); } else Swal.fire('Gagal',d.message,'error'); }); } }
