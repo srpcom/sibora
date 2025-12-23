@@ -280,7 +280,7 @@
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
         let currentUser = null;
-        let rooms = []; 
+        let rooms = []; // Sekarang Array of Object: {name, pic, wa}
         let bookings = [];
 
         function toBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
@@ -289,27 +289,7 @@
         function handleCredentialResponse(r) { const p = decodeJwtResponse(r.credential); document.getElementById('login-msg').innerText = "Memeriksa akun..."; fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'google_login', email: p.email, name: p.name, photo: p.picture }) }).then(res => res.json()).then(data => { if (data.status === 'success') { sessionStorage.setItem('sibora_user', JSON.stringify(data.user)); initApp(); } else if (data.status === 'new_user') { showSetupProfile(data.email, p.name, p.picture); } else { document.getElementById('login-msg').innerText = "Gagal Login: " + data.message; } }).catch(err => document.getElementById('login-msg').innerText = "Koneksi Error."); }
         function decodeJwtResponse(t) { var base64Url = t.split('.')[1]; var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); }).join('')); return JSON.parse(jsonPayload); }
         function showSetupProfile(e, n, p) { document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.remove('hidden'); document.getElementById('setup-email').value = e; document.getElementById('setup-nama').value = n; sessionStorage.setItem('temp_photo', p); }
-        
-        function initApp() { 
-            const u = sessionStorage.getItem('sibora_user'); 
-            if (!u) { 
-                document.getElementById('view-login').classList.remove('hidden'); 
-                return; 
-            } 
-            currentUser = JSON.parse(u); 
-            document.getElementById('view-login').classList.add('hidden'); 
-            document.getElementById('view-setup').classList.add('hidden'); 
-            document.getElementById('view-dashboard').classList.remove('hidden'); 
-            document.getElementById('head-nama').innerText = currentUser.nama; 
-            document.getElementById('head-role').innerText = currentUser.role; 
-            document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; 
-            document.getElementById('book-nama').value = currentUser.nama; 
-            document.getElementById('book-unit').value = currentUser.unit; 
-            setDefaultBookingTime(); 
-            if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); 
-            fetchData(); 
-        }
-        
+        function initApp() { const u = sessionStorage.getItem('sibora_user'); if (!u) { document.getElementById('view-login').classList.remove('hidden'); return; } currentUser = JSON.parse(u); document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role; document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; setDefaultBookingTime(); if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); fetchData(); }
         function logout() { sessionStorage.clear(); location.reload(); }
         
         function toggleDropdown(event) { event.stopPropagation(); const dropdown = document.getElementById('profileDropdown'); dropdown.classList.toggle('active'); }
@@ -334,7 +314,7 @@
                     s.appendChild(dopt); 
                     rooms.forEach(r => { 
                         const o = document.createElement('option'); 
-                        o.value = r.name; 
+                        o.value = r.name; // Use .name because r is object now
                         o.innerText = r.name; 
                         s.appendChild(o); 
                     }); 
@@ -354,7 +334,7 @@
             const c = document.getElementById('schedule-container'); c.innerHTML = '';
             const v = bookings.filter(b => b.Status !== 'Ditolak');
             v.sort((a,b) => new Date(a['Tanggal Mulai']+'T'+a['Waktu Mulai']) - new Date(b['Tanggal Mulai']+'T'+b['Waktu Mulai']));
-            rooms.forEach(r => { 
+            rooms.forEach(r => { // r is object {name, pic, wa}
                 const col = document.createElement('div'); col.className = 'booking-item'; col.style.borderLeft = 'none';
                 col.innerHTML = `<h4 style="border-bottom:1px solid #eee; padding-bottom:10px; text-align:center; color:var(--primary);">${r.name}</h4>`;
                 const rb = v.filter(b => b['Nama Ruangan'] === r.name);
@@ -382,7 +362,7 @@
 
                             // --- LOGIKA TOMBOL PIC (BARU & UPDATE TEMPLATE) ---
                             let btnPic = '';
-                            if (r.pic && r.wa && b.Status === 'Disetujui') {
+                            if (r.pic && r.wa) {
                                 let picNum = r.wa.toString().replace(/[^0-9]/g, '');
                                 if (picNum.startsWith('0')) picNum = '62' + picNum.substring(1);
                                 
@@ -436,21 +416,13 @@ PIC Rapat : ${b['Nama Peminjam']}`;
         function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${u.role === 'ADMIN' ? `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">User</button>` : `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Admin</button>`}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
         window.changeRole = (e, r) => { Swal.fire({ title: `Ubah ke ${r}?`, showCancelButton: true }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
         
-        // --- LOGIKA SETTINGS (Update PIC Email) ---
+        // --- LOGIKA SETTINGS (Update PIC) ---
         function showSettings() { 
             let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; 
-            rooms.forEach(r => { // r is object {name, pic, wa, email}
-                // Tampilkan info email juga di list
+            rooms.forEach(r => { // r is object
                 roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <span style="font-weight:600;">${r.name}</span><br>
-                        <small style="color:#666">PIC: ${r.pic || '-'} (${r.wa || '-'})</small><br>
-                        <small style="color:#666">Email: ${r.email || '-'}</small>
-                    </div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="triggerEditRoom('${r.name}', '${r.pic || ''}', '${r.wa || ''}', '${r.email || ''}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button>
-                        <button onclick="triggerDeleteRoom('${r.name}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button>
-                    </div>
+                    <div><span style="font-weight:600;">${r.name}</span><br><small style="color:#666">PIC: ${r.pic || '-'} (${r.wa || '-'})</small></div>
+                    <div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r.name}', '${r.pic}', '${r.wa}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r.name}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div>
                 </li>`; 
             }); 
             roomHtml += '</ul>'; 
@@ -461,7 +433,6 @@ PIC Rapat : ${b['Nama Peminjam']}`;
                 <input id="new-room" class="form-control mb-2" placeholder="Nama Ruangan">
                 <input id="new-pic" class="form-control mb-2" placeholder="Nama Petugas (PIC)">
                 <input id="new-pic-wa" class="form-control mb-2" placeholder="WA Petugas (08xxx)">
-                <input id="new-pic-email" class="form-control mb-2" placeholder="Email Petugas">
                 <button onclick="addRoom()" class="btn btn-success w-100">+ Simpan Ruangan</button>
             </div>`;
 
@@ -478,38 +449,35 @@ PIC Rapat : ${b['Nama Peminjam']}`;
             const n = document.getElementById('new-room').value; 
             const p = document.getElementById('new-pic').value; 
             const w = document.getElementById('new-pic-wa').value; 
-            const e = document.getElementById('new-pic-email').value;
             if(!n) return Swal.fire('Error','Nama ruangan wajib diisi','error'); 
             
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n, picName: p, picWa: w, picEmail: e }) })
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n, picName: p, picWa: w }) })
             .then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); 
         };
 
-        window.triggerEditRoom = async (oldName, oldPic, oldWa, oldEmail) => { 
+        window.triggerEditRoom = async (oldName, oldPic, oldWa) => { 
             const { value: formValues } = await Swal.fire({
                 title: 'Edit Ruangan',
                 html:
                     `<label>Nama Ruangan</label><input id="swal-input1" class="form-control mb-2" value="${oldName}">` +
                     `<label>Nama Petugas</label><input id="swal-input2" class="form-control mb-2" value="${oldPic}">` +
-                    `<label>WA Petugas</label><input id="swal-input3" class="form-control mb-2" value="${oldWa}">` +
-                    `<label>Email Petugas</label><input id="swal-input4" class="form-control" value="${oldEmail}">`,
+                    `<label>WA Petugas</label><input id="swal-input3" class="form-control" value="${oldWa}">`,
                 focusConfirm: false,
                 showCancelButton: true,
                 preConfirm: () => {
                     return [
                         document.getElementById('swal-input1').value,
                         document.getElementById('swal-input2').value,
-                        document.getElementById('swal-input3').value,
-                        document.getElementById('swal-input4').value
+                        document.getElementById('swal-input3').value
                     ]
                 }
             });
 
             if (formValues) {
-                const [newName, newPic, newWa, newEmail] = formValues;
+                const [newName, newPic, newWa] = formValues;
                 if (!newName) return;
                 Swal.showLoading(); 
-                fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName, picName: newPic, picWa: newWa, picEmail: newEmail }) })
+                fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName, picName: newPic, picWa: newWa }) })
                 .then(r=>r.json())
                 .then(d => { 
                     if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } 
@@ -522,9 +490,10 @@ PIC Rapat : ${b['Nama Peminjam']}`;
         function handleDeleteOldData() { Swal.fire({ title: 'Arsipkan Data Lama?', text: 'Data yang sudah berlalu akan dipindahkan ke sheet Arsip.', icon: 'info', showCancelButton: true, confirmButtonText: 'Ya, Arsipkan' }).then(r => { if (r.isConfirmed) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'archiveOldBookings' }) }).then(x => x.json()).then(y => Swal.fire('Info', y.message, 'info').then(() => fetchData())); }); }
         async function deleteBooking(id) { if((await Swal.fire({ title: 'Hapus Permanen?', icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteBooking', bookingId: id }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); } else Swal.fire('Gagal',d.message,'error'); }); } }
 
+        // --- STATS LOGIC ---
         function showStats() {
             document.getElementById('admin-stats-view').classList.remove('hidden');
-            Swal.showLoading(); 
+            Swal.showLoading(); // Indikator loading sementara
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getStatistics' }) })
             .then(res => res.json())
             .then(data => {
@@ -540,10 +509,12 @@ PIC Rapat : ${b['Nama Peminjam']}`;
         let chartRoom, chartUnit, chartTime;
 
         function renderCharts(roomStats, unitStats, hourStats) {
+            // Helper untuk destroy chart lama sebelum bikin baru
             if(chartRoom) chartRoom.destroy();
             if(chartUnit) chartUnit.destroy();
             if(chartTime) chartTime.destroy();
 
+            // 1. Room Chart (Bar)
             const ctxRoom = document.getElementById('chartRoom').getContext('2d');
             chartRoom = new Chart(ctxRoom, {
                 type: 'bar',
@@ -559,7 +530,9 @@ PIC Rapat : ${b['Nama Peminjam']}`;
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
 
+            // 2. Unit Chart (Pie)
             const ctxUnit = document.getElementById('chartUnit').getContext('2d');
+            // Generate random colors
             const bgColors = Object.keys(unitStats).map(() => `hsl(${Math.random() * 360}, 70%, 70%)`);
             chartUnit = new Chart(ctxUnit, {
                 type: 'doughnut',
@@ -574,7 +547,9 @@ PIC Rapat : ${b['Nama Peminjam']}`;
                 options: { responsive: true }
             });
 
+            // 3. Hour Chart (Line)
             const ctxTime = document.getElementById('chartTime').getContext('2d');
+            // Sort keys (07:00, 08:00...)
             const sortedHours = Object.keys(hourStats).sort();
             const sortedValues = sortedHours.map(h => hourStats[h]);
             
