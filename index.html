@@ -18,11 +18,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Libraries: SweetAlert2, Chart.js, FullCalendar -->
+    <!-- Libraries: SweetAlert2, Chart.js, FullCalendar, SheetJS (XLSX) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <style>
         :root {
@@ -118,7 +119,12 @@
         .dropdown-item.logout:hover { background-color: #fef2f2; color: #dc2626; }
         .dropdown-icon { width: 20px; text-align: center; }
 
-        .booking-item, .admin-item { background: white; padding: 1.25rem; padding-right: 50px; border-radius: 16px; margin-bottom: 1rem; border-left: 5px solid #ccc; transition: all 0.2s; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; border-left-width: 5px; }
+        .booking-item, .admin-item { 
+            background: white; padding: 1.25rem; padding-right: 50px; 
+            border-radius: 16px; margin-bottom: 1rem; border-left: 5px solid #ccc; 
+            transition: all 0.2s; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+            border: 1px solid #f0f0f0; border-left-width: 5px; 
+        }
         .booking-item:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
         .status-disetujui { border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
         .status-belum-disetujui { border-left-color: #f59e0b; background: linear-gradient(to right, #fffbeb, #fff); }
@@ -257,6 +263,7 @@
                         <button onclick="showUserMgmt()" class="btn btn-secondary">👥 Manajemen User</button>
                         <button onclick="showSettings()" class="btn btn-secondary">⚙️ Pengaturan</button>
                         <button onclick="showStats()" class="btn btn-primary">📊 Statistik</button>
+                        <button onclick="downloadReport()" class="btn btn-success">📂 Laporan</button> <!-- TOMBOL BARU -->
                         <button onclick="handleDeleteOldData()" class="btn btn-danger">📁 Arsipkan Data Lama</button>
                     </div>
                 </div>
@@ -658,6 +665,70 @@
         function showStats() { const view = document.getElementById('admin-stats-view'); if(view) { view.classList.remove('hidden'); view.scrollIntoView({ behavior: 'smooth', block: 'start' }); } Swal.fire({title: 'Memuat Statistik...', didOpen: () => Swal.showLoading()}); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getStatistics' }) }).then(res => { if (!res.ok) throw new Error("HTTP Error " + res.status); return res.json(); }).then(data => { Swal.close(); if(data.status === 'success') { renderCharts(data.roomStats, data.unitStats, data.hourStats); } else { Swal.fire('Gagal', 'Error Backend: ' + (data.message || 'Unknown'), 'error'); } }).catch(err => { Swal.fire('Error', 'Gagal memuat: ' + err.message + '. PASTIKAN ANDA SUDAH DEPLOY NEW VERSION.', 'error'); console.error(err); }); }
         let chartRoom, chartUnit, chartTime;
         function renderCharts(roomStats, unitStats, hourStats) { if(chartRoom) chartRoom.destroy(); if(chartUnit) chartUnit.destroy(); if(chartTime) chartTime.destroy(); const ctxRoom = document.getElementById('chartRoom').getContext('2d'); chartRoom = new Chart(ctxRoom, { type: 'bar', data: { labels: Object.keys(roomStats), datasets: [{ label: 'Jumlah Booking', data: Object.values(roomStats), backgroundColor: '#4f46e5', borderRadius: 5 }] }, options: { responsive: true, plugins: { legend: { display: false } } } }); const ctxUnit = document.getElementById('chartUnit').getContext('2d'); const bgColors = Object.keys(unitStats).map(() => `hsl(${Math.random() * 360}, 70%, 70%)`); chartUnit = new Chart(ctxUnit, { type: 'doughnut', data: { labels: Object.keys(unitStats), datasets: [{ data: Object.values(unitStats), backgroundColor: bgColors, borderWidth: 1 }] }, options: { responsive: true } }); const ctxTime = document.getElementById('chartTime').getContext('2d'); const sortedHours = Object.keys(hourStats).sort(); const sortedValues = sortedHours.map(h => hourStats[h]); chartTime = new Chart(ctxTime, { type: 'line', data: { labels: sortedHours, datasets: [{ label: 'Frekuensi', data: sortedValues, borderColor: '#ec4899', backgroundColor: 'rgba(236, 72, 153, 0.2)', fill: true, tension: 0.4 }] }, options: { responsive: true, scales: { y: { beginAtZero: true } } } }); }
+
+        // --- NEW: FUNGSI DOWNLOAD LAPORAN EXCEL ---
+        async function downloadReport() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Download Laporan',
+                html: `
+                    <label style="display:block; text-align:left; margin-bottom:5px;">Tanggal Mulai</label>
+                    <input type="date" id="swal-start-date" class="swal2-input" style="margin:0 0 15px 0; width:100%;">
+                    <label style="display:block; text-align:left; margin-bottom:5px;">Tanggal Selesai</label>
+                    <input type="date" id="swal-end-date" class="swal2-input" style="margin:0 0 15px 0; width:100%;">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Download Excel',
+                preConfirm: () => {
+                    const start = document.getElementById('swal-start-date').value;
+                    const end = document.getElementById('swal-end-date').value;
+                    if (!start || !end) {
+                        Swal.showValidationMessage('Harap isi kedua tanggal');
+                    }
+                    return [start, end];
+                }
+            });
+
+            if (formValues) {
+                const [startDate, endDate] = formValues;
+                Swal.fire({ title: 'Mengambil Data...', didOpen: () => Swal.showLoading() });
+                
+                try {
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ 
+                            action: 'getReportData', 
+                            startDate: startDate, 
+                            endDate: endDate 
+                        })
+                    });
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        if (result.data.length === 0) {
+                            Swal.fire('Info', 'Tidak ada data pada periode tersebut.', 'info');
+                            return;
+                        }
+                        
+                        // Generate Excel using SheetJS
+                        const worksheet = XLSX.utils.json_to_sheet(result.data);
+                        const workbook = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Booking");
+                        
+                        // Auto-width columns (simple estimation)
+                        const wscols = Object.keys(result.data[0]).map(key => ({ wch: 20 }));
+                        worksheet['!cols'] = wscols;
+
+                        XLSX.writeFile(workbook, `Laporan_SIBORA_${startDate}_sd_${endDate}.xlsx`);
+                        Swal.fire('Berhasil', 'Laporan berhasil diunduh.', 'success');
+                    } else {
+                        throw new Error(result.message || 'Gagal mengambil data');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        }
 
         // Note: initApp is called based on onload logic now
     </script>
