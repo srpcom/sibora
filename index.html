@@ -603,8 +603,19 @@
                                 if (result.value) {
                                     // Redirect to URL with room param
                                     const newUrl = new URL(window.location.href);
-                                    newUrl.searchParams.set('page', 'signage');
+                                    // Use searchParams to set parameters properly.
+                                    // If we use short param ?signage, we might want to keep it or convert to standard ?page=signage&room=...
+                                    // The user asked for `?signage` to trigger selection.
+                                    // We will construct the new URL to include the room.
+                                    // If we simply add &room=..., we need to be careful with existing params.
+                                    
+                                    // Let's standardize: always add room parameter. 
+                                    // Keep existing params.
                                     newUrl.searchParams.set('room', result.value);
+                                    
+                                    // If we came from ?signage (no value), urlParams.has('signage') is true.
+                                    // We can keep it as is.
+                                    
                                     window.location.href = newUrl.toString();
                                 }
                             });
