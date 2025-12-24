@@ -72,7 +72,7 @@
             top: 10px; 
             right: 8px; 
             display: flex; 
-            flex-direction: column; /* Ubah ke Vertical */
+            flex-direction: column; 
             gap: 6px; 
             z-index: 10; 
         }
@@ -83,7 +83,7 @@
         .btn-del { background: #fee2e2; color: #ef4444; } .btn-del:hover { background: #ef4444; color: white; }
         .btn-wa { background: #dcfce7; color: #16a34a; } .btn-wa:hover { background: #16a34a; color: white; }
         .btn-pic { background: #e0c3fc; color: #7c3aed; } .btn-pic:hover { background: #7c3aed; color: white; }
-        .btn-cancel-admin { background: #fef3c7; color: #d97706; } .btn-cancel-admin:hover { background: #d97706; color: white; } /* Tombol Batal Admin */
+        .btn-cancel-admin { background: #fef3c7; color: #d97706; } .btn-cancel-admin:hover { background: #d97706; color: white; } 
         
         /* User Cancel Button */
         .btn-user-cancel {
@@ -136,18 +136,10 @@
 
         /* Schedule & Admin List */
         .booking-item, .admin-item { 
-            background: white; 
-            padding: 1.25rem; 
-            /* Tambah padding kanan agar teks tidak tertutup tombol vertikal */
-            padding-right: 50px; 
-            border-radius: 16px; 
-            margin-bottom: 1rem; 
-            border-left: 5px solid #ccc; 
-            transition: all 0.2s; 
-            position: relative; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
-            border: 1px solid #f0f0f0; 
-            border-left-width: 5px; 
+            background: white; padding: 1.25rem; padding-right: 50px; 
+            border-radius: 16px; margin-bottom: 1rem; border-left: 5px solid #ccc; 
+            transition: all 0.2s; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+            border: 1px solid #f0f0f0; border-left-width: 5px; 
         }
         .booking-item:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
         .status-disetujui { border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #fff); }
@@ -179,6 +171,54 @@
             .fc-toolbar-chunk { margin-bottom: 5px; }
         }
 
+        /* --- SIGNAGE MODE STYLES --- */
+        #view-signage {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; display: flex; flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background: #fff; color: #333;
+        }
+        .signage-header {
+            padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .signage-room-name { font-size: 2.5rem; font-weight: 800; color: #1e1b4b; }
+        .signage-clock { font-size: 2rem; font-weight: 600; color: #4f46e5; }
+        
+        /* Status Container (Dynamic Color) */
+        .signage-status-container {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: background 0.5s; text-align: center; color: white; padding: 20px;
+        }
+        .status-available { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .status-busy { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
+        .signage-big-status { font-size: 5rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: 2px; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .signage-event-title { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.2; }
+        .signage-event-user { font-size: 1.8rem; font-weight: 500; opacity: 0.9; }
+        .signage-event-time { 
+            margin-top: 2rem; background: rgba(255,255,255,0.2); 
+            padding: 10px 30px; border-radius: 50px; font-size: 1.5rem; font-weight: 600; 
+        }
+
+        /* Footer / Next Agenda */
+        .signage-footer {
+            height: 25%; background: white; padding: 0 40px;
+            display: flex; flex-direction: column; justify-content: center;
+            border-top: 1px solid #eee;
+        }
+        .signage-next-label { font-size: 1.2rem; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; }
+        .signage-next-list { display: flex; gap: 20px; overflow-x: auto; }
+        .signage-next-item {
+            background: #f3f4f6; padding: 15px 25px; border-radius: 12px; min-width: 250px;
+            border-left: 5px solid #4f46e5;
+        }
+        .signage-next-time { font-weight: 700; color: #4f46e5; font-size: 1.1rem; }
+        .signage-next-title { font-weight: 600; color: #1f2937; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
         /* --- MOBILE OPTIMIZATION (RESPONSIVE) --- */
         @media (max-width: 768px) {
             .container { padding: 10px; max-width: 100%; }
@@ -191,17 +231,20 @@
             .user-role { font-size: 0.6rem; }
             .user-avatar { width: 32px; height: 32px; }
             .booking-item, .admin-item { 
-                padding: 1rem; 
-                padding-right: 45px; /* Tetap beri ruang untuk tombol vertikal */
+                padding: 1rem; padding-right: 45px;
                 border-left-width: 3px !important; 
-                border-radius: 12px; 
-                margin-bottom: 0.8rem; 
-                border: 1px solid #f3f4f6; 
+                border-radius: 12px; margin-bottom: 0.8rem; border: 1px solid #f3f4f6; 
             }
             .form-control { padding: 0.7rem; font-size: 0.95rem; }
             .form-group { margin-bottom: 1rem; }
             .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
             .float-wa { width: 50px; height: 50px; font-size: 24px; bottom: 20px; right: 20px; }
+            
+            /* Signage Mobile Adjustment */
+            .signage-room-name { font-size: 1.5rem; }
+            .signage-clock { font-size: 1.2rem; }
+            .signage-big-status { font-size: 3rem; }
+            .signage-event-title { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -354,6 +397,32 @@
         </div>
     </div>
 
+    <!-- 4. VIEW: DIGITAL SIGNAGE (NEW) -->
+    <div id="view-signage" class="hidden">
+        <div class="signage-header">
+            <img src="https://github.com/srpcom/bookingruangan/blob/main/logo%20rsud%202025%20tansparent2.png?raw=true" style="height: 60px;">
+            <div class="signage-room-name" id="sign-room">NAMA RUANGAN</div>
+            <div class="signage-clock" id="sign-clock">00:00</div>
+        </div>
+        
+        <div id="sign-status-container" class="signage-status-container status-available">
+            <!-- Content Injected Here -->
+            <div class="signage-big-status" id="sign-status-text">TERSEDIA</div>
+            <div id="sign-event-details" class="hidden">
+                <div class="signage-event-title" id="sign-title"></div>
+                <div class="signage-event-user" id="sign-user"></div>
+                <div class="signage-event-time" id="sign-time"></div>
+            </div>
+        </div>
+
+        <div class="signage-footer">
+            <div class="signage-next-label">Agenda Berikutnya:</div>
+            <div class="signage-next-list" id="sign-next-list">
+                <!-- List Items -->
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
@@ -362,54 +431,146 @@
         let bookings = [];
         let calendarInstance = null;
 
+        // --- SIGNAGE INIT ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSignage = urlParams.get('page') === 'signage';
+        const signageRoom = urlParams.get('room');
+        let roomSelectorShown = false; // Flag to prevent multiple popups
+
+        window.onload = function() {
+            if (isSignage) {
+                initSignage();
+            } else {
+                // Regular Init
+                // Google Login Button is auto initialized by library
+                // Check if already logged in? (handled in initApp call after logic check)
+                const u = sessionStorage.getItem('sibora_user');
+                if (u) initApp(); // Auto load dashboard if session exists
+            }
+        };
+
+        function initSignage() {
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-signage').classList.remove('hidden');
+            
+            // Set Room Name
+            document.getElementById('sign-room').innerText = signageRoom || "RUANGAN";
+            
+            // Start Loop
+            updateSignageClock();
+            setInterval(updateSignageClock, 1000);
+            
+            fetchData(); // Initial Fetch
+            setInterval(fetchData, 60000); // Refresh data every 60s
+        }
+
+        function updateSignageClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('sign-clock').innerText = timeStr;
+        }
+
+        function renderSignageUI() {
+            if (!signageRoom) return;
+            
+            const now = new Date();
+            // Filter bookings for this room, approved, and today
+            const todayBookings = bookings.filter(b => {
+                if (b['Nama Ruangan'] !== signageRoom || b.Status !== 'Disetujui') return false;
+                const bDate = new Date(b['Tanggal Mulai']);
+                return bDate.toDateString() === now.toDateString();
+            }).sort((a,b) => a['Waktu Mulai'].localeCompare(b['Waktu Mulai']));
+
+            // Find current active event
+            let currentEvent = null;
+            let nextEvents = [];
+
+            // Simple time comparison logic (HH:mm string comparison works for same day)
+            const currentTimeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
+            
+            todayBookings.forEach(b => {
+                // b['Waktu Mulai'] format "08:00"
+                if (currentTimeStr >= b['Waktu Mulai'] && currentTimeStr <= b['Waktu Selesai']) {
+                    currentEvent = b;
+                } else if (b['Waktu Mulai'] > currentTimeStr) {
+                    nextEvents.push(b);
+                }
+            });
+
+            const container = document.getElementById('sign-status-container');
+            const statusText = document.getElementById('sign-status-text');
+            const details = document.getElementById('sign-event-details');
+
+            if (currentEvent) {
+                // BUSY
+                container.classList.remove('status-available');
+                container.classList.add('status-busy');
+                statusText.innerText = "SEDANG BERLANGSUNG";
+                details.classList.remove('hidden');
+                
+                document.getElementById('sign-title').innerText = currentEvent.Keperluan;
+                document.getElementById('sign-user').innerText = `${currentEvent['Nama Peminjam']} (${currentEvent['Unit/Bagian']})`;
+                document.getElementById('sign-time').innerText = `${currentEvent['Waktu Mulai']} - ${currentEvent['Waktu Selesai']}`;
+            } else {
+                // AVAILABLE
+                container.classList.remove('status-busy');
+                container.classList.add('status-available');
+                statusText.innerText = "RUANGAN TERSEDIA";
+                details.classList.add('hidden');
+            }
+
+            // Render Next List
+            const listEl = document.getElementById('sign-next-list');
+            listEl.innerHTML = '';
+            if (nextEvents.length === 0) {
+                listEl.innerHTML = '<div class="signage-next-item" style="opacity:0.6;">Tidak ada agenda lagi hari ini.</div>';
+            } else {
+                nextEvents.forEach(e => {
+                    listEl.innerHTML += `
+                        <div class="signage-next-item">
+                            <div class="signage-next-time">${e['Waktu Mulai']} - ${e['Waktu Selesai']}</div>
+                            <div class="signage-next-title">${e.Keperluan}</div>
+                            <small>${e['Nama Peminjam']}</small>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // --- EXISTING FUNCTIONS ---
         function toBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
         function compressImage(file, maxWidth = 800, quality = 0.7) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = event => { const img = new Image(); img.src = event.target.result; img.onload = () => { const canvas = document.createElement('canvas'); let width = img.width; let height = img.height; if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/jpeg', quality)); }; img.onerror = error => reject(error); }; reader.onerror = error => reject(error); }); }
 
         async function handleCredentialResponse(r) { 
             const p = decodeJwtResponse(r.credential); 
             document.getElementById('login-msg').innerText = "Memeriksa akun..."; 
-            
-            const userAgent = navigator.userAgent;
-            const screenRes = `${window.screen.width}x${window.screen.height}`;
-            let ip = "Unknown";
-
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2000);
-                const ipReq = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
-                const ipRes = await ipReq.json();
-                ip = ipRes.ip;
-                clearTimeout(timeoutId);
-            } catch(e) { console.warn("Gagal mendapatkan IP:", e); ip = "Hidden/Error"; }
-
-            fetch(GAS_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ 
-                    action: 'google_login', email: p.email, name: p.name, photo: p.picture,
-                    deviceInfo: { userAgent: userAgent, screen: screenRes, ip: ip }
-                }) 
-            })
-            .then(res => res.json())
-            .then(data => { 
-                if (data.status === 'success') { 
-                    sessionStorage.setItem('sibora_user', JSON.stringify(data.user)); initApp(); 
-                } else if (data.status === 'blocked') {
-                    sessionStorage.clear(); document.getElementById('login-msg').innerText = ""; 
-                } else if (data.status === 'new_user') { 
-                    showSetupProfile(data.email, p.name, p.picture); 
-                } else { document.getElementById('login-msg').innerText = "Gagal Login: " + data.message; } 
-            })
-            .catch(err => document.getElementById('login-msg').innerText = "Koneksi Error."); 
+            const userAgent = navigator.userAgent; const screenRes = `${window.screen.width}x${window.screen.height}`; let ip = "Unknown";
+            try { const controller = new AbortController(); const timeoutId = setTimeout(() => controller.abort(), 2000); const ipReq = await fetch('https://api.ipify.org?format=json', { signal: controller.signal }); const ipRes = await ipReq.json(); ip = ipRes.ip; clearTimeout(timeoutId); } catch(e) { console.warn("Gagal IP:", e); ip = "Hidden/Error"; }
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'google_login', email: p.email, name: p.name, photo: p.picture, deviceInfo: { userAgent: userAgent, screen: screenRes, ip: ip } }) })
+            .then(res => res.json()).then(data => { if (data.status === 'success') { sessionStorage.setItem('sibora_user', JSON.stringify(data.user)); initApp(); } else if (data.status === 'blocked') { sessionStorage.clear(); document.getElementById('login-msg').innerText = ""; } else if (data.status === 'new_user') { showSetupProfile(data.email, p.name, p.picture); } else { document.getElementById('login-msg').innerText = "Gagal Login: " + data.message; } }).catch(err => document.getElementById('login-msg').innerText = "Koneksi Error."); 
         }
 
         function decodeJwtResponse(t) { var base64Url = t.split('.')[1]; var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); }).join('')); return JSON.parse(jsonPayload); }
         function showSetupProfile(e, n, p) { document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.remove('hidden'); document.getElementById('setup-email').value = e; document.getElementById('setup-nama').value = n; sessionStorage.setItem('temp_photo', p); }
-        function initApp() { const u = sessionStorage.getItem('sibora_user'); if (!u) { document.getElementById('view-login').classList.remove('hidden'); return; } currentUser = JSON.parse(u); document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role; document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; setDefaultBookingTime(); if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); fetchData(); }
-        function logout() { sessionStorage.clear(); location.reload(); }
         
+        function initApp() { 
+            const u = sessionStorage.getItem('sibora_user'); 
+            if (!u) { 
+                if(!isSignage) document.getElementById('view-login').classList.remove('hidden'); 
+                return; 
+            } 
+            currentUser = JSON.parse(u); 
+            document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); 
+            document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role; document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; 
+            document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; setDefaultBookingTime(); 
+            if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); 
+            fetchData(); 
+        }
+        
+        function logout() { sessionStorage.clear(); location.reload(); }
         function toggleDropdown(event) { event.stopPropagation(); const dropdown = document.getElementById('profileDropdown'); dropdown.classList.toggle('active'); }
         window.addEventListener('click', function(e) { const dropdown = document.getElementById('profileDropdown'); if (dropdown && dropdown.classList.contains('active')) { dropdown.classList.remove('active'); } });
-
         function setDefaultBookingTime() { const now = new Date(); const start = new Date(now.getTime() + 60 * 60 * 1000); const end = new Date(start.getTime() + 60 * 60 * 1000); const fmt = (d) => { const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); const hours = String(d.getHours()).padStart(2, '0'); const minutes = String(d.getMinutes()).padStart(2, '0'); return `${year}-${month}-${day}T${hours}:${minutes}`; }; document.getElementById('book-mulai').value = fmt(start); document.getElementById('book-selesai').value = fmt(end); }
         function formatDateToID(d) { if (!d) return ''; const p = d.split('-'); return (p.length === 3) ? `${p[2]}-${p[1]}-${p[0]}` : d; }
 
@@ -419,16 +580,52 @@
                 const data = await res.json(); 
                 if (data.status === 'success') { 
                     rooms = data.rooms; bookings = data.data; 
-                    const s = document.getElementById('book-ruangan'); 
-                    const cv = s.value; 
-                    s.innerHTML = ''; 
-                    const dopt = document.createElement('option'); dopt.value = ""; dopt.innerText = "Pilih Ruangan..."; s.appendChild(dopt); 
-                    rooms.forEach(r => { const o = document.createElement('option'); o.value = r.name; o.innerText = r.name; s.appendChild(o); }); 
-                    if(cv) s.value = cv; 
-                    renderSchedule(); 
-                    if(calendarInstance) { calendarInstance.removeAllEvents(); calendarInstance.addEventSource(getCalendarEvents()); }
-                    if (currentUser.role === 'ADMIN') renderAdminApproval(); 
-                    if (data.background) document.body.style.backgroundImage = `url('${data.background}')`; 
+                    
+                    if(isSignage) {
+                        // NEW LOGIC: If no room in URL, ask user to pick one
+                        if (!signageRoom && !roomSelectorShown && rooms.length > 0) {
+                            roomSelectorShown = true;
+                            // Convert rooms array to object for Swal
+                            const roomOptions = {};
+                            rooms.forEach(r => roomOptions[r.name] = r.name);
+                            
+                            Swal.fire({
+                                title: 'Setup Digital Signage',
+                                text: 'Pilih ruangan yang akan ditampilkan di layar ini:',
+                                input: 'select',
+                                inputOptions: roomOptions,
+                                inputPlaceholder: 'Pilih Ruangan...',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                confirmButtonText: 'Tampilkan'
+                            }).then((result) => {
+                                if (result.value) {
+                                    // Redirect to URL with room param
+                                    const newUrl = new URL(window.location.href);
+                                    newUrl.searchParams.set('page', 'signage');
+                                    newUrl.searchParams.set('room', result.value);
+                                    window.location.href = newUrl.toString();
+                                }
+                            });
+                        } else if (signageRoom) {
+                            renderSignageUI();
+                        }
+                    } else {
+                        // Standard Rendering
+                        const s = document.getElementById('book-ruangan'); 
+                        if(s.children.length <= 1) { // Only populate if empty
+                            s.innerHTML = ''; const dopt = document.createElement('option'); dopt.value = ""; dopt.innerText = "Pilih Ruangan..."; s.appendChild(dopt); 
+                            rooms.forEach(r => { const o = document.createElement('option'); o.value = r.name; o.innerText = r.name; s.appendChild(o); }); 
+                        }
+                        
+                        renderSchedule(); 
+                        if(calendarInstance) { calendarInstance.removeAllEvents(); calendarInstance.addEventSource(getCalendarEvents()); }
+                        if (currentUser && currentUser.role === 'ADMIN') renderAdminApproval(); 
+                    }
+                    
+                    if (data.background) {
+                        document.body.style.backgroundImage = `url('${data.background}')`;
+                    }
                 } 
             } catch (e) { console.error(e); } 
         }
@@ -443,14 +640,8 @@
         function initCalendar() {
             var calendarEl = document.getElementById('calendar');
             calendarInstance = new FullCalendar.Calendar(calendarEl, {
-                initialView: window.innerWidth < 768 ? 'listWeek' : 'dayGridMonth',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
-                locale: 'id', buttonText: { today: 'Hari Ini', month: 'Bulan', week: 'Minggu', list: 'List' },
-                height: 'auto', events: getCalendarEvents(),
-                eventClick: function(info) {
-                    const p = info.event.extendedProps; const statusColor = info.event.backgroundColor;
-                    Swal.fire({ title: info.event.title, html: `<div style="text-align:left; font-size:0.95rem;"><p>👤 <b>${p.peminjam}</b> (${p.unit})</p><p>🕒 ${p.waktu}</p><p>📝 ${p.desc}</p><p>🏠 ${p.room}</p><div style="margin-top:10px; color:${statusColor}; font-weight:bold;">Status: ${p.status}</div></div>`, confirmButtonText: 'Tutup' });
-                }
+                initialView: window.innerWidth < 768 ? 'listWeek' : 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' }, locale: 'id', buttonText: { today: 'Hari Ini', month: 'Bulan', week: 'Minggu', list: 'List' }, height: 'auto', events: getCalendarEvents(),
+                eventClick: function(info) { const p = info.event.extendedProps; const statusColor = info.event.backgroundColor; Swal.fire({ title: info.event.title, html: `<div style="text-align:left; font-size:0.95rem;"><p>👤 <b>${p.peminjam}</b> (${p.unit})</p><p>🕒 ${p.waktu}</p><p>📝 ${p.desc}</p><p>🏠 ${p.room}</p><div style="margin-top:10px; color:${statusColor}; font-weight:bold;">Status: ${p.status}</div></div>`, confirmButtonText: 'Tutup' }); }
             });
             calendarInstance.render();
         }
@@ -474,39 +665,15 @@
                 if (rb.length === 0) { col.innerHTML += `<p style="text-align:center; opacity:0.5; font-size:0.9rem;">Tidak ada jadwal.</p>`; } 
                 else {
                     rb.forEach(b => {
-                        const sc = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`;
-                        const div = document.createElement('div'); div.className = `booking-item ${sc}`; div.style.marginBottom = '10px';
-                        let statusColor = '#f59e0b', statusIcon = '⏳';
-                        if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; } 
-                        else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; }
-                        else if (b.Status === 'Dibatalkan') { statusColor = '#6b7280'; statusIcon = '🚫'; }
-                        
+                        const sc = `status-${b.Status.toLowerCase().replace(/ /g, '-')}`; const div = document.createElement('div'); div.className = `booking-item ${sc}`; div.style.marginBottom = '10px';
+                        let statusColor = '#f59e0b', statusIcon = '⏳'; if (b.Status === 'Disetujui') { statusColor = '#10b981'; statusIcon = '✅'; } else if (b.Status === 'Ditolak') { statusColor = '#ef4444'; statusIcon = '❌'; } else if (b.Status === 'Dibatalkan') { statusColor = '#6b7280'; statusIcon = '🚫'; }
                         let adminControls = '';
-                        if (currentUser.role === 'ADMIN') {
-                            let waLink = '#', waStyle = 'opacity:0.5; cursor:not-allowed;', waTitle = 'No WA tidak tersedia';
-                            if (b['Nomor WA']) { 
-                                let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, ''); if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1); 
-                                const equip = b['Kelengkapan'] ? `\n🛠️ *Alat:* ${b['Kelengkapan']}` : ''; 
-                                const msg = `Halo *${b['Nama Peminjam']}*,\n\nInfo Booking:\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*${equip}\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*`; 
-                                waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`; waStyle = ''; waTitle = 'Kirim Detail WA ke Peminjam'; 
-                            }
-                            let btnPic = '';
-                            if (r.pic && r.wa) {
-                                let picNum = r.wa.toString().replace(/[^0-9]/g, ''); if (picNum.startsWith('0')) picNum = '62' + picNum.substring(1);
-                                const dateParts = b['Tanggal Mulai'].split('-'); const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']; const dayName = days[dateObj.getDay()]; const dateString = `${dayName}, ${formatDateToID(b['Tanggal Mulai'])}`;
-                                const msgPic = `Informasi Rapat\nStatus : *${b.Status}*\nRuangan : ${b['Nama Ruangan']}\n📅 ${dateString}\n⏰ Pukul: ${b['Waktu Mulai']} - ${b['Waktu Selesai']}\n📝 Acara: ${b.Keperluan}\n🛠 Kelengkapan: ${b['Kelengkapan'] || '-'}\n\nPIC Rapat : ${b['Nama Peminjam']}`;
-                                const linkPic = `https://wa.me/${picNum}?text=${encodeURIComponent(msgPic)}`;
-                                btnPic = `<a href="${linkPic}" target="_blank" class="btn-mini btn-pic" title="Info ke Petugas (${r.pic})">👨‍🔧</a>`;
-                            }
-                            // TOMBOL ADMIN: PIC, WA, CANCEL, DELETE (VERTIKAL)
-                            const btnCancel = `<button class="btn-mini btn-cancel-admin" onclick="updateStatus('${b['ID Booking']}', 'Dibatalkan')" title="Batalkan (Tetap simpan data)">🚫</button>`;
-                            adminControls = `<div class="admin-controls-overlay">${btnPic}<a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a>${btnCancel}<button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
-                        } else {
-                            if (b['Nama Peminjam'] === currentUser.nama && b['Unit/Bagian'] === currentUser.unit && b.Status !== 'Ditolak' && b.Status !== 'Dibatalkan') {
-                                const bookingStart = new Date(b['Tanggal Mulai'] + 'T' + b['Waktu Mulai']);
-                                const now = new Date(); const diffMs = bookingStart - now; const diffMins = diffMs / 1000 / 60; 
-                                if (diffMins > 60) { adminControls = `<button class="btn-user-cancel" onclick="userCancelBooking('${b['ID Booking']}')"><i class="fas fa-times"></i> Batalkan</button>`; }
-                            }
+                        if (currentUser && currentUser.role === 'ADMIN') {
+                            let waLink = '#', waStyle = 'opacity:0.5; cursor:not-allowed;', waTitle = 'No WA tidak tersedia'; if (b['Nomor WA']) { let rawNum = b['Nomor WA'].toString().replace(/[^0-9]/g, ''); if (rawNum.startsWith('0')) rawNum = '62' + rawNum.substring(1); const equip = b['Kelengkapan'] ? `\n🛠️ *Alat:* ${b['Kelengkapan']}` : ''; const msg = `Halo *${b['Nama Peminjam']}*,\n\nInfo Booking:\n🏢 Ruang: *${b['Nama Ruangan']}*\n🗓️ Tanggal: *${formatDateToID(b['Tanggal Mulai'])}\n⏰ Waktu: *${b['Waktu Mulai']} - ${b['Waktu Selesai']}*\n📋 Acara: *${b.Keperluan}*${equip}\n\nStatus: ${statusIcon} *${b.Status.toUpperCase()}*`; waLink = `https://wa.me/${rawNum}?text=${encodeURIComponent(msg)}`; waStyle = ''; waTitle = 'Kirim Detail WA ke Peminjam'; }
+                            let btnPic = ''; if (r.pic && r.wa) { let picNum = r.wa.toString().replace(/[^0-9]/g, ''); if (picNum.startsWith('0')) picNum = '62' + picNum.substring(1); const dateParts = b['Tanggal Mulai'].split('-'); const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']; const dayName = days[dateObj.getDay()]; const dateString = `${dayName}, ${formatDateToID(b['Tanggal Mulai'])}`; const msgPic = `Informasi Rapat\nStatus : *${b.Status}*\nRuangan : ${b['Nama Ruangan']}\n📅 ${dateString}\n⏰ Pukul: ${b['Waktu Mulai']} - ${b['Waktu Selesai']}\n📝 Acara: ${b.Keperluan}\n🛠 Kelengkapan: ${b['Kelengkapan'] || '-'}\n\nPIC Rapat : ${b['Nama Peminjam']}`; const linkPic = `https://wa.me/${picNum}?text=${encodeURIComponent(msgPic)}`; btnPic = `<a href="${linkPic}" target="_blank" class="btn-mini btn-pic" title="Info ke Petugas (${r.pic})">👨‍🔧</a>`; }
+                            const btnCancel = `<button class="btn-mini btn-cancel-admin" onclick="updateStatus('${b['ID Booking']}', 'Dibatalkan')" title="Batalkan (Tetap simpan data)">🚫</button>`; adminControls = `<div class="admin-controls-overlay">${btnPic}<a href="${waLink}" target="_blank" class="btn-mini btn-wa" style="${waStyle}" title="${waTitle}">💬</a>${btnCancel}<button class="btn-mini btn-del" onclick="deleteBooking('${b['ID Booking']}')">🗑️</button></div>`;
+                        } else if (currentUser) {
+                            if (b['Nama Peminjam'] === currentUser.nama && b['Unit/Bagian'] === currentUser.unit && b.Status !== 'Ditolak' && b.Status !== 'Dibatalkan') { const bookingStart = new Date(b['Tanggal Mulai'] + 'T' + b['Waktu Mulai']); const now = new Date(); const diffMs = bookingStart - now; const diffMins = diffMs / 1000 / 60; if (diffMins > 60) { adminControls = `<button class="btn-user-cancel" onclick="userCancelBooking('${b['ID Booking']}')"><i class="fas fa-times"></i> Batalkan</button>`; } }
                         }
                         const kelengkapanHtml = b['Kelengkapan'] ? `<div style="font-size:0.85rem; color:#6b7280; margin-bottom:5px;">🛠️ ${b['Kelengkapan']}</div>` : '';
                         div.innerHTML = `${adminControls}<div style="font-weight:bold; font-size:1rem; padding-right:25px; margin-bottom: 5px;">${b.Keperluan}</div><div style="font-size:0.9rem; color:#555; margin-bottom: 8px;">👤 <b>${b['Nama Peminjam']}</b><br><span style="font-size:0.85rem; opacity:0.8;">(${b['Unit/Bagian']})</span></div>${kelengkapanHtml}<div style="background:#f9fafb; padding:8px; border-radius:8px; font-size:0.85rem;">🕒 ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']} <br>🏁 ${formatDateToID(b['Tanggal Selesai'])} ${b['Waktu Selesai']}</div><div style="text-align:right; font-size:0.85rem; font-weight:bold; margin-top:8px; color:${statusColor};">${statusIcon} ${b.Status.toUpperCase()}</div>`;
@@ -524,25 +691,11 @@
 
         function renderAdminApproval() {
             const l = document.getElementById('admin-approval-list'); const p = bookings.filter(b => b.Status === 'Belum Disetujui');
-            if (p.length === 0) { l.innerHTML = '<p class="text-center text-muted">Tidak ada pengajuan pending.</p>'; return; }
-            l.innerHTML = '';
-            p.forEach(b => {
-                const equip = b['Kelengkapan'] ? `<br><small>🛠️ ${b['Kelengkapan']}</small>` : '';
-                const div = document.createElement('div'); div.className = 'booking-item status-belum-disetujui';
-                div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:start;"><div><h4>${b.Keperluan}</h4><p><b>${b['Nama Peminjam']}</b> (${b['Unit/Bagian']})${equip}</p><p>🏠 ${b['Nama Ruangan']} | ⏰ ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']}</p></div><div style="min-width:90px;"><button onclick="updateStatus('${b['ID Booking']}', 'Disetujui')" class="btn btn-primary btn-sm mb-1 w-100">✅ Setuju</button><br><button onclick="updateStatus('${b['ID Booking']}', 'Ditolak')" class="btn btn-danger btn-sm w-100">❌ Tolak</button></div></div>`;
-                l.appendChild(div);
-            });
+            if (p.length === 0) { l.innerHTML = '<p class="text-center text-muted">Tidak ada pengajuan pending.</p>'; return; } l.innerHTML = '';
+            p.forEach(b => { const equip = b['Kelengkapan'] ? `<br><small>🛠️ ${b['Kelengkapan']}</small>` : ''; const div = document.createElement('div'); div.className = 'booking-item status-belum-disetujui'; div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:start;"><div><h4>${b.Keperluan}</h4><p><b>${b['Nama Peminjam']}</b> (${b['Unit/Bagian']})${equip}</p><p>🏠 ${b['Nama Ruangan']} | ⏰ ${formatDateToID(b['Tanggal Mulai'])} ${b['Waktu Mulai']}</p></div><div style="min-width:90px;"><button onclick="updateStatus('${b['ID Booking']}', 'Disetujui')" class="btn btn-primary btn-sm mb-1 w-100">✅ Setuju</button><br><button onclick="updateStatus('${b['ID Booking']}', 'Ditolak')" class="btn btn-danger btn-sm w-100">❌ Tolak</button></div></div>`; l.appendChild(div); });
         }
 
-        async function updateStatus(id, status) { 
-            let r = ""; 
-            if (status === 'Ditolak' || status === 'Dibatalkan') { 
-                const { value: t, isDismissed: d } = await Swal.fire({ input: 'textarea', inputLabel: `Alasan ${status}`, inputPlaceholder: 'Masukkan alasan...', showCancelButton: true }); 
-                if (d) return; if (!t) return Swal.fire('Error', 'Alasan wajib', 'warning'); r = t; 
-            } else { if (!(await Swal.fire({ title: 'Konfirmasi?', icon: 'question', showCancelButton: true })).isConfirmed) return; } 
-            Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() }); 
-            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', bookingId: id, newStatus: status, reason: r }) }).then(x => x.json()).then(y => { Swal.fire('Sukses', y.message, 'success'); fetchData(); }); 
-        }
+        async function updateStatus(id, status) { let r = ""; if (status === 'Ditolak' || status === 'Dibatalkan') { const { value: t, isDismissed: d } = await Swal.fire({ input: 'textarea', inputLabel: `Alasan ${status}`, inputPlaceholder: 'Masukkan alasan...', showCancelButton: true }); if (d) return; if (!t) return Swal.fire('Error', 'Alasan wajib', 'warning'); r = t; } else { if (!(await Swal.fire({ title: 'Konfirmasi?', icon: 'question', showCancelButton: true })).isConfirmed) return; } Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() }); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', bookingId: id, newStatus: status, reason: r }) }).then(x => x.json()).then(y => { Swal.fire('Sukses', y.message, 'success'); fetchData(); }); }
         
         function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { let btnAction = ''; if(u.role === 'ADMIN') { btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">Set User</button>`; } else if (u.role === 'USER') { btnAction = `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Set Admin</button><button onclick="changeRole('${u.email}','BLOCKED')" class="btn btn-dark btn-sm" style="margin-left:5px; background-color:#333;" title="Blokir User">🚫 Blok</button>`; } else if (u.role === 'BLOCKED') { btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-success btn-sm">Buka Blokir</button>`; } h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${btnAction}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
         window.changeRole = (e, r) => { let msg = `Ubah role ke ${r}?`; if(r === 'BLOCKED') msg = "Yakin ingin memblokir user ini? User tidak akan bisa login kembali."; Swal.fire({ title: msg, showCancelButton: true, icon: r==='BLOCKED'?'warning':'question' }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
@@ -556,105 +709,11 @@
         function handleSaveProfile(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Menyimpan..."; btn.disabled=true; const p={action:'save_profile', email:document.getElementById('setup-email').value, nama:document.getElementById('setup-nama').value, unit:document.getElementById('setup-unit').value, wa:document.getElementById('setup-wa').value, foto:sessionStorage.getItem('temp_photo')||""}; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ sessionStorage.setItem('sibora_user',JSON.stringify(d.user)); initApp(); }else{ Swal.fire('Error','Gagal','error'); btn.textContent="Simpan"; btn.disabled=false; } }); }
         function handleBookingSubmit(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Mengirim..."; btn.disabled=true; const p={ action:'booking', email:currentUser.email, namaRuangan:document.getElementById('book-ruangan').value, tanggalMulai:document.getElementById('book-mulai').value.split('T')[0], waktuMulai:document.getElementById('book-mulai').value.split('T')[1], tanggalSelesai:document.getElementById('book-selesai').value.split('T')[0], waktuSelesai:document.getElementById('book-selesai').value.split('T')[1], keperluan:document.getElementById('book-keperluan').value, kelengkapan:document.getElementById('book-kelengkapan').value }; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ Swal.fire('Berhasil','Terkirim','success'); e.target.reset(); setDefaultBookingTime(); document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; fetchData(); } else { Swal.fire('Gagal',d.message,'error'); } btn.textContent="Kirim Pengajuan"; btn.disabled=false; }); }
 
-        
-        // --- NEW: FUNGSI STATISTIK (DIPERBAIKI) ---
-        function showStats() {
-            const view = document.getElementById('admin-stats-view');
-            // Pastikan view tidak hidden
-            if(view) {
-                view.classList.remove('hidden');
-                // Scroll agar terlihat
-                view.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-
-            Swal.fire({title: 'Memuat Statistik...', didOpen: () => Swal.showLoading()}); 
-            
-            fetch(GAS_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'getStatistics' }) 
-            })
-            .then(res => {
-                if (!res.ok) throw new Error("HTTP Error " + res.status);
-                return res.json();
-            })
-            .then(data => {
-                Swal.close();
-                if(data.status === 'success') {
-                    renderCharts(data.roomStats, data.unitStats, data.hourStats);
-                } else {
-                    Swal.fire('Gagal', 'Error Backend: ' + (data.message || 'Unknown'), 'error');
-                }
-            })
-            .catch(err => {
-                Swal.fire('Error', 'Gagal memuat: ' + err.message + '. PASTIKAN ANDA SUDAH DEPLOY NEW VERSION.', 'error');
-                console.error(err);
-            });
-        }
-
+        function showStats() { const view = document.getElementById('admin-stats-view'); if(view) { view.classList.remove('hidden'); view.scrollIntoView({ behavior: 'smooth', block: 'start' }); } Swal.fire({title: 'Memuat Statistik...', didOpen: () => Swal.showLoading()}); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getStatistics' }) }).then(res => { if (!res.ok) throw new Error("HTTP Error " + res.status); return res.json(); }).then(data => { Swal.close(); if(data.status === 'success') { renderCharts(data.roomStats, data.unitStats, data.hourStats); } else { Swal.fire('Gagal', 'Error Backend: ' + (data.message || 'Unknown'), 'error'); } }).catch(err => { Swal.fire('Error', 'Gagal memuat: ' + err.message + '. PASTIKAN ANDA SUDAH DEPLOY NEW VERSION.', 'error'); console.error(err); }); }
         let chartRoom, chartUnit, chartTime;
+        function renderCharts(roomStats, unitStats, hourStats) { if(chartRoom) chartRoom.destroy(); if(chartUnit) chartUnit.destroy(); if(chartTime) chartTime.destroy(); const ctxRoom = document.getElementById('chartRoom').getContext('2d'); chartRoom = new Chart(ctxRoom, { type: 'bar', data: { labels: Object.keys(roomStats), datasets: [{ label: 'Jumlah Booking', data: Object.values(roomStats), backgroundColor: '#4f46e5', borderRadius: 5 }] }, options: { responsive: true, plugins: { legend: { display: false } } } }); const ctxUnit = document.getElementById('chartUnit').getContext('2d'); const bgColors = Object.keys(unitStats).map(() => `hsl(${Math.random() * 360}, 70%, 70%)`); chartUnit = new Chart(ctxUnit, { type: 'doughnut', data: { labels: Object.keys(unitStats), datasets: [{ data: Object.values(unitStats), backgroundColor: bgColors, borderWidth: 1 }] }, options: { responsive: true } }); const ctxTime = document.getElementById('chartTime').getContext('2d'); const sortedHours = Object.keys(hourStats).sort(); const sortedValues = sortedHours.map(h => hourStats[h]); chartTime = new Chart(ctxTime, { type: 'line', data: { labels: sortedHours, datasets: [{ label: 'Frekuensi', data: sortedValues, borderColor: '#ec4899', backgroundColor: 'rgba(236, 72, 153, 0.2)', fill: true, tension: 0.4 }] }, options: { responsive: true, scales: { y: { beginAtZero: true } } } }); }
 
-        function renderCharts(roomStats, unitStats, hourStats) {
-            // Destroy old charts to update
-            if(chartRoom) chartRoom.destroy();
-            if(chartUnit) chartUnit.destroy();
-            if(chartTime) chartTime.destroy();
-
-            // 1. Room Chart (Bar)
-            const ctxRoom = document.getElementById('chartRoom').getContext('2d');
-            chartRoom = new Chart(ctxRoom, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(roomStats),
-                    datasets: [{
-                        label: 'Jumlah Booking',
-                        data: Object.values(roomStats),
-                        backgroundColor: '#4f46e5',
-                        borderRadius: 5
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-
-            // 2. Unit Chart (Doughnut)
-            const ctxUnit = document.getElementById('chartUnit').getContext('2d');
-            const bgColors = Object.keys(unitStats).map(() => `hsl(${Math.random() * 360}, 70%, 70%)`);
-            chartUnit = new Chart(ctxUnit, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(unitStats),
-                    datasets: [{
-                        data: Object.values(unitStats),
-                        backgroundColor: bgColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: { responsive: true }
-            });
-
-            // 3. Hour Chart (Line)
-            const ctxTime = document.getElementById('chartTime').getContext('2d');
-            // Sort keys (07:00, 08:00...)
-            const sortedHours = Object.keys(hourStats).sort();
-            const sortedValues = sortedHours.map(h => hourStats[h]);
-            
-            chartTime = new Chart(ctxTime, {
-                type: 'line',
-                data: {
-                    labels: sortedHours,
-                    datasets: [{
-                        label: 'Frekuensi',
-                        data: sortedValues,
-                        borderColor: '#ec4899',
-                        backgroundColor: 'rgba(236, 72, 153, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true } } }
-            });
-        }
-
-        initApp();
+        // Note: initApp is called based on onload logic now
     </script>
 </body>
 </html>
