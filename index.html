@@ -556,6 +556,104 @@
         function handleSaveProfile(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Menyimpan..."; btn.disabled=true; const p={action:'save_profile', email:document.getElementById('setup-email').value, nama:document.getElementById('setup-nama').value, unit:document.getElementById('setup-unit').value, wa:document.getElementById('setup-wa').value, foto:sessionStorage.getItem('temp_photo')||""}; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ sessionStorage.setItem('sibora_user',JSON.stringify(d.user)); initApp(); }else{ Swal.fire('Error','Gagal','error'); btn.textContent="Simpan"; btn.disabled=false; } }); }
         function handleBookingSubmit(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Mengirim..."; btn.disabled=true; const p={ action:'booking', email:currentUser.email, namaRuangan:document.getElementById('book-ruangan').value, tanggalMulai:document.getElementById('book-mulai').value.split('T')[0], waktuMulai:document.getElementById('book-mulai').value.split('T')[1], tanggalSelesai:document.getElementById('book-selesai').value.split('T')[0], waktuSelesai:document.getElementById('book-selesai').value.split('T')[1], keperluan:document.getElementById('book-keperluan').value, kelengkapan:document.getElementById('book-kelengkapan').value }; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ Swal.fire('Berhasil','Terkirim','success'); e.target.reset(); setDefaultBookingTime(); document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; fetchData(); } else { Swal.fire('Gagal',d.message,'error'); } btn.textContent="Kirim Pengajuan"; btn.disabled=false; }); }
 
+        
+        // --- NEW: FUNGSI STATISTIK (DIPERBAIKI) ---
+        function showStats() {
+            const view = document.getElementById('admin-stats-view');
+            // Pastikan view tidak hidden
+            if(view) {
+                view.classList.remove('hidden');
+                // Scroll agar terlihat
+                view.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            Swal.fire({title: 'Memuat Statistik...', didOpen: () => Swal.showLoading()}); 
+            
+            fetch(GAS_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'getStatistics' }) 
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP Error " + res.status);
+                return res.json();
+            })
+            .then(data => {
+                Swal.close();
+                if(data.status === 'success') {
+                    renderCharts(data.roomStats, data.unitStats, data.hourStats);
+                } else {
+                    Swal.fire('Gagal', 'Error Backend: ' + (data.message || 'Unknown'), 'error');
+                }
+            })
+            .catch(err => {
+                Swal.fire('Error', 'Gagal memuat: ' + err.message + '. PASTIKAN ANDA SUDAH DEPLOY NEW VERSION.', 'error');
+                console.error(err);
+            });
+        }
+
+        let chartRoom, chartUnit, chartTime;
+
+        function renderCharts(roomStats, unitStats, hourStats) {
+            // Destroy old charts to update
+            if(chartRoom) chartRoom.destroy();
+            if(chartUnit) chartUnit.destroy();
+            if(chartTime) chartTime.destroy();
+
+            // 1. Room Chart (Bar)
+            const ctxRoom = document.getElementById('chartRoom').getContext('2d');
+            chartRoom = new Chart(ctxRoom, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(roomStats),
+                    datasets: [{
+                        label: 'Jumlah Booking',
+                        data: Object.values(roomStats),
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 5
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            // 2. Unit Chart (Doughnut)
+            const ctxUnit = document.getElementById('chartUnit').getContext('2d');
+            const bgColors = Object.keys(unitStats).map(() => `hsl(${Math.random() * 360}, 70%, 70%)`);
+            chartUnit = new Chart(ctxUnit, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(unitStats),
+                    datasets: [{
+                        data: Object.values(unitStats),
+                        backgroundColor: bgColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            // 3. Hour Chart (Line)
+            const ctxTime = document.getElementById('chartTime').getContext('2d');
+            // Sort keys (07:00, 08:00...)
+            const sortedHours = Object.keys(hourStats).sort();
+            const sortedValues = sortedHours.map(h => hourStats[h]);
+            
+            chartTime = new Chart(ctxTime, {
+                type: 'line',
+                data: {
+                    labels: sortedHours,
+                    datasets: [{
+                        label: 'Frekuensi',
+                        data: sortedValues,
+                        borderColor: '#ec4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
         initApp();
     </script>
 </body>
