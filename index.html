@@ -433,7 +433,8 @@
 
         // --- SIGNAGE INIT ---
         const urlParams = new URLSearchParams(window.location.search);
-        const isSignage = urlParams.get('page') === 'signage';
+        // MODIFIKASI: Deteksi kedua format link
+        const isSignage = urlParams.get('page') === 'signage' || urlParams.has('signage'); 
         const signageRoom = urlParams.get('room');
         let roomSelectorShown = false; // Flag to prevent multiple popups
 
