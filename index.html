@@ -513,7 +513,35 @@
         function logout() { sessionStorage.clear(); location.reload(); }
         function toggleDropdown(event) { event.stopPropagation(); const dropdown = document.getElementById('profileDropdown'); dropdown.classList.toggle('active'); }
         window.addEventListener('click', function(e) { const dropdown = document.getElementById('profileDropdown'); if (dropdown && dropdown.classList.contains('active')) { dropdown.classList.remove('active'); } });
-        function setDefaultBookingTime() { const now = new Date(); const start = new Date(now.getTime() + 60 * 60 * 1000); const end = new Date(start.getTime() + 60 * 60 * 1000); const fmt = (d) => { const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); const hours = String(d.getHours()).padStart(2, '0'); const minutes = String(d.getMinutes()).padStart(2, '0'); return `${year}-${month}-${day}T${hours}:${minutes}`; }; document.getElementById('book-mulai').value = fmt(start); document.getElementById('book-selesai').value = fmt(end); }
+        
+        // --- UPDATED: Set Default Time & Set MINIMUM Date (Prevent Past Date Selection) ---
+        function setDefaultBookingTime() { 
+            const now = new Date();
+            // Format for datetime-local: YYYY-MM-DDTHH:mm
+            const toLocalISO = (date) => {
+                const offset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+                const localISOTime = (new Date(date - offset)).toISOString().slice(0, 16);
+                return localISOTime;
+            };
+
+            const nowISO = toLocalISO(now);
+
+            // Set default: Start next hour, End +1 hour after start
+            const start = new Date(now.getTime() + 60 * 60 * 1000); 
+            start.setMinutes(0); // Round to :00
+            const end = new Date(start.getTime() + 60 * 60 * 1000); 
+
+            const inputMulai = document.getElementById('book-mulai');
+            const inputSelesai = document.getElementById('book-selesai');
+
+            inputMulai.value = toLocalISO(start);
+            inputSelesai.value = toLocalISO(end);
+
+            // Prevent selecting past dates in the UI picker
+            inputMulai.min = nowISO;
+            inputSelesai.min = nowISO;
+        }
+
         function formatDateToID(d) { if (!d) return ''; const p = d.split('-'); return (p.length === 3) ? `${p[2]}-${p[1]}-${p[0]}` : d; }
 
         async function fetchData() { 
@@ -544,19 +572,7 @@
                                 if (result.value) {
                                     // Redirect to URL with room param
                                     const newUrl = new URL(window.location.href);
-                                    // Use searchParams to set parameters properly.
-                                    // If we use short param ?signage, we might want to keep it or convert to standard ?page=signage&room=...
-                                    // The user asked for `?signage` to trigger selection.
-                                    // We will construct the new URL to include the room.
-                                    // If we simply add &room=..., we need to be careful with existing params.
-                                    
-                                    // Let's standardize: always add room parameter. 
-                                    // Keep existing params.
                                     newUrl.searchParams.set('room', result.value);
-                                    
-                                    // If we came from ?signage (no value), urlParams.has('signage') is true.
-                                    // We can keep it as is.
-                                    
                                     window.location.href = newUrl.toString();
                                 }
                             });
@@ -660,7 +676,98 @@
         function handleDeleteOldData() { Swal.fire({ title: 'Arsipkan Data Lama?', text: 'Data yang sudah berlalu akan dipindahkan ke sheet Arsip.', icon: 'info', showCancelButton: true, confirmButtonText: 'Ya, Arsipkan' }).then(r => { if (r.isConfirmed) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'archiveOldBookings' }) }).then(x => x.json()).then(y => Swal.fire('Info', y.message, 'info').then(() => fetchData())); }); }
         async function deleteBooking(id) { if((await Swal.fire({ title: 'Hapus Permanen?', icon: 'warning', showCancelButton: true })).isConfirmed) { Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteBooking', bookingId: id }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Terhapus'); fetchData(); } else Swal.fire('Gagal',d.message,'error'); }); } }
         function handleSaveProfile(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Menyimpan..."; btn.disabled=true; const p={action:'save_profile', email:document.getElementById('setup-email').value, nama:document.getElementById('setup-nama').value, unit:document.getElementById('setup-unit').value, wa:document.getElementById('setup-wa').value, foto:sessionStorage.getItem('temp_photo')||""}; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ sessionStorage.setItem('sibora_user',JSON.stringify(d.user)); initApp(); }else{ Swal.fire('Error','Gagal','error'); btn.textContent="Simpan"; btn.disabled=false; } }); }
-        function handleBookingSubmit(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.textContent="Mengirim..."; btn.disabled=true; const p={ action:'booking', email:currentUser.email, namaRuangan:document.getElementById('book-ruangan').value, tanggalMulai:document.getElementById('book-mulai').value.split('T')[0], waktuMulai:document.getElementById('book-mulai').value.split('T')[1], tanggalSelesai:document.getElementById('book-selesai').value.split('T')[0], waktuSelesai:document.getElementById('book-selesai').value.split('T')[1], keperluan:document.getElementById('book-keperluan').value, kelengkapan:document.getElementById('book-kelengkapan').value }; fetch(GAS_URL,{method:'POST',body:JSON.stringify(p)}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ Swal.fire('Berhasil','Terkirim','success'); e.target.reset(); setDefaultBookingTime(); document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; fetchData(); } else { Swal.fire('Gagal',d.message,'error'); } btn.textContent="Kirim Pengajuan"; btn.disabled=false; }); }
+        
+        // --- UPDATED: Booking Submit with Professional Validation ---
+        function handleBookingSubmit(e) { 
+            e.preventDefault(); 
+            
+            // 1. Ambil Nilai Input
+            const ruangan = document.getElementById('book-ruangan').value;
+            const rawMulai = document.getElementById('book-mulai').value;
+            const rawSelesai = document.getElementById('book-selesai').value;
+            const keperluan = document.getElementById('book-keperluan').value;
+            const kelengkapan = document.getElementById('book-kelengkapan').value;
+            
+            if(!ruangan) return Swal.fire('Peringatan', 'Harap pilih ruangan terlebih dahulu.', 'warning');
+
+            // 2. Validasi Logika Waktu
+            const dateMulai = new Date(rawMulai);
+            const dateSelesai = new Date(rawSelesai);
+            const now = new Date();
+
+            // Validasi A: Waktu Mulai tidak boleh masa lalu (toleransi 1 menit utk proses input)
+            if (dateMulai < new Date(now.getTime() - 60000)) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Waktu Tidak Valid',
+                    text: 'Waktu mulai tidak boleh tanggal/jam yang sudah berlalu.'
+                });
+            }
+
+            // Validasi B: Waktu Selesai harus lebih besar dari Waktu Mulai
+            if (dateSelesai <= dateMulai) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Durasi Salah',
+                    text: 'Waktu selesai harus lebih akhir dari waktu mulai.'
+                });
+            }
+
+            // Validasi C: Durasi minimal (opsional, misal 15 menit)
+            const durationMinutes = (dateSelesai - dateMulai) / 1000 / 60;
+            if (durationMinutes < 15) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Durasi Terlalu Singkat',
+                    text: 'Minimal booking ruangan adalah 15 menit.'
+                });
+            }
+
+            // Jika Lolos Validasi, Lanjut Kirim ke Backend
+            const btn = e.target.querySelector('button'); 
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...'; 
+            btn.disabled = true; 
+
+            const p = { 
+                action: 'booking', 
+                email: currentUser.email, 
+                namaRuangan: ruangan, 
+                tanggalMulai: rawMulai.split('T')[0], 
+                waktuMulai: rawMulai.split('T')[1], 
+                tanggalSelesai: rawSelesai.split('T')[0], 
+                waktuSelesai: rawSelesai.split('T')[1], 
+                keperluan: keperluan, 
+                kelengkapan: kelengkapan 
+            }; 
+            
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(p) })
+            .then(r => r.json())
+            .then(d => { 
+                if(d.status === 'success'){ 
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Pengajuan booking Anda telah terkirim.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    e.target.reset(); 
+                    setDefaultBookingTime(); 
+                    document.getElementById('book-nama').value = currentUser.nama; 
+                    document.getElementById('book-unit').value = currentUser.unit; 
+                    fetchData(); 
+                } else { 
+                    Swal.fire('Gagal', d.message, 'error'); 
+                } 
+                btn.innerHTML = 'Kirim Pengajuan'; 
+                btn.disabled = false; 
+            })
+            .catch(err => {
+                Swal.fire('Koneksi Error', 'Gagal menghubungi server.', 'error');
+                btn.innerHTML = 'Kirim Pengajuan'; 
+                btn.disabled = false;
+            });
+        }
 
         function showStats() { const view = document.getElementById('admin-stats-view'); if(view) { view.classList.remove('hidden'); view.scrollIntoView({ behavior: 'smooth', block: 'start' }); } Swal.fire({title: 'Memuat Statistik...', didOpen: () => Swal.showLoading()}); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getStatistics' }) }).then(res => { if (!res.ok) throw new Error("HTTP Error " + res.status); return res.json(); }).then(data => { Swal.close(); if(data.status === 'success') { renderCharts(data.roomStats, data.unitStats, data.hourStats); } else { Swal.fire('Gagal', 'Error Backend: ' + (data.message || 'Unknown'), 'error'); } }).catch(err => { Swal.fire('Error', 'Gagal memuat: ' + err.message + '. PASTIKAN ANDA SUDAH DEPLOY NEW VERSION.', 'error'); console.error(err); }); }
         let chartRoom, chartUnit, chartTime;
