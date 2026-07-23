@@ -775,13 +775,20 @@
 
         // --- NEW: FUNGSI DOWNLOAD LAPORAN EXCEL ---
         async function downloadReport() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+            const firstDayStr = `${year}-${month}-01`;
+
             const { value: formValues } = await Swal.fire({
                 title: 'Download Laporan',
                 html: `
                     <label style="display:block; text-align:left; margin-bottom:5px;">Tanggal Mulai</label>
-                    <input type="date" id="swal-start-date" class="swal2-input" style="margin:0 0 15px 0; width:100%;">
+                    <input type="date" id="swal-start-date" class="swal2-input" value="${firstDayStr}" style="margin:0 0 15px 0; width:100%;">
                     <label style="display:block; text-align:left; margin-bottom:5px;">Tanggal Selesai</label>
-                    <input type="date" id="swal-end-date" class="swal2-input" style="margin:0 0 15px 0; width:100%;">
+                    <input type="date" id="swal-end-date" class="swal2-input" value="${todayStr}" style="margin:0 0 15px 0; width:100%;">
                 `,
                 focusConfirm: false,
                 showCancelButton: true,
