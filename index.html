@@ -96,12 +96,12 @@
         .blob-1 { top: 20%; left: 20%; width: 300px; height: 300px; background: #a78bfa; border-radius: 50%; animation: moveBlob 8s infinite alternate; }
         .blob-2 { bottom: 20%; right: 20%; width: 250px; height: 250px; background: #f472b6; border-radius: 50%; animation: moveBlob 10s infinite alternate-reverse; }
         @keyframes moveBlob { from { transform: translate(0, 0); } to { transform: translate(20px, -20px); } }
-        .login-card { max-width: 400px; width: 100%; padding: 3.5rem 2rem; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border-radius: 28px; position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; }
-        .login-logo { width: 100px; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); transition: transform 0.3s; }
+        .login-card { max-width: 360px; width: 100%; padding: 2rem 1.75rem; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.7); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1); border-radius: 20px; position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; }
+        .login-logo { width: 75px; margin-bottom: 1rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); transition: transform 0.3s; }
         .login-logo:hover { transform: scale(1.05); }
-        .login-title { font-size: 2.2rem; font-weight: 800; color: #1e1b4b; margin-bottom: 0.5rem; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
-        .login-subtitle { font-size: 0.95rem; color: #4b5563; margin-bottom: 2.5rem; font-weight: 500; opacity: 0.9; }
-        .login-footer { margin-top: 2.5rem; font-size: 0.75rem; color: #6b7280; font-weight: 500; opacity: 0.8; }
+        .login-title { font-size: 1.75rem; font-weight: 800; color: #1e1b4b; margin-bottom: 0.25rem; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
+        .login-subtitle { font-size: 0.88rem; color: #4b5563; margin-bottom: 1.5rem; font-weight: 500; opacity: 0.9; line-height: 1.35; }
+        .login-footer { margin-top: 1.25rem; font-size: 0.72rem; color: #6b7280; font-weight: 500; opacity: 0.85; }
 
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
         .user-profile-container { position: relative; cursor: pointer; }
@@ -195,7 +195,7 @@
     <div id="view-login" class="login-wrapper">
         <div class="login-bg-decoration"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
         <div class="glass-card login-card">
-            <img src="https://github.com/srpcom/sibora/blob/main/logo%20rsud%202%20png.png?raw=true?raw=true" class="login-logo" alt="Logo RSUD">
+            <img src="https://github.com/srpcom/sibora/blob/main/logo%20rsud%202%20png.png?raw=true" class="login-logo" alt="Logo RSUD">
             <h1 class="login-title">SIBORA</h1>
             <p class="login-subtitle">Sistem Booking Ruangan<br>RSUD dr. R. Koesma Tuban</p>
             <div style="display: flex; justify-content: center; margin-bottom: 1rem; width: 100%;">
