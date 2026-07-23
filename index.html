@@ -625,7 +625,17 @@
 
         function renderSchedule() {
             const c = document.getElementById('schedule-container'); c.innerHTML = '';
-            const v = bookings.filter(b => b.Status !== 'Ditolak');
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            const v = bookings.filter(b => {
+                if (b.Status === 'Ditolak') return false;
+                return b['Tanggal Selesai'] >= todayStr;
+            });
             v.sort((a,b) => new Date(a['Tanggal Mulai']+'T'+a['Waktu Mulai']) - new Date(b['Tanggal Mulai']+'T'+b['Waktu Mulai']));
             rooms.forEach(r => { 
                 const col = document.createElement('div'); col.className = 'booking-item'; col.style.borderLeft = 'none';
