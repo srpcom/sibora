@@ -927,7 +927,117 @@
 
         async function updateStatus(id, status) { let r = ""; if (status === 'Ditolak' || status === 'Dibatalkan') { const { value: t, isDismissed: d } = await Swal.fire({ input: 'textarea', inputLabel: `Alasan ${status}`, inputPlaceholder: 'Masukkan alasan...', showCancelButton: true }); if (d) return; if (!t) return Swal.fire('Error', 'Alasan wajib', 'warning'); r = t; } else { if (!(await Swal.fire({ title: 'Konfirmasi?', icon: 'question', showCancelButton: true })).isConfirmed) return; } Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() }); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', bookingId: id, newStatus: status, reason: r }) }).then(x => x.json()).then(y => { Swal.fire('Sukses', y.message, 'success'); fetchData(); }); }
         
-        function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { let btnAction = ''; if(u.role === 'ADMIN') { btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">Set User</button>`; } else if (u.role === 'USER') { btnAction = `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Set Admin</button><button onclick="changeRole('${u.email}','BLOCKED')" class="btn btn-dark btn-sm" style="margin-left:5px; background-color:#333;" title="Blokir User">🚫 Blok</button>`; } else if (u.role === 'BLOCKED') { btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-success btn-sm">Buka Blokir</button>`; } h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${btnAction}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
+        function showUserMgmt() { 
+            Swal.fire({ 
+                title: 'Manajemen User', 
+                html: 'Loading...', 
+                width: '800px', 
+                didOpen: () => { 
+                    fetch(GAS_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ action: 'get_users' }) 
+                    })
+                    .then(r => r.json())
+                    .then(d => { 
+                        if (d.status === 'success') { 
+                            let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; 
+                            d.users.forEach(u => { 
+                                let btnAction = ''; 
+                                if(u.role === 'ADMIN') { 
+                                    btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">Set User</button>`; 
+                                } else if (u.role === 'USER') { 
+                                    btnAction = `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Set Admin</button><button onclick="changeRole('${u.email}','BLOCKED')" class="btn btn-dark btn-sm" style="margin-left:5px; background-color:#333;" title="Blokir User">🚫 Blok</button>`; 
+                                } else if (u.role === 'BLOCKED') { 
+                                    btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-success btn-sm">Buka Blokir</button>`; 
+                                } 
+                                
+                                // Escaping data user agar aman dilewatkan ke fungsi javascript
+                                const uEscaped = JSON.stringify(u).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                                const editBtn = `<button onclick="triggerEditUserProfile('${uEscaped}')" class="btn btn-success btn-sm" style="margin-right:5px;">✏️ Edit</button>`;
+                                btnAction = editBtn + btnAction;
+                                
+                                h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${btnAction}</td></tr>`; 
+                            }); 
+                            h += `</tbody></table>`; 
+                            Swal.getHtmlContainer().innerHTML = h; 
+                        } 
+                    }); 
+                } 
+            }); 
+        }
+
+        window.triggerEditUserProfile = async (userJsonStr) => {
+            const user = typeof userJsonStr === 'string' ? JSON.parse(userJsonStr) : userJsonStr;
+            
+            const { value: formValues } = await Swal.fire({
+                title: 'Edit Profil Pengguna',
+                html: `
+                    <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600;">Email (Tidak Dapat Diubah)</label>
+                    <input id="swal-edit-email" class="swal2-input" value="${user.email}" readonly style="margin:0 0 15px 0; width:100%; background-color:#f3f4f6; color:#6b7280; cursor:not-allowed;">
+                    <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600;">Nama Lengkap</label>
+                    <input id="swal-edit-nama" class="swal2-input" value="${user.nama}" style="margin:0 0 15px 0; width:100%;">
+                    <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600;">Unit / Bagian (Ruangan)</label>
+                    <input id="swal-edit-unit" class="swal2-input" value="${user.unit}" style="margin:0 0 15px 0; width:100%;">
+                    <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600;">Nomor WhatsApp</label>
+                    <input id="swal-edit-wa" class="swal2-input" value="${user.wa || ''}" placeholder="08xxxxxxxx" style="margin:0 0 15px 0; width:100%;">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    const nama = document.getElementById('swal-edit-nama').value;
+                    const unit = document.getElementById('swal-edit-unit').value;
+                    const wa = document.getElementById('swal-edit-wa').value;
+                    if (!nama || !unit || !wa) {
+                        Swal.showValidationMessage('Harap isi semua kolom');
+                    }
+                    return { nama, unit, wa };
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+                
+                const payload = {
+                    action: 'save_profile',
+                    email: user.email,
+                    nama: formValues.nama,
+                    unit: formValues.unit,
+                    wa: formValues.wa,
+                    foto: user.foto || ""
+                };
+
+                fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'success') {
+                        // Jika Admin mengedit profilnya sendiri, sinkronkan session storage
+                        if (user.email.toLowerCase() === currentUser.email.toLowerCase()) {
+                            sessionStorage.setItem('sibora_user', JSON.stringify(d.user));
+                            currentUser = d.user;
+                            initApp();
+                        }
+                        
+                        Swal.fire({
+                            title: 'Berhasil',
+                            text: 'Profil pengguna berhasil diperbarui.',
+                            icon: 'success'
+                        }).then(() => {
+                            showUserMgmt(); // Kembali buka list Manajemen User
+                        });
+                    } else {
+                        Swal.fire('Gagal', d.message || 'Gagal menyimpan profil', 'error');
+                    }
+                })
+                .catch(err => {
+                    Swal.fire('Error', 'Terjadi kesalahan koneksi', 'error');
+                });
+            }
+        };
         window.changeRole = (e, r) => { let msg = `Ubah role ke ${r}?`; if(r === 'BLOCKED') msg = "Yakin ingin memblokir user ini? User tidak akan bisa login kembali."; Swal.fire({ title: msg, showCancelButton: true, icon: r==='BLOCKED'?'warning':'question' }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
         function showSettings() { 
             let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; 
