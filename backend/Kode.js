@@ -34,7 +34,7 @@ const APP_NAME = "SIBORA";
 const FOLDER_FOTO_ID = "1S8uXxnArNB9AqNJbXAMN8v0nLpQzp4b9"; 
 
 // --- KONFIGURASI API ---
-const TELEGRAM_BOT_TOKEN = "8248296735:AAEgR9yBCVdfL1m6xA8q6hOyFR-dKYoQG88";
+const TELEGRAM_BOT_TOKEN = "8876685821:AAEGKAgwe8kr1o9W_JpoPcWZdb6Bie-sVKg";
 const TELEGRAM_GROUP_CHAT_ID = "@pinjamruangan"; 
 const TELEGRAM_API_URL = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN;
 const STARSENDER_API_KEY = "65162ade-7692-4ac9-9d20-8ff2ec097a08"; 
