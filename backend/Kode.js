@@ -584,10 +584,15 @@ function handleGoogleLogin(data) {
                 sendTelegram(TELEGRAM_GROUP_CHAT_ID, `⚠️ <b>LOGIN DITOLAK (BLOCKED)</b>\nUser: ${email}\nNama: ${rows[i][1]}\n${deviceStr}`);
                 return { status: 'blocked' }; 
             }
-            // Case B: Login Berhasil
+            // Case B: Login Berhasil (Selalu sinkronkan foto profil terbaru dari Google)
+            let foto = rows[i][5];
+            if (data.photo && data.photo !== foto) {
+                foto = data.photo;
+                sheet.getRange(i + 1, 6).setValue(foto); // Update kolom F (Foto)
+            }
             logActivity("INFO", `Login Berhasil: ${email}. IP: ${deviceInfo.ip}`);
             sendTelegram(TELEGRAM_GROUP_CHAT_ID, `✅ <b>LOGIN BERHASIL</b>\nUser: ${rows[i][1]} (${rows[i][2]})\nEmail: ${email}\n${deviceStr}`);
-            return { status: 'success', user: { email: rows[i][0], nama: rows[i][1], unit: rows[i][2], wa: rows[i][3], role: rows[i][4], foto: rows[i][5] } }; 
+            return { status: 'success', user: { email: rows[i][0], nama: rows[i][1], unit: rows[i][2], wa: rows[i][3], role: rows[i][4], foto: foto } }; 
         } 
     } 
     

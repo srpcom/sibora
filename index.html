@@ -504,13 +504,82 @@
             } 
             currentUser = JSON.parse(u); 
             document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-setup').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); 
-            document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role; document.getElementById('head-avatar').src = currentUser.foto || "https://via.placeholder.com/40"; 
+            document.getElementById('head-nama').innerText = currentUser.nama; document.getElementById('head-role').innerText = currentUser.role;
+            
+            const avatarImg = document.getElementById('head-avatar');
+            const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.nama)}&background=4f46e5&color=fff`;
+            avatarImg.src = currentUser.foto || fallbackAvatar;
+            avatarImg.onerror = function() {
+                this.onerror = null;
+                this.src = fallbackAvatar;
+            };
+
             document.getElementById('book-nama').value = currentUser.nama; document.getElementById('book-unit').value = currentUser.unit; setDefaultBookingTime(); 
             if (currentUser.role === 'ADMIN') document.getElementById('admin-panel').classList.remove('hidden'); 
             fetchData(); 
         }
         
         function logout() { sessionStorage.clear(); location.reload(); }
+
+        async function showEditProfile() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Edit Profil',
+                html: `
+                    <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600;">Nama Lengkap</label>
+                    <input id="swal-profile-nama" class="swal2-input" value="${currentUser.nama}" style="margin:0 0 15px 0; width:100%;">
+                    <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600;">Unit / Bagian</label>
+                    <input id="swal-profile-unit" class="swal2-input" value="${currentUser.unit}" style="margin:0 0 15px 0; width:100%;">
+                    <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600;">Nomor WhatsApp</label>
+                    <input id="swal-profile-wa" class="swal2-input" value="${currentUser.wa || ''}" placeholder="08xxxxxxxx" style="margin:0 0 15px 0; width:100%;">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    const nama = document.getElementById('swal-profile-nama').value;
+                    const unit = document.getElementById('swal-profile-unit').value;
+                    const wa = document.getElementById('swal-profile-wa').value;
+                    if (!nama || !unit || !wa) {
+                        Swal.showValidationMessage('Harap isi semua kolom');
+                    }
+                    return { nama, unit, wa };
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+                
+                const payload = {
+                    action: 'save_profile',
+                    email: currentUser.email,
+                    nama: formValues.nama,
+                    unit: formValues.unit,
+                    wa: formValues.wa,
+                    foto: currentUser.foto || ""
+                };
+
+                fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'success') {
+                        sessionStorage.setItem('sibora_user', JSON.stringify(d.user));
+                        currentUser = d.user;
+                        initApp();
+                        Swal.fire('Berhasil', 'Profil berhasil diperbarui.', 'success');
+                    } else {
+                        Swal.fire('Gagal', d.message || 'Gagal menyimpan profil', 'error');
+                    }
+                })
+                .catch(err => {
+                    Swal.fire('Error', 'Terjadi kesalahan koneksi', 'error');
+                });
+            }
+        }
+
         function toggleDropdown(event) { event.stopPropagation(); const dropdown = document.getElementById('profileDropdown'); dropdown.classList.toggle('active'); }
         window.addEventListener('click', function(e) { const dropdown = document.getElementById('profileDropdown'); if (dropdown && dropdown.classList.contains('active')) { dropdown.classList.remove('active'); } });
         
