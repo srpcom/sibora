@@ -368,6 +368,8 @@
         let rooms = []; 
         let bookings = [];
         let calendarInstance = null;
+        let sysPopupEnabled = false;
+        let sysPopupMsg = '';
 
         // --- SIGNAGE INIT ---
         const urlParams = new URLSearchParams(window.location.search);
@@ -580,6 +582,47 @@
             }
         }
 
+        function showSystemPopup() {
+            Swal.fire({
+                title: '📢 Pengumuman Sistem',
+                html: `<div style="font-size: 1.05rem; line-height: 1.6; text-align: left; padding: 10px 5px; color: #374151;">${sysPopupMsg}</div>`,
+                icon: 'info',
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#4f46e5',
+                width: '450px',
+                background: '#ffffff'
+            });
+        }
+
+        window.saveSystemPopupConfig = () => {
+            const enabled = document.getElementById('sys-popup-status').value === 'true';
+            const message = document.getElementById('sys-popup-text').value;
+            
+            Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+            
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'saveSystemPopup',
+                    enabled: enabled,
+                    message: message
+                })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.status === 'success') {
+                    Swal.fire('Sukses', d.message, 'success');
+                    fetchData();
+                    setTimeout(() => showSettings(), 1000);
+                } else {
+                    Swal.fire('Gagal', d.message || 'Gagal menyimpan pengaturan', 'error');
+                }
+            })
+            .catch(err => {
+                Swal.fire('Error', 'Terjadi kesalahan koneksi', 'error');
+            });
+        };
+
         function toggleDropdown(event) { event.stopPropagation(); const dropdown = document.getElementById('profileDropdown'); dropdown.classList.toggle('active'); }
         window.addEventListener('click', function(e) { const dropdown = document.getElementById('profileDropdown'); if (dropdown && dropdown.classList.contains('active')) { dropdown.classList.remove('active'); } });
         
@@ -619,6 +662,8 @@
                 const data = await res.json(); 
                 if (data.status === 'success') { 
                     rooms = data.rooms; bookings = data.data; 
+                    sysPopupEnabled = data.sysPopupEnabled || false;
+                    sysPopupMsg = data.sysPopupMsg || '';
                     
                     if(isSignage) {
                         // NEW LOGIC: If no room in URL, ask user to pick one
@@ -663,6 +708,12 @@
                     
                     if (data.background) {
                         document.body.style.backgroundImage = `url('${data.background}')`;
+                    }
+
+                    // Tampilkan Popup Pesan Sistem jika diaktifkan dan belum ditampilkan di sesi ini
+                    if (sysPopupEnabled && sysPopupMsg && currentUser && sessionStorage.getItem('sys_popup_shown') !== 'true') {
+                        sessionStorage.setItem('sys_popup_shown', 'true');
+                        showSystemPopup();
                     }
                 } 
             } catch (e) { console.error(e); } 
@@ -747,7 +798,39 @@
         
         function showUserMgmt() { Swal.fire({ title: 'Manajemen User', html: 'Loading...', width: '800px', didOpen: () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'get_users' }) }).then(r => r.json()).then(d => { if (d.status === 'success') { let h = `<table class="table-responsive"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead><tbody>`; d.users.forEach(u => { let btnAction = ''; if(u.role === 'ADMIN') { btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-warning btn-sm">Set User</button>`; } else if (u.role === 'USER') { btnAction = `<button onclick="changeRole('${u.email}','ADMIN')" class="btn btn-primary btn-sm">Set Admin</button><button onclick="changeRole('${u.email}','BLOCKED')" class="btn btn-dark btn-sm" style="margin-left:5px; background-color:#333;" title="Blokir User">🚫 Blok</button>`; } else if (u.role === 'BLOCKED') { btnAction = `<button onclick="changeRole('${u.email}','USER')" class="btn btn-success btn-sm">Buka Blokir</button>`; } h += `<tr><td>${u.nama}</td><td><small>${u.email}</small></td><td><b>${u.role}</b></td><td>${btnAction}</td></tr>`; }); h += `</tbody></table>`; Swal.getHtmlContainer().innerHTML = h; } }); } }); }
         window.changeRole = (e, r) => { let msg = `Ubah role ke ${r}?`; if(r === 'BLOCKED') msg = "Yakin ingin memblokir user ini? User tidak akan bisa login kembali."; Swal.fire({ title: msg, showCancelButton: true, icon: r==='BLOCKED'?'warning':'question' }).then(res => { if (res.isConfirmed) { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'update_user_role', targetEmail: e, newRole: r }) }).then(x => x.json()).then(y => { Swal.fire(y.status, y.message, y.status); }); } }); };
-        function showSettings() { let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; rooms.forEach(r => { const emailDisplay = r.email ? ` | ✉️ ${r.email}` : ''; roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><span style="font-weight:600;">${r.name}</span><br><small style="color:#666">PIC: ${r.pic || '-'} (${r.wa || '-'}${emailDisplay})</small></div><div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r.name}', '${r.pic}', '${r.wa}', '${r.email}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r.name}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div></li>`; }); roomHtml += '</ul>'; const formAdd = `<div style="text-align:left; background:#f9fafb; padding:10px; border-radius:8px;"><label style="font-size:0.85rem; font-weight:bold;">Tambah Ruangan Baru</label><input id="new-room" class="form-control mb-2" placeholder="Nama Ruangan"><input id="new-pic" class="form-control mb-2" placeholder="Nama Petugas (PIC)"><input id="new-pic-wa" class="form-control mb-2" placeholder="WA Petugas (08xxx)"><input id="new-pic-email" class="form-control mb-2" placeholder="Email Petugas (Untuk Notifikasi)"><button onclick="addRoom()" class="btn btn-success w-100">+ Simpan Ruangan</button></div>`; Swal.fire({ title: 'Pengaturan', html: `<div style="text-align:left"><label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>${roomHtml}${formAdd}<hr><label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label><input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background"><button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button></div>`, showConfirmButton: false, width: '600px' }); }
+        function showSettings() { 
+            let roomHtml = '<ul style="list-style:none; padding:0; margin-bottom:15px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">'; 
+            rooms.forEach(r => { 
+                const emailDisplay = r.email ? ` | ✉️ ${r.email}` : ''; 
+                roomHtml += `<li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><span style="font-weight:600;">${r.name}</span><br><small style="color:#666">PIC: ${r.pic || '-'} (${r.wa || '-'}${emailDisplay})</small></div><div style="display:flex; gap:5px;"><button onclick="triggerEditRoom('${r.name}', '${r.pic}', '${r.wa}', '${r.email}')" class="btn btn-warning btn-sm" style="padding:2px 8px; font-size:12px;" title="Edit">✏️</button><button onclick="triggerDeleteRoom('${r.name}')" class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:12px;" title="Hapus">🗑️</button></div></li>`; 
+            }); 
+            roomHtml += '</ul>'; 
+            const formAdd = `<div style="text-align:left; background:#f9fafb; padding:10px; border-radius:8px;"><label style="font-size:0.85rem; font-weight:bold;">Tambah Ruangan Baru</label><input id="new-room" class="form-control mb-2" placeholder="Nama Ruangan"><input id="new-pic" class="form-control mb-2" placeholder="Nama Petugas (PIC)"><input id="new-pic-wa" class="form-control mb-2" placeholder="WA Petugas (08xxx)"><input id="new-pic-email" class="form-control mb-2" placeholder="Email Petugas (Untuk Notifikasi)"><button onclick="addRoom()" class="btn btn-success w-100">+ Simpan Ruangan</button></div>`; 
+            
+            const sysPopupSettings = `
+                <hr>
+                <label style="font-weight:bold; margin-bottom:5px; display:block;">Pesan Pengumuman Sistem (Setelah Login)</label>
+                <div style="background:#f9fafb; padding:10px; border-radius:8px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label for="sys-popup-status" style="font-size:0.85rem; font-weight:600; margin:0;">Status Tampilan:</label>
+                        <select id="sys-popup-status" class="form-control" style="width:100px; padding:2px 8px; font-size:0.85rem; height:auto; margin:0;">
+                            <option value="true" ${sysPopupEnabled ? 'selected' : ''}>ON</option>
+                            <option value="false" ${!sysPopupEnabled ? 'selected' : ''}>OFF</option>
+                        </select>
+                    </div>
+                    <label style="font-size:0.85rem; font-weight:600; display:block; margin-bottom:4px;">Isi Pesan:</label>
+                    <textarea id="sys-popup-text" class="form-control mb-2" style="font-size:0.85rem; height:80px; resize:vertical;" placeholder="Tulis pengumuman...">${sysPopupMsg}</textarea>
+                    <button onclick="saveSystemPopupConfig()" class="btn btn-primary w-100">Simpan Pengaturan Pesan</button>
+                </div>
+            `;
+
+            Swal.fire({ 
+                title: 'Pengaturan', 
+                html: `<div style="text-align:left; max-height: 80vh; overflow-y: auto; padding-right: 5px;"><label style="font-weight:bold; margin-bottom:5px; display:block;">Daftar Ruangan</label>${roomHtml}${formAdd}${sysPopupSettings}<hr><label style="font-weight:bold; margin-bottom:5px; display:block;">Background Aplikasi</label><input id="bg-url" class="form-control mb-2" placeholder="URL Gambar Background" value="${document.body.style.backgroundImage ? document.body.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1') : ''}"><button onclick="saveBg()" class="btn btn-primary w-100">Simpan Background</button></div>`, 
+                showConfirmButton: false, 
+                width: '600px' 
+            }); 
+        }
         window.saveBg = () => { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBackground', url: document.getElementById('bg-url').value }) }).then(() => { Swal.fire('Sukses'); fetchData(); }); };
         window.addRoom = () => { const n = document.getElementById('new-room').value; const p = document.getElementById('new-pic').value; const w = document.getElementById('new-pic-wa').value; const e = document.getElementById('new-pic-email').value; if(!n) return Swal.fire('Error','Nama ruangan wajib diisi','error'); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'addRoom', roomName: n, picName: p, picWa: w, picEmail: e }) }).then(() => { Swal.fire('Sukses'); fetchData(); showSettings(); }); };
         window.triggerEditRoom = async (oldName, oldPic, oldWa, oldEmail) => { oldPic = oldPic === 'undefined' ? '' : oldPic; oldWa = oldWa === 'undefined' ? '' : oldWa; oldEmail = oldEmail === 'undefined' ? '' : oldEmail; const { value: formValues } = await Swal.fire({ title: 'Edit Ruangan', html: `<label>Nama Ruangan</label><input id="swal-input1" class="form-control mb-2" value="${oldName}"><label>Nama Petugas</label><input id="swal-input2" class="form-control mb-2" value="${oldPic}"><label>WA Petugas</label><input id="swal-input3" class="form-control mb-2" value="${oldWa}"><label>Email Petugas</label><input id="swal-input4" class="form-control" value="${oldEmail}" placeholder="Email untuk notifikasi">`, focusConfirm: false, showCancelButton: true, preConfirm: () => { return [document.getElementById('swal-input1').value, document.getElementById('swal-input2').value, document.getElementById('swal-input3').value, document.getElementById('swal-input4').value] } }); if (formValues) { const [newName, newPic, newWa, newEmail] = formValues; if (!newName) return; Swal.showLoading(); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'editRoom', oldName: oldName, newName: newName, picName: newPic, picWa: newWa, picEmail: newEmail }) }).then(r=>r.json()).then(d => { if(d.status==='success') { Swal.fire('Sukses'); fetchData(); setTimeout(()=>showSettings(),1000); } else Swal.fire('Gagal',d.message,'error'); }); } };
